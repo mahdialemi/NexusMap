@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - NexusMap</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+        <div class="header">
+        <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
+            <svg width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0f172a"/><rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="none" stroke="#3b82f6" stroke-width="1.5"/><circle cx="16" cy="16" r="3" fill="#22c55e"/><circle cx="16" cy="16" r="7" fill="none" stroke="#3b82f6" stroke-width="1.2"/><circle cx="16" cy="16" r="11" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.6"/><path d="M16 2 A14 14 0 0 1 30 16" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0.8"/><line x1="16" y1="2" x2="16" y2="8" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="16" y1="24" x2="16" y2="30" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="2" y1="16" x2="8" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="24" y1="16" x2="30" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><circle cx="20" cy="12" r="1" fill="#3b82f6" opacity="0.8"/></svg>
+            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v1.0</span></h1>
+        </a>
+        <div class="header-nav">
+            <div class="notif-wrap">
+                <button class="notif-btn" onclick="toggleNotifications()" title="Notifications">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+                </button>
+                <div class="notif-dropdown" id="notif-dropdown" style="display:none;" onclick="event.stopPropagation()">
+                    <div class="notif-dropdown-header">
+                        <span>Notifications</span>
+                        <button class="notif-mark-btn" onclick="markNotifsRead()">Mark all read</button>
+                    </div>
+                    <div class="notif-list" id="notif-list">
+                        <div class="notif-empty">No notifications</div>
+                    </div>
+                </div>
+            </div>
+            <span id="user-info"></span>
+        </div>
+    </div>
+
+    <div class="project-body">
+        <nav class="sidebar">
+            <button class="sidebar-btn" title="All Projects" data-action="showAllProjects">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+            <button class="sidebar-btn" title="New Project" data-action="showCreateModal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </button>
+            <button class="sidebar-btn" title="Global Stats" data-action="showGlobalStats">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </button>
+            <button class="sidebar-btn" title="Tags" data-action="showTagCloud">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            </button>
+            <div class="sidebar-spacer"></div>
+            <div class="sidebar-separator"></div>
+            <button class="sidebar-btn" title="About" data-action="showAboutModal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
+            <button class="sidebar-btn" title="Toggle Theme" data-action="toggleTheme">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+            <button class="sidebar-btn" id="admin-link" title="Admin" data-action="goToAdmin" style="display:none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/></svg>
+            </button>
+            <button class="sidebar-btn" title="Logout" data-action="logout">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+        </nav>
+        <div class="main-area">
+            <div id="toast-container" class="toast-container"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Projects</h2>
+                </div>
+
+                <div class="toolbar" style="padding:0 20px 12px;">
+                    <input type="text" id="search-projects" class="form-control search-box" placeholder="Search projects..." data-action="filterProjects">
+                    <select id="filter-status" class="form-control" data-action="filterProjects" style="width:auto;min-width:120px;">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="archived">Archived</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <select id="filter-priority" class="form-control" data-action="filterProjects" style="width:auto;min-width:120px;">
+                        <option value="">All Priority</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+
+                <div id="projects-grid" class="grid grid-3" style="padding:0 20px 20px;">
+                    <div class="empty-state">
+                        <div class="spinner"></div>
+                        <p>Loading projects...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div id="create-modal" class="modal-overlay" style="display: none;">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="margin:0;">New Project</h3>
+                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">Create a project to organize your scans</p>
+                    </div>
+                </div>
+            </div>
+            <form id="create-form" style="padding: 20px 20px 24px;">
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <input type="text" id="project-name" class="form-control" required placeholder="e.g. Network Audit Q1" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Description <span style="color:var(--text-muted);">(optional)</span></label>
+                    <textarea id="project-desc" class="form-control" rows="2" placeholder="Brief description..." style="resize:vertical;min-height:50px;"></textarea>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="create-status" class="form-control">
+                            <option value="active">Active</option>
+                            <option value="archived">Archived</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="create-priority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Client <span style="color:var(--text-muted);">(optional)</span></label>
+                        <input type="text" id="create-client" class="form-control" placeholder="e.g. Acme Corp">
+                    </div>
+                    <div class="form-group">
+                        <label>Owner</label>
+                        <select id="create-owner" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags <span style="color:var(--text-muted);">(comma-separated)</span></label>
+                        <input type="text" id="create-tags" class="form-control" placeholder="e.g. external,urgent">
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date <span style="color:var(--text-muted);">(optional)</span></label>
+                        <input type="date" id="create-due" class="form-control">
+                    </div>
+                </div>
+                <div id="create-error" style="padding:10px 12px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;margin-bottom:16px;display:none;"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" data-action="hideCreateModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                        Create Project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Project Modal -->
+    <div id="edit-modal" class="modal-overlay" style="display: none;">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="margin:0;">Edit Project</h3>
+                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">Update project details</p>
+                    </div>
+                </div>
+                <button class="modal-close" data-action="hideEditProjectModal">&times;</button>
+            </div>
+            <form id="edit-form" style="padding: 20px 20px 24px;">
+                <input type="hidden" id="edit-project-id">
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <input type="text" id="edit-project-name" class="form-control" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Description <span style="color:var(--text-muted);">(optional)</span></label>
+                    <textarea id="edit-project-desc" class="form-control" rows="2" style="resize:vertical;min-height:50px;"></textarea>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="edit-status" class="form-control">
+                            <option value="active">Active</option>
+                            <option value="archived">Archived</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="edit-priority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Client <span style="color:var(--text-muted);">(optional)</span></label>
+                        <input type="text" id="edit-client" class="form-control" placeholder="e.g. Acme Corp">
+                    </div>
+                    <div class="form-group">
+                        <label>Owner</label>
+                        <select id="edit-owner" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags <span style="color:var(--text-muted);">(comma-separated)</span></label>
+                        <input type="text" id="edit-tags" class="form-control" placeholder="e.g. external,urgent">
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date <span style="color:var(--text-muted);">(optional)</span></label>
+                        <input type="date" id="edit-due" class="form-control">
+                    </div>
+                </div>
+                <div id="edit-error" style="padding:10px 12px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;margin-bottom:16px;display:none;"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" data-action="hideEditProjectModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div id="delete-modal" class="modal-overlay" style="display: none;" onclick="if(event.target===this)hideDeleteModal()">
+        <div class="modal" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3>Delete Project</h3>
+                <button class="modal-close" data-action="hideDeleteModal">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <p style="margin-bottom: 20px; line-height: 1.6;">Are you sure you want to delete <strong id="delete-project-name"></strong>? This action cannot be undone and will remove all associated scans, hosts, and data.</p>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" data-action="hideDeleteModal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="delete-confirm-btn" data-action="confirmDeleteProject">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Stats Modal -->
+    <div id="global-stats-modal" class="modal-overlay" style="display: none;" onclick="if(event.target===this)hideGlobalStats()">
+        <div class="modal" style="max-width: 560px;">
+            <div class="modal-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="margin:0;">Global Stats</h3>
+                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">Overview across all projects</p>
+                    </div>
+                </div>
+                <button class="modal-close" data-action="hideGlobalStats">&times;</button>
+            </div>
+            <div id="global-stats-body" style="padding: 20px 24px;">
+                <div class="spinner" style="margin:20px auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tags Cloud Modal -->
+    <div id="tag-cloud-modal" class="modal-overlay" style="display: none;" onclick="if(event.target===this)hideTagCloud()">
+        <div class="modal" style="max-width: 480px;">
+            <div class="modal-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="margin:0;">Tags</h3>
+                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">Click a tag to filter projects</p>
+                    </div>
+                </div>
+                <button class="modal-close" data-action="hideTagCloud">&times;</button>
+            </div>
+            <div id="tag-cloud-body" style="padding: 20px 24px;">
+                <div class="spinner" style="margin:20px auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <style>
+        .tag-chip:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15) !important;
+        }
+    </style>
+    <script>
+        async function init() {
+            initCSRF();
+            currentUser = await me();
+            if (!currentUser) {
+                window.location.href = '/login';
+                return;
+            }
+            document.getElementById('user-info').textContent = currentUser.username;
+
+            if (currentUser.role === 'admin') {
+                var al = document.getElementById('admin-link');
+                if (al) al.style.display = '';
+                var ui = document.getElementById('user-info');
+                if (ui) ui.classList.add('user-admin');
+            }
+            await populateOwners();
+            await loadProjects();
+        }
+
+        async function loadProjects() {
+            try {
+                var projects = await getProjects();
+                renderProjects(projects);
+            } catch (e) {
+                document.getElementById('projects-grid').innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><p>Error loading projects</p></div>';
+            }
+        }
+
+        function showCreateModal() {
+            document.getElementById('create-modal').style.display = 'flex';
+            document.getElementById('project-name').focus();
+        }
+
+        function hideCreateModal() {
+            document.getElementById('create-modal').style.display = 'none';
+            document.getElementById('create-form').reset();
+        }
+
+        function goToProject(e) {
+            window.location.href = '/project/' + this.getAttribute('data-id');
+        }
+
+        function handleDeleteProject(e) {
+            e.stopPropagation();
+            var id = parseInt(this.getAttribute('data-id'));
+            var name = this.getAttribute('data-name');
+            deleteProjectConfirm(id, name);
+        }
+
+        async function populateOwners() {
+            try {
+                var users = await getUsers();
+                var opts = users.map(function(u){ return '<option value="'+u.id+'">'+esc(u.username)+'</option>'; }).join('');
+                document.getElementById('create-owner').innerHTML = '<option value="">Select owner</option>' + opts;
+                document.getElementById('edit-owner').innerHTML = '<option value="">Select owner</option>' + opts;
+            } catch(e) {}
+        }
+
+        document.getElementById('edit-form').addEventListener('submit', function(e) { e.preventDefault(); saveEditProject(); });
+
+        document.getElementById('create-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.getElementById('create-error').style.display = 'none';
+            var name = document.getElementById('project-name').value.trim();
+            var desc = document.getElementById('project-desc').value.trim();
+            var status = document.getElementById('create-status').value;
+            var priority = document.getElementById('create-priority').value;
+            var tags = document.getElementById('create-tags').value.trim();
+            var client = document.getElementById('create-client').value.trim();
+            var owner = document.getElementById('create-owner').value;
+            var due = document.getElementById('create-due').value;
+            if (!name) return;
+            try {
+                await createProject(name, desc, status, priority, tags, client, owner ? parseInt(owner) : null, due || null);
+                hideCreateModal();
+                await loadProjects();
+                showToast('Project created');
+            } catch (e) {
+                document.getElementById('create-error').textContent = e.message;
+                document.getElementById('create-error').style.display = 'block';
+            }
+        });
+
+        async function showDeleteModal(id, name) {
+            document.getElementById('delete-project-name').textContent = name;
+            document.getElementById('delete-confirm-btn').setAttribute('data-id', id);
+            document.getElementById('delete-modal').style.display = 'flex';
+        }
+        function hideDeleteModal() {
+            document.getElementById('delete-modal').style.display = 'none';
+        }
+        async function confirmDeleteProject(e) {
+            var id = parseInt(this.getAttribute('data-id'));
+            try {
+                await deleteProject(id);
+                hideDeleteModal();
+                await loadProjects();
+                showToast('Project deleted');
+            } catch (e) {
+                showToast('Failed to delete project');
+            }
+        }
+
+        async function deleteProjectConfirm(id, name) {
+            showDeleteModal(id, name);
+        }
+
+        function showAboutModal() {
+            document.getElementById('about-modal').style.display = 'flex';
+        }
+        function hideAboutModal() {
+            document.getElementById('about-modal').style.display = 'none';
+        }
+
+        function goToAdmin() { window.location.href = '/admin'; }
+
+        var dashboardProjectId = null;
+
+        async function showProjectDashboard(e) {
+            e.stopPropagation();
+            dashboardProjectId = parseInt(this.getAttribute('data-id'));
+            document.getElementById('dashboard-modal').style.display = 'flex';
+            document.getElementById('dashboard-body').innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
+            try {
+                var res = await fetch('/api/projects/'+dashboardProjectId);
+                var p = await res.json();
+                document.getElementById('dashboard-title').textContent = esc(p.name) + ' - Dashboard';
+                document.getElementById('dashboard-subtitle').textContent = p.description ? esc(p.description) : 'Project overview';
+
+                var statusColors = { active: '#22c55e', archived: '#64748b', completed: '#3b82f6' };
+                var sc = statusColors[p.status] || '#64748b';
+                var priorityColors = { critical: '#ef4444', high: '#f97316', medium: '#eab308', low: '#64748b' };
+                var pc = priorityColors[p.priority] || '#eab308';
+
+                var tags = p.tags ? p.tags.split(',').filter(Boolean) : [];
+                var tagHtml = tags.map(function(t){ return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.7rem;background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);margin-right:4px;">#'+esc(t.trim())+'</span>'; }).join('');
+
+                document.getElementById('dashboard-body').innerHTML =
+                    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">' +
+                        '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:600;background:'+sc+'22;color:'+sc+';">'+esc(p.status||'active')+'</span>' +
+                        '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:600;background:'+pc+'22;color:'+pc+';">'+esc(p.priority||'medium')+'</span>' +
+                        tagHtml +
+                    '</div>' +
+                    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+                        '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Client</div><div style="font-weight:600;margin-top:2px;">'+(p.client ? esc(p.client) : '\u2014')+'</div></div>' +
+                        '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Owner</div><div style="font-weight:600;margin-top:2px;">'+(p.owner_name ? esc(p.owner_name) : '\u2014')+'</div></div>' +
+                        '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Due Date</div><div style="font-weight:600;margin-top:2px;">'+(p.due_date ? p.due_date.split('T')[0] : '\u2014')+'</div></div>' +
+                        '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Scans</div><div style="font-weight:600;margin-top:2px;">'+(p.scan_count||0)+'</div></div>' +
+                        '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Last Scan</div><div style="font-weight:600;margin-top:2px;">'+(p.last_scan_at ? formatDate(p.last_scan_at) : '\u2014')+'</div></div>' +
+                        '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Updated</div><div style="font-weight:600;margin-top:2px;">'+(p.updated_at ? formatDate(p.updated_at) : '\u2014')+'</div></div>' +
+                        '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Created</div><div style="font-weight:600;margin-top:2px;">'+formatDate(p.created_at)+'</div></div>' +
+                    '</div>' +
+                    '<div style="margin-top:16px;display:flex;gap:8px;">' +
+                        '<button class="btn btn-primary btn-sm" style="flex:1;" data-action="openProjectFromDashboard"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/></svg> Open Project</button>' +
+                    '</div>';
+            } catch(e) {
+                document.getElementById('dashboard-body').innerHTML = '<div class="empty-state"><p>Error loading project details</p></div>';
+            }
+        }
+        function hideProjectDashboard() {
+            document.getElementById('dashboard-modal').style.display = 'none';
+        }
+        function openProjectFromDashboard(e) {
+            if (dashboardProjectId) window.location.href = '/project/' + dashboardProjectId;
+        }
+
+        function showEditProjectModal(e) {
+            e.stopPropagation();
+            document.getElementById('edit-project-id').value = this.getAttribute('data-id');
+            document.getElementById('edit-project-name').value = this.getAttribute('data-name');
+            document.getElementById('edit-project-desc').value = this.getAttribute('data-desc');
+            document.getElementById('edit-status').value = this.getAttribute('data-status') || 'active';
+            document.getElementById('edit-priority').value = this.getAttribute('data-priority') || 'medium';
+            document.getElementById('edit-tags').value = this.getAttribute('data-tags') || '';
+            document.getElementById('edit-client').value = this.getAttribute('data-client') || '';
+            var oid = this.getAttribute('data-owner-id');
+            if (oid) document.getElementById('edit-owner').value = oid;
+            else document.getElementById('edit-owner').value = '';
+            document.getElementById('edit-due').value = this.getAttribute('data-due') || '';
+            document.getElementById('edit-modal').style.display = 'flex';
+            document.getElementById('edit-project-name').focus();
+            document.getElementById('edit-error').style.display = 'none';
+        }
+        function hideEditProjectModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+        async function saveEditProject() {
+            var id = parseInt(document.getElementById('edit-project-id').value);
+            var name = document.getElementById('edit-project-name').value.trim();
+            var desc = document.getElementById('edit-project-desc').value.trim();
+            var status = document.getElementById('edit-status').value;
+            var priority = document.getElementById('edit-priority').value;
+            var tags = document.getElementById('edit-tags').value.trim();
+            var client = document.getElementById('edit-client').value.trim();
+            var owner = document.getElementById('edit-owner').value;
+            var due = document.getElementById('edit-due').value;
+            if (!name) {
+                document.getElementById('edit-error').textContent = 'Project name is required';
+                document.getElementById('edit-error').style.display = 'block';
+                return;
+            }
+            try {
+                await updateProject(id, name, desc, status, priority, tags, client, owner ? parseInt(owner) : null, due || null);
+                hideEditProjectModal();
+                await loadProjects();
+                showToast('Project updated');
+            } catch (e) {
+                document.getElementById('edit-error').textContent = e.message;
+                document.getElementById('edit-error').style.display = 'block';
+            }
+        }
+
+        document.getElementById('search-projects').addEventListener('input', filterProjects);
+        document.getElementById('filter-status').addEventListener('change', filterProjects);
+        document.getElementById('filter-priority').addEventListener('change', filterProjects);
+
+        var filterTimer;
+        function filterProjects() {
+            clearTimeout(filterTimer);
+            filterTimer = setTimeout(async function() {
+                var search = document.getElementById('search-projects').value.trim();
+                var status = document.getElementById('filter-status').value;
+                var priority = document.getElementById('filter-priority').value;
+                var q = [];
+                if (status) q.push('status='+encodeURIComponent(status));
+                if (priority) q.push('priority='+encodeURIComponent(priority));
+                if (search) q.push('search='+encodeURIComponent(search));
+                var url = '/api/projects' + (q.length ? '?'+q.join('&') : '');
+                try {
+                    var res = await fetch(url);
+                    var data = await res.json();
+                    renderProjects(data);
+                } catch(e) {}
+            }, 300);
+        }
+
+        async function renderProjects(projects) {
+            var grid = document.getElementById('projects-grid');
+            if (!projects || projects.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><h3>No projects found</h3><p>Try adjusting your filters</p></div>';
+                return;
+            }
+            grid.innerHTML = projects.map(function(p) {
+                var statusColor = p.status === 'active' ? '#22c55e' : p.status === 'archived' ? '#64748b' : '#3b82f6';
+                var priorityColor = p.priority === 'critical' ? '#ef4444' : p.priority === 'high' ? '#f97316' : p.priority === 'medium' ? '#eab308' : '#64748b';
+                var tags = p.tags ? p.tags.split(',').filter(Boolean) : [];
+                return '<div class="profile-card" data-action="goToProject" data-id="'+p.id+'">' +
+                    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
+                        '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600;background:'+statusColor+'22;color:'+statusColor+';">'+esc(p.status||'active')+'</span>' +
+                        '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600;background:'+priorityColor+'22;color:'+priorityColor+';">'+esc(p.priority||'medium')+'</span>' +
+                        tags.map(function(t){ return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.7rem;background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);">#'+esc(t.trim())+'</span>'; }).join('') +
+                    '</div>' +
+                    '<h4>'+esc(p.name)+'</h4>' +
+                    '<p>'+esc(p.description||'No description')+'</p>' +
+                    '<div style="margin-top:8px;font-size:0.75rem;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap;">' +
+                        (p.client ? '<span>Client: '+esc(p.client)+'</span>' : '') +
+                        '<span>'+(p.owner_name ? esc(p.owner_name) : 'Owner: \u2014')+'</span>' +
+                        (p.due_date ? '<span>Due: '+p.due_date.split('T')[0]+'</span>' : '') +
+                        '<span>Scans: '+(p.scan_count||0)+'</span>' +
+                    '</div>' +
+                    '<div style="margin-top: 6px; font-size: 0.7rem; color: #94a3b8;">Created: '+formatDate(p.created_at)+'</div>' +
+                    '<div style="display:flex;gap:6px;margin-top:10px;">' +
+                        '<button class="btn btn-secondary btn-sm" style="flex:1;" data-action="showProjectDashboard" data-id="'+p.id+'" title="Dashboard"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg> Dashboard</button>' +
+                        (currentUser.role === 'admin' ?
+                        '<button class="btn btn-secondary btn-sm" style="flex:1;" data-action="showEditProjectModal" data-id="'+p.id+'" data-name="'+esc(p.name)+'" data-desc="'+esc(p.description||'')+'" data-status="'+esc(p.status||'active')+'" data-priority="'+esc(p.priority||'medium')+'" data-tags="'+esc(p.tags||'')+'" data-client="'+esc(p.client||'')+'" data-owner-id="'+(p.owner_id!=null?p.owner_id:'')+'" data-due="'+(p.due_date?p.due_date.split('T')[0]:'')+'" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>' +
+                        '<button class="btn btn-danger btn-sm" style="flex:1;" data-action="handleDeleteProject" data-id="'+p.id+'" data-name="'+esc(p.name)+'" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete</button>' : '') +
+                    '</div>' +
+
+
+                '</div>';
+            }).join('');
+        }
+
+        function showAllProjects() {
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-priority').value = '';
+            document.getElementById('search-projects').value = '';
+            filterProjects();
+        }
+
+        async function showGlobalStats() {
+            document.getElementById('global-stats-modal').style.display = 'flex';
+            document.getElementById('global-stats-body').innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
+            try {
+                var stats = await getGlobalStats();
+                var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+                    '<div class="stat-card" style="text-align:center;padding:16px;grid-column:1/-1;background:rgba(59,130,246,0.08);"><div style="font-size:1.8rem;font-weight:700;color:var(--accent);">'+stats.total_projects+'</div><div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Total Projects</div></div>' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#22c55e;">'+stats.active_projects+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Active</div></div>' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#64748b;">'+stats.archived_projects+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Archived</div></div>' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#3b82f6;">'+stats.completed_projects+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Completed</div></div>' +
+                '</div>' +
+                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;">'+stats.total_scans+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Total Scans</div></div>' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:var(--accent);">'+stats.running_scans+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Running</div></div>' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#22c55e;">'+stats.completed_scans+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Completed</div></div>' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#ef4444;">'+stats.failed_scans+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Failed</div></div>' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;">'+stats.total_hosts+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Total Hosts</div></div>' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;">'+stats.total_ports+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Total Ports</div></div>' +
+                    '<div class="stat-card" style="text-align:center;padding:12px;grid-column:1/-1;"><div style="font-size:1.2rem;font-weight:700;">'+stats.unique_services+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Unique Services</div></div>' +
+                '</div>';
+                document.getElementById('global-stats-body').innerHTML = html;
+            } catch(e) {
+                document.getElementById('global-stats-body').innerHTML = '<div class="empty-state"><p>Error loading global stats</p></div>';
+            }
+        }
+        function hideGlobalStats() {
+            document.getElementById('global-stats-modal').style.display = 'none';
+        }
+
+        var selectedTags = [];
+
+        async function showTagCloud() {
+            selectedTags = [];
+            document.getElementById('tag-cloud-modal').style.display = 'flex';
+            document.getElementById('tag-cloud-body').innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
+            try {
+                var tags = await getTagCloud();
+                if (!tags.length) {
+                    document.getElementById('tag-cloud-body').innerHTML = '<div class="empty-state"><p>No tags found</p></div>';
+                    return;
+                }
+                renderTagCloud(tags);
+            } catch(e) {
+                document.getElementById('tag-cloud-body').innerHTML = '<div class="empty-state"><p>Error loading tags</p></div>';
+            }
+        }
+
+        var tagColors = [
+            {bg:'#dbeafe',fg:'#1d4ed8',border:'#93c5fd'},
+            {bg:'#dcfce7',fg:'#15803d',border:'#86efac'},
+            {bg:'#f3e8ff',fg:'#7e22ce',border:'#c4b5fd'},
+            {bg:'#fef3c7',fg:'#b45309',border:'#fcd34d'},
+            {bg:'#cffafe',fg:'#0e7490',border:'#67e8f9'},
+            {bg:'#fce7f3',fg:'#be185d',border:'#f9a8d4'},
+            {bg:'#ccfbf1',fg:'#0f766e',border:'#5eead4'},
+            {bg:'#ffedd5',fg:'#c2410c',border:'#fdba74'},
+            {bg:'#ede9fe',fg:'#6d28d9',border:'#c4b5fd'},
+            {bg:'#e0e7ff',fg:'#4338ca',border:'#a5b4fc'}
+        ];
+
+        function renderTagCloud(tags) {
+            var html = '<div style="margin-bottom:12px;text-align:center;font-size:0.8rem;color:var(--text-muted);" id="tag-cloud-status">'+(selectedTags.length ? 'Selected: '+selectedTags.length : 'Click tags to select')+'</div>';
+            html += '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px;" id="tag-cloud-list">';
+            tags.forEach(function(t, i) {
+                var c = tagColors[i % tagColors.length];
+                var safeTag = esc(t.tag);
+                var sel = selectedTags.indexOf(t.tag) !== -1;
+                html += '<div class="tag-chip" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.15s;box-shadow:'+(sel?'0 2px 6px rgba(0,0,0,0.15)':'0 1px 2px rgba(0,0,0,0.05)')+';user-select:none;'+(sel?'background:'+c.fg+';color:#fff;border:2px solid '+c.fg:'background:'+c.bg+';color:'+c.fg+';border:2px solid '+c.border)+';"'+
+                    ' data-tag="'+safeTag+'" data-raw="'+t.tag.replace(/"/g,'&quot;')+'" title="Click to toggle">' +
+                    (sel?'<span style="font-size:0.65rem;">&#10003;</span> ':'') +
+                    '<span>#'+safeTag+'</span>' +
+                    '<span style="font-size:0.65rem;opacity:0.65;margin-left:2px;">'+t.count+'</span>' +
+                '</div>';
+            });
+            html += '</div>';
+            html += '<div style="display:flex;gap:10px;justify-content:center;">';
+            html += '<button class="btn btn-secondary btn-sm" id="tag-cloud-clear-btn" style="padding:7px 24px;border-radius:8px;">Show All</button>';
+            html += '<button class="btn btn-primary btn-sm" id="tag-cloud-apply-btn" style="padding:7px 24px;border-radius:8px;">Apply Filter</button>';
+            html += '</div>';
+            document.getElementById('tag-cloud-body').innerHTML = html;
+        }
+
+        function toggleTagCloudTag(tagEl) {
+            var raw = tagEl.getAttribute('data-tag');
+            var idx = selectedTags.indexOf(raw);
+            if (idx === -1) {
+                selectedTags.push(raw);
+            } else {
+                selectedTags.splice(idx, 1);
+            }
+            try {
+                var listEl = document.getElementById('tag-cloud-list');
+                var chips = listEl.querySelectorAll('[data-tag]');
+                chips.forEach(function(chip) {
+                    var t = chip.getAttribute('data-tag');
+                    var sel = selectedTags.indexOf(t) !== -1;
+                    var i = Array.from(chips).indexOf(chip);
+                    var c = tagColors[i % tagColors.length];
+                    chip.style.background = sel ? c.fg : c.bg;
+                    chip.style.color = sel ? '#fff' : c.fg;
+                    chip.style.borderColor = sel ? c.fg : c.border;
+                    chip.style.boxShadow = sel ? '0 2px 6px rgba(0,0,0,0.15)' : '0 1px 2px rgba(0,0,0,0.05)';
+                    var check = chip.querySelector('span:first-child');
+                    if (sel && !check) {
+                        var mark = document.createElement('span');
+                        mark.style.cssText = 'font-size:0.65rem;';
+                        mark.textContent = '\u2713';
+                        chip.insertBefore(mark, chip.firstChild);
+                    } else if (!sel && check && check.textContent === '\u2713') {
+                        check.remove();
+                    }
+                });
+                var status = document.getElementById('tag-cloud-status');
+                if (status) status.textContent = selectedTags.length ? 'Selected: '+selectedTags.length : 'Click tags to select';
+            } catch(e) {}
+        }
+
+        function hideTagCloud() {
+            document.getElementById('tag-cloud-modal').style.display = 'none';
+        }
+
+        function applyTagFilter() {
+            hideTagCloud();
+            if (selectedTags.length) {
+                document.getElementById('search-projects').value = selectedTags.join(' ');
+            } else {
+                document.getElementById('search-projects').value = '';
+            }
+            filterProjects();
+        }
+
+        function clearTagFilter() {
+            selectedTags = [];
+            hideTagCloud();
+            document.getElementById('search-projects').value = '';
+            filterProjects();
+        }
+
+        document.getElementById('tag-cloud-body').addEventListener('click', function(e) {
+            var tagEl = e.target.closest('[data-tag]');
+            if (tagEl) {
+                toggleTagCloudTag(tagEl);
+                return;
+            }
+            if (e.target.closest('#tag-cloud-clear-btn')) {
+                clearTagFilter();
+                return;
+            }
+            if (e.target.closest('#tag-cloud-apply-btn')) {
+                applyTagFilter();
+                return;
+            }
+        });
+
+        init();
+    </script>
+
+    <!-- About Modal -->
+    <div id="about-modal" class="modal-overlay" style="display: none;" onclick="if(event.target===this)hideAboutModal()">
+        <div class="modal" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3>About NexusMap</h3>
+                <button class="modal-close" data-action="hideAboutModal">&times;</button>
+            </div>
+            <div style="padding: 24px; text-align: center;">
+                <div style="margin-bottom: 20px;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--cyan);">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/><path d="M12 14v3"/>
+                    </svg>
+                </div>
+                <h2 style="font-size: 1.4rem; margin-bottom: 4px;">NexusMap</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Version 1.0 &middot; Network Scanner &amp; Asset Management</p>
+                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
+                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">What it does</h4>
+                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
+                        NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.
+                    </p>
+                </div>
+                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
+                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">How it was built</h4>
+                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7; margin-bottom: 8px;">
+                        This project was built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach where the entire codebase was generated through natural language conversation.
+                    </p>
+                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
+                        Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.
+                    </p>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 20px;">
+                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Go</div><div style="font-size: 0.7rem; color: var(--text-muted);">Backend</div></div>
+                    <div style="color: var(--border);">&middot;</div>
+                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">SQLite</div><div style="font-size: 0.7rem; color: var(--text-muted);">Database</div></div>
+                    <div style="color: var(--border);">&middot;</div>
+                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Vanilla JS</div><div style="font-size: 0.7rem; color: var(--text-muted);">Frontend</div></div>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
+                    Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border); transition: color 0.2s, border-color 0.2s;" onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--text)';this.style.borderColor='var(--border)'">Mahdi Alemi</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Modal -->
+    <div id="dashboard-modal" class="modal-overlay" style="display: none;" onclick="if(event.target===this)hideProjectDashboard()">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="margin:0;" id="dashboard-title">Project Dashboard</h3>
+                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;" id="dashboard-subtitle">Project overview</p>
+                    </div>
+                </div>
+                <button class="modal-close" data-action="hideProjectDashboard">&times;</button>
+            </div>
+            <div id="dashboard-body" style="padding: 20px 24px;">
+                <div class="spinner" style="margin:20px auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        NexusMap v1.0 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+    </div>
+</body>
+</html>

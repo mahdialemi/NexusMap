@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - NexusMap</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/app.css">
+    <style>
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: border-color 0.2s, transform 0.15s;
+        }
+        .kpi-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .kpi-icon.users { background: rgba(6,182,212,0.15); color: var(--cyan); }
+        .kpi-icon.projects { background: rgba(34,197,94,0.15); color: var(--green); }
+        .kpi-icon.scans { background: rgba(168,85,247,0.15); color: var(--purple); }
+        .kpi-icon.db-size { background: rgba(251,191,36,0.15); color: var(--yellow); }
+        .kpi-icon svg { width: 24px; height: 24px; }
+        .kpi-value { font-size: 1.6rem; font-weight: 700; line-height: 1.2; color: var(--text); }
+        .kpi-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+.danger-zone {
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            background: rgba(239,68,68,0.03);
+        }
+        .danger-zone-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ef4444;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .danger-zone-title svg { width: 18px; height: 18px; }
+        .danger-zone-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .danger-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .quick-action {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+        }
+        .quick-action:hover {
+            border-color: var(--cyan);
+            transform: translateY(-1px);
+        }
+        .quick-action svg { width: 24px; height: 24px; color: var(--cyan); }
+        .quick-action-label { font-size: 0.85rem; font-weight: 500; color: var(--text); }
+        .quick-action-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+
+        .db-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+        .db-stat-card {
+            background: var(--bg-input);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+        .db-stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--cyan);
+            line-height: 1.2;
+        }
+        .db-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .import-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .import-zone:hover {
+            border-color: var(--cyan);
+            background: rgba(6,182,212,0.03);
+        }
+        .import-zone svg { width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 12px; }
+        .import-zone p { color: var(--text-muted); font-size: 0.9rem; }
+        .import-zone .import-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; }
+
+        .import-preview-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: var(--bg-input);
+            border-radius: 10px;
+            margin-top: 16px;
+        }
+        .import-preview-item { text-align: center; }
+        .import-preview-value { font-size: 1.4rem; font-weight: 700; color: var(--cyan); }
+        .import-preview-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+        .import-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .import-actions .btn { flex: 1; }
+
+        @media (max-width: 900px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+            .db-stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .quick-actions { grid-template-columns: 1fr; }
+            .db-stats-grid { grid-template-columns: 1fr; }
+            .danger-actions { flex-direction: column; }
+        }
+
+        .toggle-pw-btn {
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;
+        }
+        .toggle-pw-btn:hover { color: var(--text); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
+            <svg width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0f172a"/><rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="none" stroke="#3b82f6" stroke-width="1.5"/><circle cx="16" cy="16" r="3" fill="#22c55e"/><circle cx="16" cy="16" r="7" fill="none" stroke="#3b82f6" stroke-width="1.2"/><circle cx="16" cy="16" r="11" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.6"/><path d="M16 2 A14 14 0 0 1 30 16" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0.8"/><line x1="16" y1="2" x2="16" y2="8" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="16" y1="24" x2="16" y2="30" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="2" y1="16" x2="8" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="24" y1="16" x2="30" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><circle cx="20" cy="12" r="1" fill="#3b82f6" opacity="0.8"/></svg>
+            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v1.0</span></h1>
+        </a>
+        <div class="header-nav">
+            <div class="notif-wrap">
+                <button class="notif-btn" onclick="toggleNotifications()" title="Notifications">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+                </button>
+                <div class="notif-dropdown" id="notif-dropdown" style="display:none;" onclick="event.stopPropagation()">
+                    <div class="notif-dropdown-header">
+                        <span>Notifications</span>
+                        <button class="notif-mark-btn" onclick="markNotifsRead()">Mark all read</button>
+                    </div>
+                    <div class="notif-list" id="notif-list">
+                        <div class="notif-empty">No notifications</div>
+                    </div>
+                </div>
+            </div>
+            <span id="user-info"></span>
+        </div>
+    </div>
+
+    <div class="project-body">
+        <nav class="sidebar">
+            <button class="sidebar-btn" title="Projects" data-action="backToProjects">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="sidebar-separator"></div>
+            <button class="sidebar-btn active" data-tab="users" data-action="switchTab" title="Users">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            </button>
+            <button class="sidebar-btn" data-tab="database" data-action="switchTab" title="Database">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </button>
+            <button class="sidebar-btn" data-tab="import" data-action="switchTab" title="Import">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </button>
+            <button class="sidebar-btn" data-tab="activity" data-action="switchTab" title="Activity Log">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </button>
+            <button class="sidebar-btn" data-tab="system" data-action="switchTab" title="System">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+            <div class="sidebar-spacer"></div>
+            <div class="sidebar-separator"></div>
+            <button class="sidebar-btn" title="About" data-action="showAboutModal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
+            <button class="sidebar-btn" title="Toggle Theme" data-action="toggleTheme">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+            <button class="sidebar-btn" title="Logout" data-action="logout">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+        </nav>
+        <div class="main-area">
+            <div id="toast-container" class="toast-container"></div>
+
+            <!-- Page Title -->
+            <div style="margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:16px;">
+                <h2 style="font-size:1.4rem;font-weight:700;margin:0;">Administration</h2>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin:4px 0 0 0;">Manage users, database, and system settings</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid" id="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon users">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpi-users">-</div>
+                        <div class="kpi-label">Users</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon projects">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpi-projects">-</div>
+                        <div class="kpi-label">Projects</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon scans">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpi-scans">-</div>
+                        <div class="kpi-label">Scans</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon db-size">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpi-db-size">-</div>
+                        <div class="kpi-label">Database</div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Users Tab -->
+        <div class="panel" id="panel-users">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">User Management</h2>
+                    <div style="display:flex;gap:10px;">
+                        <input type="text" id="user-search" class="form-control" style="width:220px;" placeholder="Search users..." oninput="filterUsers(this.value)">
+                        <button class="btn btn-primary btn-sm" data-action="showCreateModal" title="New User">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                            New User
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="users-table">
+                        <thead>
+                            <tr>
+                                <th style="width:60px;">ID</th>
+                                <th>Username</th>
+                                <th style="width:100px;">Role</th>
+                                <th style="width:180px;">Created</th>
+                                <th style="width:220px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr><td colspan="5" class="empty-cell"><div class="spinner"></div><p>Loading users...</p></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Tab -->
+        <div class="panel" id="panel-database" style="display:none;">
+            <!-- DB Stats -->
+            <div style="margin-bottom:24px;">
+                <h3 style="font-size:1rem;font-weight:600;margin-bottom:12px;">Database Overview</h3>
+                <div class="db-stats-grid" id="db-stats">
+                    <div class="db-stat-card"><div class="db-stat-value" id="stat-tables">-</div><div class="db-stat-label">Tables</div></div>
+                    <div class="db-stat-card"><div class="db-stat-value" id="stat-rows">-</div><div class="db-stat-label">Total Rows</div></div>
+                    <div class="db-stat-card"><div class="db-stat-value" id="stat-size">-</div><div class="db-stat-label">DB Size</div></div>
+                </div>
+                <div id="vacuum-recommend" style="display:none;margin-top:12px;padding:12px 16px;border-radius:10px;font-size:0.85rem;align-items:center;gap:10px;">
+                    <span id="vacuum-recommend-text"></span>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div>
+                <h3 style="font-size:1rem;font-weight:600;margin-bottom:12px;">Quick Actions</h3>
+                <div class="quick-actions">
+                    <div class="quick-action" data-action="vacuumDB">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <div class="quick-action-label">Vacuum</div>
+                        <div class="quick-action-desc">Optimize storage and reclaim space</div>
+                    </div>
+                    <div class="quick-action" data-action="backupDB">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <div class="quick-action-label">Backup</div>
+                        <div class="quick-action-desc">Download a copy of the database</div>
+                    </div>
+                    <div class="quick-action" data-action="resetDB">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                        <div class="quick-action-label">Reset</div>
+                        <div class="quick-action-desc">Clear all data, keep admin user</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="danger-zone">
+                <div class="danger-zone-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    Danger Zone
+                </div>
+                <div class="danger-zone-desc">
+                    Irreversible operations. These actions will permanently delete data. Use with caution.
+                </div>
+                <div class="danger-actions">
+                    <button class="btn btn-danger btn-sm" data-action="resetDB">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                        Reset Database
+                    </button>
+                    <button class="btn btn-danger btn-sm" data-action="factoryReset" style="border-color:#dc2626;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        Factory Reset
+                    </button>
+                </div>
+            </div>
+
+            <div id="db-action-result" style="margin-top:16px;"></div>
+        </div>
+
+        <!-- Import Tab -->
+        <div class="panel" id="panel-import" style="display:none;">
+            <div class="card" style="max-width:700px;">
+                <div class="card-header">
+                    <h2 class="card-title">Import Database</h2>
+                </div>
+                <div style="padding:20px;">
+                    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;">Merge data from another NexusMap database. Duplicate entries will be skipped.</p>
+
+                    <div id="db-import-drop-zone" class="import-zone" data-action="clickImport">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+                        <p>Click to select a .db file</p>
+                        <p class="import-hint">or drag and drop here</p>
+                        <input type="file" id="db-import-file" accept=".db" style="display:none;" onchange="onDBImportFileSelect(this)">
+                    </div>
+
+                    <div id="db-import-file-selected" style="display:none;margin-top:16px;padding:14px;background:var(--bg-input);border-radius:10px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--cyan);flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span id="db-import-file-name" style="font-size:0.85rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+                            <span id="db-import-file-size" style="font-size:0.8rem;color:var(--text-muted);flex-shrink:0;"></span>
+                        </div>
+                    </div>
+
+                    <div id="db-import-preview" style="display:none;margin-top:16px;">
+                    </div>
+
+                    <div id="db-import-error" style="display:none;margin-top:12px;padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;"></div>
+
+                    <div class="import-actions" id="db-import-actions" style="display:none;">
+                        <button class="btn btn-secondary btn-sm" id="btn-preview-db-import" data-action="previewDBImport">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            Preview
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="btn-do-db-import" data-action="doDBImport" disabled>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Import
+                        </button>
+                    </div>
+                    <div id="db-import-result" style="margin-top:12px;"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Activity Log Tab -->
+        <div class="panel" id="panel-activity" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Activity Log</h2>
+                    <button class="btn btn-secondary btn-sm" data-action="loadActivityLog">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                        Refresh
+                    </button>
+                </div>
+                <div id="activity-log-container">
+                    <div class="empty-state"><div class="spinner"></div><p>Loading activity log...</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Tab -->
+        <div class="panel" id="panel-system" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">System Health</h2>
+                </div>
+                <div id="system-health-container" style="padding:20px;">
+                    <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <div class="card-header">
+                    <h2 class="card-title">Retention Policy</h2>
+                </div>
+                <div style="padding:20px;">
+                    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Automatically delete completed scans older than a specified number of days. This action cannot be undone.</p>
+                    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                        <label style="font-size:0.85rem;">Delete scans older than</label>
+                        <input type="number" id="prune-days" class="form-control" style="width:80px;" value="90" min="1">
+                        <label style="font-size:0.85rem;">days</label>
+                        <button class="btn btn-warning btn-sm" data-action="doPrune">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            Prune
+                        </button>
+                    </div>
+                    <div id="prune-result" style="margin-top:12px;"></div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="about-modal" class="modal-overlay" style="display: none;" onclick="if(event.target===this)hideAboutModal()">
+        <div class="modal" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3>About NexusMap</h3>
+                <button class="modal-close" data-action="hideAboutModal">&times;</button>
+            </div>
+            <div style="padding: 24px; text-align: center;">
+                <div style="margin-bottom: 20px;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--cyan);">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/><path d="M12 14v3"/>
+                    </svg>
+                </div>
+                <h2 style="font-size: 1.4rem; margin-bottom: 4px;">NexusMap</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Version 1.0 &middot; Network Scanner &amp; Asset Management</p>
+                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
+                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">What it does</h4>
+                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
+                        NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.
+                    </p>
+                </div>
+                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
+                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">How it was built</h4>
+                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7; margin-bottom: 8px;">
+                        This project was built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach where the entire codebase was generated through natural language conversation.
+                    </p>
+                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
+                        Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.
+                    </p>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 20px;">
+                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Go</div><div style="font-size: 0.7rem; color: var(--text-muted);">Backend</div></div>
+                    <div style="color: var(--border);">&middot;</div>
+                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">SQLite</div><div style="font-size: 0.7rem; color: var(--text-muted);">Database</div></div>
+                    <div style="color: var(--border);">&middot;</div>
+                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Vanilla JS</div><div style="font-size: 0.7rem; color: var(--text-muted);">Frontend</div></div>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
+                    Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border);">Mahdi Alemi</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="create-modal" class="modal" style="display:none;" data-action="closeModalBackdrop">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3>New User</h3>
+                <button class="modal-close" data-action="hideCreateModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-form">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="new-username" class="form-control" required autocomplete="off" placeholder="e.g. john_doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div style="position:relative;">
+                            <input type="password" id="new-password" class="form-control" required minlength="6" placeholder="Min 6 characters" style="padding-right:40px;">
+                        <button type="button" data-action="togglePassword" data-input="new-password" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="new-role" class="form-control">
+                            <option value="user">User — Can view and run scans</option>
+                            <option value="admin">Admin — Full access including user management</option>
+                        </select>
+                    </div>
+                    <div id="create-error" style="padding:10px 12px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;margin-bottom:16px;display:none;"></div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" data-action="hideCreateModal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-modal" class="modal" style="display:none;" data-action="closeModalBackdrop">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3>Edit User</h3>
+                <button class="modal-close" data-action="hideEditModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-user-id">
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="edit-role" class="form-control">
+                        <option value="user">User — Can view and run scans</option>
+                        <option value="admin">Admin — Full access including user management</option>
+                    </select>
+                </div>
+                <div id="edit-error" style="padding:10px 12px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;margin-bottom:16px;display:none;"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" data-action="hideEditModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-action="saveEditUser">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="reset-modal" class="modal" style="display:none;" data-action="closeModalBackdrop">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3>Reset Password</h3>
+                <button class="modal-close" data-action="hideResetModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;" id="reset-subtitle"></p>
+                <input type="hidden" id="reset-user-id">
+                <div class="form-group">
+                    <label>New Password</label>
+                    <div style="position:relative;">
+                        <input type="password" id="reset-password" class="form-control" required minlength="6" placeholder="Min 6 characters" style="padding-right:40px;">
+                        <button type="button" data-action="togglePassword" data-input="reset-password" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(59,130,246,0.1);border-radius:8px;margin-bottom:16px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span style="color:var(--text);font-size:0.8rem;line-height:1.4;">User will be forced to change this password on next login.</span>
+                </div>
+                <div id="reset-error" style="padding:10px 12px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;margin-bottom:16px;display:none;"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" data-action="hideResetModal">Cancel</button>
+                    <button type="button" class="btn btn-warning" data-action="doResetPassword">Reset Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        let allUsers = [];
+
+        async function init() {
+            currentUser = await me();
+            if (!currentUser) { window.location.href = '/login'; return; }
+            if (currentUser.role !== 'admin') { window.location.href = '/'; return; }
+
+            var ui = document.getElementById('user-info');
+            ui.textContent = currentUser.username;
+            ui.classList.add('user-admin');
+
+            await loadUsers();
+            loadAdminStats();
+            setupDropZone();
+        }
+
+        function togglePassword(e) {
+            var btn = e.currentTarget;
+            var inputId = btn.getAttribute('data-input');
+            var input = document.getElementById(inputId);
+            var isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            btn.innerHTML = isPassword
+                ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+                : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+        }
+
+        function switchTab(e) {
+            var tab = this.getAttribute('data-tab');
+            document.querySelectorAll('.sidebar-btn[data-tab]').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.panel').forEach(function(c) { c.style.display = 'none'; });
+            this.classList.add('active');
+            document.getElementById('panel-' + tab).style.display = '';
+        }
+
+        async function loadAdminStats() {
+            try {
+                const res = await fetch('/api/db?action=stats');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const stats = await res.json();
+
+                document.getElementById('kpi-users').textContent = stats.total_users || 0;
+                document.getElementById('kpi-projects').textContent = stats.total_projects || 0;
+                document.getElementById('kpi-scans').textContent = stats.total_scans || 0;
+                document.getElementById('kpi-db-size').textContent = stats.db_size_pretty || '-';
+
+                document.getElementById('stat-tables').textContent = stats.tables ? stats.tables.length : '-';
+                document.getElementById('stat-rows').textContent = formatNum(stats.total_rows || 0);
+                document.getElementById('stat-size').textContent = stats.db_size_pretty || '-';
+            } catch (e) {
+                document.getElementById('kpi-grid').innerHTML = '<div class="empty-state"><p>Error loading stats: ' + esc(e.message) + '</p></div>';
+            }
+        }
+
+        async function loadUsers() {
+            const tbody = document.getElementById('users-tbody');
+            try {
+                allUsers = await getUsers();
+                renderUsers(allUsers);
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-cell" style="color:#ef4444;">Error loading users: ${esc(e.message)}</td></tr>`;
+            }
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('users-tbody');
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-cell">No users found</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = users.map(function(u) {
+                var row = '<tr><td>' + u.id + '</td><td><strong>' + esc(u.username) + '</strong></td><td><span class="role-badge">' + u.role + '</span></td><td style="color:var(--text-muted);font-size:0.85rem;">' + formatDate(u.created_at) + '</td><td>';
+                if (u.username !== 'admin') {
+                    row += '<div style="display:flex;gap:4px;">' +
+                        '<button class="btn btn-secondary btn-sm" data-action="showEditModal" data-user-id="' + u.id + '" data-username="' + esc(u.username) + '" data-role="' + u.role + '" title="Edit">' +
+                        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+                        '</button>' +
+                        '<button class="btn btn-warning btn-sm" data-action="showResetModal" data-user-id="' + u.id + '" data-username="' + esc(u.username) + '" title="Reset Password">' +
+                        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>' +
+                        '</button>' +
+                        '<button class="btn btn-danger btn-sm" data-action="deleteUserConfirm" data-user-id="' + u.id + '" data-username="' + esc(u.username) + '" title="Delete">' +
+                        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+                        '</button>' +
+                        '</div>';
+                } else {
+                    row += '<span style="color:#64748b;font-size:0.8rem;">Protected</span>';
+                }
+                row += '</td></tr>';
+                return row;
+            }).join('');
+        }
+
+        function filterUsers(query) {
+            const q = query.toLowerCase();
+            const filtered = allUsers.filter(u =>
+                (u.username || '').toLowerCase().includes(q) ||
+                (u.role || '').toLowerCase().includes(q)
+            );
+            renderUsers(filtered);
+        }
+
+        function closeModalBackdrop(e) {
+            if (e.target !== this) return;
+            var id = this.id;
+            if (id === 'create-modal') hideCreateModal();
+            else if (id === 'edit-modal') hideEditModal();
+            else if (id === 'reset-modal') hideResetModal();
+        }
+
+        function showCreateModal() {
+            document.getElementById('create-modal').style.display = 'flex';
+            document.getElementById('new-username').focus();
+            document.getElementById('create-error').style.display = 'none';
+        }
+
+        function hideCreateModal() {
+            document.getElementById('create-modal').style.display = 'none';
+            document.getElementById('create-form').reset();
+            document.getElementById('create-error').style.display = 'none';
+        }
+
+        function showEditModal(e) {
+            var id = parseInt(this.getAttribute('data-user-id'));
+            var username = this.getAttribute('data-username');
+            var role = this.getAttribute('data-role');
+            document.getElementById('edit-user-id').value = id;
+            document.getElementById('edit-role').value = role;
+            document.getElementById('edit-error').style.display = 'none';
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function hideEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        async function saveEditUser() {
+            const id = parseInt(document.getElementById('edit-user-id').value);
+            const role = document.getElementById('edit-role').value;
+            try {
+                await updateUser(id, role);
+                hideEditModal();
+                await loadUsers();
+                showToast('User updated');
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        function showResetModal(e) {
+            var id = parseInt(this.getAttribute('data-user-id'));
+            var username = this.getAttribute('data-username');
+            document.getElementById('reset-user-id').value = id;
+            document.getElementById('reset-subtitle').textContent = username;
+            document.getElementById('reset-password').value = '';
+            document.getElementById('reset-error').style.display = 'none';
+            document.getElementById('reset-modal').style.display = 'flex';
+            document.getElementById('reset-password').focus();
+        }
+
+        function hideResetModal() {
+            document.getElementById('reset-modal').style.display = 'none';
+        }
+
+        async function doResetPassword() {
+            const id = parseInt(document.getElementById('reset-user-id').value);
+            const password = document.getElementById('reset-password').value;
+            if (password.length < 6) {
+                document.getElementById('reset-error').textContent = 'Password must be at least 6 characters';
+                document.getElementById('reset-error').style.display = 'block';
+                return;
+            }
+            try {
+                await resetUserPassword(id, password);
+                hideResetModal();
+                showToast('Password reset successfully');
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        document.getElementById('create-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('new-username').value.trim();
+            const password = document.getElementById('new-password').value;
+            const role = document.getElementById('new-role').value;
+            const errorEl = document.getElementById('create-error');
+
+            try {
+                await createUser(username, password, role);
+                hideCreateModal();
+                await loadUsers();
+                showToast('User "' + username + '" created');
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.style.display = 'block';
+            }
+        });
+
+        async function deleteUserConfirm(e) {
+            var id = parseInt(this.getAttribute('data-user-id'));
+            var name = this.getAttribute('data-username');
+            if (confirm('Delete user "' + name + '"? This cannot be undone.')) {
+                try {
+                    await deleteUser(id);
+                    await loadUsers();
+                    showToast('User "' + name + '" deleted');
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            var target = e.target.closest('[data-action]');
+            if (!target) return;
+            var action = target.getAttribute('data-action');
+            if (action === 'switchTab') switchTab.call(target, e);
+            else if (action === 'vacuumDB') vacuumDB();
+            else if (action === 'backupDB') backupDB();
+            else if (action === 'resetDB') resetDB();
+            else if (action === 'factoryReset') factoryReset();
+            else if (action === 'loadActivityLog') loadActivityLog();
+            else if (action === 'doPrune') doPrune();
+            else if (action === 'backToProjects') backToProjects();
+            else if (action === 'showAboutModal') showAboutModal();
+            else if (action === 'hideAboutModal') hideAboutModal();
+            else if (action === 'showCreateModal') showCreateModal();
+            else if (action === 'hideCreateModal') hideCreateModal();
+            else if (action === 'showEditModal') showEditModal.call(target, e);
+            else if (action === 'hideEditModal') hideEditModal();
+            else if (action === 'saveEditUser') saveEditUser();
+            else if (action === 'showResetModal') showResetModal.call(target, e);
+            else if (action === 'hideResetModal') hideResetModal();
+            else if (action === 'doResetPassword') doResetPassword();
+            else if (action === 'deleteUserConfirm') deleteUserConfirm.call(target, e);
+            else if (action === 'togglePassword') togglePassword.call(target, e);
+            else if (action === 'clickImport') clickImport();
+            else if (action === 'previewDBImport') previewDBImport();
+            else if (action === 'doDBImport') doDBImport();
+            else if (action === 'closeModalBackdrop') closeModalBackdrop.call(target, e);
+            else if (action === 'toggleTheme') toggleTheme();
+            else if (action === 'logout') logout();
+        });
+
+        init();
+
+        // After init, load additional tabs
+        document.addEventListener('tab:switch', function() {});
+
+        function loadActivityLog() {
+            const container = document.getElementById('activity-log-container');
+            container.innerHTML = '<div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>';
+            fetch('/api/db/activity?action=activity')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.error) { container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">' + esc(data.error) + '</p></div>'; return; }
+                    var entries = data.entries || [];
+                    if (!entries.length) { container.innerHTML = '<div class="empty-state"><p>No activity recorded yet</p></div>'; return; }
+                    var html = '<div class="table-container"><table class="table"><thead><tr><th style="width:50px;">#</th><th style="width:100px;">Action</th><th>Details</th><th style="width:100px;">User</th><th style="width:160px;">Time</th></tr></thead><tbody>';
+                    entries.forEach(function(e) {
+                        var color = e.action === 'vacuum' || e.action === 'prune' ? '#22c55e' : e.action.indexOf('delete') >= 0 || e.action.indexOf('reset') >= 0 ? '#ef4444' : e.action.indexOf('create') >= 0 ? '#3b82f6' : 'var(--text)';
+                        html += '<tr><td style="color:var(--text-muted);font-size:0.8rem;">' + e.id + '</td><td><span style="color:' + color + ';font-size:0.8rem;font-weight:500;">' + esc(e.action) + '</span></td><td style="font-size:0.85rem;">' + esc(e.details) + '</td><td style="font-size:0.8rem;color:var(--text-muted);">' + esc(e.username || '-') + '</td><td style="font-size:0.8rem;color:var(--text-muted);">' + e.created_at + '</td></tr>';
+                    });
+                    html += '</tbody></table></div><p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Total: ' + data.total + ' entries</p>';
+                    container.innerHTML = html;
+                })
+                .catch(function(err) { container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">Error: ' + esc(err.message) + '</p></div>'; });
+        }
+
+        function doPrune() {
+            var days = parseInt(document.getElementById('prune-days').value);
+            if (!days || days < 1) { showToast('Enter a valid number of days', 'error'); return; }
+            if (!confirm('Delete ALL completed scans older than ' + days + ' days? This cannot be undone.')) return;
+            var el = document.getElementById('prune-result');
+            el.innerHTML = '<div style="padding:10px;background:rgba(59,130,246,0.1);border-radius:8px;color:#3b82f6;font-size:0.85rem;">Pruning...</div>';
+            fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'prune', days: days }) })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.error) { el.innerHTML = '<div style="padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;">Error: ' + esc(data.error) + '</div>'; return; }
+                    el.innerHTML = '<div style="padding:10px;background:rgba(34,197,94,0.1);border-radius:8px;color:#22c55e;font-size:0.85rem;">Deleted ' + data.deleted + ' scans older than ' + days + ' days.</div>';
+                    loadAdminStats();
+                })
+                .catch(function(err) { el.innerHTML = '<div style="padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;">Error: ' + esc(err.message) + '</div>'; });
+        }
+
+        // System Health
+        async function loadSystemHealth() {
+            var container = document.getElementById('system-health-container');
+            try {
+                var res = await fetch('/api/db/health');
+                var data = await res.json();
+                if (data.error) { container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">' + esc(data.error) + '</p></div>'; return; }
+                var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">';
+                var cards = [
+                    { label: 'Status', value: data.status, color: data.status === 'ok' ? '#22c55e' : '#ef4444' },
+                    { label: 'Version', value: data.version, color: 'var(--cyan)' },
+                    { label: 'SQLite', value: data.sqlite_version, color: 'var(--text)' }
+                ];
+                cards.forEach(function(c) {
+                    html += '<div class="db-stat-card"><div class="db-stat-value" style="color:' + c.color + ';">' + c.value + '</div><div class="db-stat-label">' + c.label + '</div></div>';
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">Error: ' + esc(e.message) + '</p></div>';
+            }
+        }
+
+        // Override switchTab to trigger lazy loads
+        var origSwitchTab = switchTab;
+        switchTab = function(e) {
+            origSwitchTab.call(this, e);
+            var tab = this.getAttribute('data-tab');
+            if (tab === 'activity') { loadActivityLog(); }
+            if (tab === 'system') { loadSystemHealth(); }
+        };
+
+        // Override loadAdminStats to show vacuum recommendation
+        var origLoadStats = loadAdminStats;
+        loadAdminStats = function() {
+            origLoadStats();
+            fetch('/api/db/stats?action=stats')
+                .then(function(r) { return r.json(); })
+                .then(function(stats) {
+                    var rec = document.getElementById('vacuum-recommend');
+                    var text = document.getElementById('vacuum-recommend-text');
+                    if (stats.vacuum_size && stats.db_size_bytes && stats.vacuum_size > 0) {
+                        var pct = (stats.vacuum_size / stats.db_size_bytes * 100);
+                        if (pct > 5) {
+                            rec.style.display = 'flex';
+                            rec.style.background = 'rgba(251,191,36,0.08)';
+                            rec.style.border = '1px solid rgba(251,191,36,0.2)';
+                            text.innerHTML = '&#9888; Database fragmentation: ~<strong>' + pct.toFixed(1) + '%</strong> reclaimable (<strong>' + formatFileSize(stats.vacuum_size) + '</strong>). <a href="#" onclick="vacuumDB();return false;" style="color:var(--accent);">Vacuum now</a>';
+                            return;
+                        }
+                    }
+                    rec.style.display = 'none';
+                })
+                .catch(function() {});
+        };
+        async function vacuumDB() {
+            if (!confirm('Vacuum the database? This will optimize storage.')) return;
+            showDBResult('Vacuuming...', 'info');
+            try {
+                const res = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'vacuum' }) });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const result = await res.json();
+                showDBResult('Vacuum complete! Before: ' + result.before + ' → After: ' + result.after + ' (saved ' + result.saved + ', ' + result.saved_pct.toFixed(1) + '%)', 'success');
+                loadAdminStats();
+            } catch (e) {
+                showDBResult('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function backupDB() {
+            window.location.href = '/api/db/backup?action=backup';
+        }
+
+        async function resetDB() {
+            if (!confirm('\u26a0\ufe0f This will DELETE ALL DATA including scans, hosts, ports, and projects.\nOnly the admin user will be preserved.\n\nAre you absolutely sure?')) return;
+            if (!confirm('This is your LAST CHANCE. Confirm database reset?')) return;
+            showDBResult('Resetting database...', 'info');
+            try {
+                const res = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'reset' }) });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                showDBResult('Database reset complete. Redirecting to projects...', 'success');
+                setTimeout(() => window.location.href = '/', 1500);
+            } catch (e) {
+                showDBResult('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function factoryReset() {
+            if (!confirm('\u26a0\ufe0f FACTORY RESET will DELETE EVERYTHING:\n\u2022 All users, projects, scans, hosts, ports\n\u2022 All consolidated data and sessions\n\nA new admin user will be created with a random password.\nOnly proceed if you want to start completely fresh.\n\nAre you absolutely sure?')) return;
+            if (!confirm('This is your LAST CHANCE.\nThe admin password will be printed to the server console.\nConfirm factory reset?')) return;
+            showDBResult('Factory resetting... Check server console for new admin password.', 'info');
+            try {
+                const res = await fetch('/api/db/factory-reset', { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+                showDBResult('Factory reset complete. New admin password printed to server console. Redirecting to login...', 'success');
+                setTimeout(() => window.location.href = '/login', 2000);
+            } catch (e) {
+                showDBResult('Error: ' + e.message, 'error');
+            }
+        }
+
+        function showDBResult(msg, type) {
+            const el = document.getElementById('db-action-result');
+            const colors = { info: 'rgba(59,130,246,0.1)', success: 'rgba(34,197,94,0.1)', error: 'rgba(239,68,68,0.1)' };
+            const textColors = { info: '#3b82f6', success: '#22c55e', error: '#ef4444' };
+            el.style.padding = '10px';
+            el.style.borderRadius = '8px';
+            el.style.background = colors[type] || colors.info;
+            el.style.color = textColors[type] || textColors.info;
+            el.textContent = msg;
+        }
+
+        function formatNum(n) {
+            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+            return String(n);
+        }
+
+        // DB Import
+        let dbImportFile = null;
+        let dbImportPreviewData = {};
+
+        function clickImport() {
+            document.getElementById('db-import-file').click();
+        }
+
+        function setupDropZone() {
+            const zone = document.getElementById('db-import-drop-zone');
+            if (!zone) return;
+            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.style.borderColor = 'var(--cyan)'; });
+            zone.addEventListener('dragleave', () => { zone.style.borderColor = 'var(--border)'; });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = 'var(--border)';
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    const input = document.getElementById('db-import-file');
+                    input.files = e.dataTransfer.files;
+                    onDBImportFileSelect(input);
+                }
+            });
+        }
+
+        function onDBImportFileSelect(input) {
+            if (input.files && input.files[0]) {
+                dbImportFile = input.files[0];
+                document.getElementById('db-import-file-name').textContent = dbImportFile.name;
+                document.getElementById('db-import-file-size').textContent = formatFileSize(dbImportFile.size);
+                document.getElementById('db-import-file-selected').style.display = '';
+                document.getElementById('db-import-preview').style.display = 'none';
+                document.getElementById('db-import-error').style.display = 'none';
+                document.getElementById('db-import-actions').style.display = 'flex';
+                document.getElementById('btn-preview-db-import').disabled = false;
+                document.getElementById('btn-do-db-import').disabled = true;
+            }
+        }
+
+        async function previewDBImport() {
+            if (!dbImportFile) return;
+            document.getElementById('db-import-preview').style.display = '';
+            document.getElementById('db-import-preview').innerHTML = '<div style="text-align:center;padding:20px;"><div class="spinner" style="margin:0 auto;"></div><p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Reading database...</p></div>';
+            document.getElementById('db-import-error').style.display = 'none';
+            try {
+                const fd = new FormData();
+                fd.append('file', dbImportFile);
+                const res = await fetch('/api/db/import?action=preview', { method: 'POST', body: fd });
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error('HTTP ' + res.status + ': ' + txt);
+                }
+                dbImportPreviewData = await res.json();
+                let html = '<div class="import-preview-bar">';
+                html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.projects || 0) + '</div><div class="import-preview-label">Projects</div></div>';
+                html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.scans || 0) + '</div><div class="import-preview-label">Scans</div></div>';
+                html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.hosts || 0) + '</div><div class="import-preview-label">Hosts</div></div>';
+                html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.ports || 0) + '</div><div class="import-preview-label">Ports</div></div>';
+                html += '</div>';
+                document.getElementById('db-import-preview').innerHTML = html;
+                document.getElementById('btn-do-db-import').disabled = false;
+            } catch (e) {
+                document.getElementById('db-import-preview').style.display = 'none';
+                document.getElementById('db-import-error').textContent = e.message;
+                document.getElementById('db-import-error').style.display = '';
+            }
+        }
+
+        async function doDBImport() {
+            if (!dbImportFile) return;
+            if (!confirm('Merge data from this database into the current one?\nDuplicate entries will be skipped.')) return;
+            document.getElementById('db-import-result').innerHTML = '<div style="padding:10px;background:rgba(59,130,246,0.1);border-radius:8px;color:#3b82f6;font-size:0.85rem;">Importing...</div>';
+            try {
+                const fd = new FormData();
+                fd.append('file', dbImportFile);
+                const res = await fetch('/api/db/import', { method: 'POST', body: fd });
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error('HTTP ' + res.status + ': ' + txt);
+                }
+                const result = await res.json();
+                document.getElementById('db-import-result').innerHTML = '<div style="padding:10px;background:rgba(34,197,94,0.1);border-radius:8px;color:#22c55e;font-size:0.85rem;">Done! ' + formatNum(result.imported) + ' rows merged.</div>';
+                loadAdminStats();
+                dbImportFile = null;
+                document.getElementById('db-import-file').value = '';
+                document.getElementById('db-import-file-selected').style.display = 'none';
+                document.getElementById('db-import-preview').style.display = 'none';
+                document.getElementById('db-import-actions').style.display = 'none';
+                document.getElementById('btn-preview-db-import').disabled = true;
+                document.getElementById('btn-do-db-import').disabled = true;
+            } catch (e) {
+                document.getElementById('db-import-result').innerHTML = '<div style="padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;">Error: ' + e.message + '</div>';
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function backToProjects() { window.location.href = '/'; }
+        function showAboutModal() { document.getElementById('about-modal').style.display = 'flex'; }
+        function hideAboutModal() { document.getElementById('about-modal').style.display = 'none'; }
+    </script>
+
+    <div class="footer">
+        NexusMap v1.0 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+    </div>
+</body>
+</html>
