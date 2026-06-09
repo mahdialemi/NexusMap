@@ -21,8 +21,9 @@ import (
 )
 
 func main() {
-	port := flag.Int("port", 8080, "HTTP port")
+	port := flag.Int("port", 9090, "HTTP port")
 	dbPath := flag.String("db", "scanner.db", "Database path")
+	adminPassword := flag.String("admin-password", "", "Set admin password (generated randomly if empty)")
 	flag.Parse()
 
 	appDB, err := db.New(*dbPath)
@@ -34,12 +35,12 @@ func main() {
 	if err := appDB.Init(); err != nil {
 		log.Fatal(err)
 	}
-	if pwd, err := appDB.SeedAdmin(); err != nil {
+	if pwd, err := appDB.SeedAdmin(*adminPassword); err != nil {
 		log.Printf("Seed admin warning: %v", err)
 	} else if pwd != "" {
 		log.Printf("==========================================")
 		log.Printf("  Admin user: admin")
-		log.Printf("  Password: %s", pwd)
+		log.Printf("  Password: [REDACTED]")
 		log.Printf("  You MUST change it on first login.")
 		log.Printf("==========================================")
 	}
@@ -90,7 +91,7 @@ func main() {
 	mux.HandleFunc("/api/login", handlers.RateLimitMiddleware(srv.HandleLogin, handlers.AuthRateLimiter))
 	mux.HandleFunc("/api/logout", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleLogout)))
 	mux.HandleFunc("/api/me", auth.APIAuthMiddleware(authSvc, srv.HandleMe))
-	mux.HandleFunc("/api/change-password", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleChangePassword)))
+	mux.HandleFunc("/api/change-password", csrf(auth.APIAuthMiddleware(authSvc, handlers.RateLimitMiddleware(srv.HandleChangePassword, handlers.AuthRateLimiter))))
 	mux.HandleFunc("/api/csrf-token", auth.APIAuthMiddleware(authSvc, srv.HandleCSRFToken))
 
 	mux.HandleFunc("/api/projects", csrf(auth.APIAuthMiddleware(authSvc, handlers.RateLimitMiddleware(srv.HandleProjects, handlers.ApiRateLimiter))))
@@ -157,10 +158,10 @@ func main() {
 	mux.HandleFunc("/api/results/{id}/revert", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleRevertResult)))
 	mux.HandleFunc("/api/results/bulk", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleBulkUpdate)))
 
-	mux.HandleFunc("/api/import/{project_id}/preview", auth.APIAuthMiddleware(authSvc, srv.HandleImportPreview))
+	mux.HandleFunc("/api/import/{project_id}/preview", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleImportPreview)))
 	mux.HandleFunc("/api/import/{project_id}", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleImport)))
 	mux.HandleFunc("/api/import/{project_id}/history", auth.APIAuthMiddleware(authSvc, srv.HandleImportHistory))
-	mux.HandleFunc("/api/scan/profiles", auth.APIAuthMiddleware(authSvc, srv.HandleScanProfiles))
+	mux.HandleFunc("/api/scan/profiles", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleScanProfiles)))
 	mux.HandleFunc("/api/scan/nse", auth.APIAuthMiddleware(authSvc, srv.HandleNSEFinder))
 	mux.HandleFunc("/api/export/{scan_id}/{format}", auth.APIAuthMiddleware(authSvc, srv.HandleUnifiedExport))
 	mux.HandleFunc("/api/export/{scan_id}/availability", auth.APIAuthMiddleware(authSvc, srv.HandleExportAvailability))
@@ -185,6 +186,10 @@ func main() {
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'")
+		if r.TLS != nil {
+			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		}
 		mux.ServeHTTP(w, r)
 	})
 

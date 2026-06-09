@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os/exec"
 	"runtime"
@@ -16,12 +17,15 @@ import (
 func (s *Server) HandleLiveHosts(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	projectID := parseIntID(id)
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
 
 	switch r.Method {
 	case "GET":
 		hosts, err := s.DB.GetLiveHosts(projectID)
 		if err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		jsonResponse(w, 200, hosts)
@@ -37,9 +41,24 @@ func (s *Server) HandleLiveHostPing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	projectID := parseIntID(r.PathValue("id"))
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
+
 	ip := r.URL.Query().Get("ip")
 	if ip == "" {
 		jsonResponse(w, 400, map[string]string{"error": "ip required"})
+		return
+	}
+
+	parsed := net.ParseIP(ip)
+	if parsed == nil {
+		jsonResponse(w, 400, map[string]string{"error": "invalid IP address"})
+		return
+	}
+	if parsed.IsLoopback() || parsed.IsUnspecified() {
+		jsonResponse(w, 400, map[string]string{"error": "cannot ping loopback or unspecified addresses"})
 		return
 	}
 
@@ -83,7 +102,7 @@ func (s *Server) HandleLiveHostStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.DB.UpdateLiveHostStatus(req.IP, req.Status, req.Note); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -110,7 +129,7 @@ func (s *Server) HandleLiveHostDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.DB.DeleteLiveHost(req.IP); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -126,10 +145,13 @@ func (s *Server) HandleLiveHostExport(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
 	projectID := parseIntID(id)
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
 
 	hosts, err := s.DB.GetLiveHosts(projectID)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		serverError(w, err)
 		return
 	}
 
@@ -164,7 +186,7 @@ func (s *Server) HandleLiveHostExport(w http.ResponseWriter, r *http.Request) {
 
 		buf, err := f.WriteToBuffer()
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 
@@ -287,7 +309,7 @@ func (s *Server) HandleLiveHostUpdateField(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := s.DB.UpdateLiveHostField(req.IP, req.Field, req.Value); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -302,6 +324,9 @@ func (s *Server) HandleLiveHostDetail(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
 	projectID := parseIntID(id)
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
 	ip := r.URL.Query().Get("ip")
 	if ip == "" {
 		jsonResponse(w, 400, map[string]string{"error": "ip required"})
@@ -310,7 +335,7 @@ func (s *Server) HandleLiveHostDetail(w http.ResponseWriter, r *http.Request) {
 
 	host, err := s.DB.GetLiveHostDetail(projectID, ip)
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	if host == nil {

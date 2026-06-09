@@ -11,18 +11,18 @@
     <div class="header">
         <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
             <svg width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0f172a"/><rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="none" stroke="#3b82f6" stroke-width="1.5"/><circle cx="16" cy="16" r="3" fill="#22c55e"/><circle cx="16" cy="16" r="7" fill="none" stroke="#3b82f6" stroke-width="1.2"/><circle cx="16" cy="16" r="11" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.6"/><path d="M16 2 A14 14 0 0 1 30 16" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0.8"/><line x1="16" y1="2" x2="16" y2="8" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="16" y1="24" x2="16" y2="30" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="2" y1="16" x2="8" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="24" y1="16" x2="30" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><circle cx="20" cy="12" r="1" fill="#3b82f6" opacity="0.8"/></svg>
-            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v1.0</span></h1>
+            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v1.1</span></h1>
         </a>
         <div class="header-nav">
             <div class="notif-wrap">
-                <button class="notif-btn" onclick="toggleNotifications()" title="Notifications">
+                <button class="notif-btn" data-action="toggleNotifications" title="Notifications">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                     <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
                 </button>
-                <div class="notif-dropdown" id="notif-dropdown" style="display:none;" onclick="event.stopPropagation()">
+                <div class="notif-dropdown" id="notif-dropdown" style="display:none;" >
                     <div class="notif-dropdown-header">
                         <span>Notifications</span>
-                        <button class="notif-mark-btn" onclick="markNotifsRead()">Mark all read</button>
+                        <button class="notif-mark-btn" data-action="markNotifsRead">Mark all read</button>
                     </div>
                     <div class="notif-list" id="notif-list">
                         <div class="notif-empty">No notifications</div>
@@ -86,13 +86,13 @@
                     <div class="filter-search-row">
                         <div class="search-wrapper">
                             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <input type="text" id="scan-search" class="search-input" placeholder="Search target or profile..." oninput="onSearchInput()" autocomplete="off">
-                            <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none;">&#10005;</button>
+                            <input type="text" id="scan-search" class="search-input" placeholder="Search target or profile..." data-action="onSearchInput" autocomplete="off">
+                            <button class="search-clear" id="search-clear" data-action="clearSearch" style="display:none;">&#10005;</button>
                         </div>
-                        <select id="scan-profile-filter" class="form-control" onchange="applyScanFilters()">
+                        <select id="scan-profile-filter" class="form-control" data-action="applyScanFilters">
                             <option value="">All Profiles</option>
                         </select>
-                        <select id="scan-sort" class="form-control" onchange="applyScanFilters()">
+                        <select id="scan-sort" class="form-control" data-action="applyScanFilters">
                             <option value="newest">Newest first</option>
                             <option value="oldest">Oldest first</option>
                             <option value="target">By target</option>
@@ -101,26 +101,26 @@
                     </div>
 
                     <div class="filter-chips" id="filter-chips">
-                        <button class="chip chip-active" data-status="" onclick="setStatusFilter(this, '')">All</button>
-                        <button class="chip" data-status="pending" onclick="setStatusFilter(this, 'pending')">Pending</button>
-                        <button class="chip" data-status="running" onclick="setStatusFilter(this, 'running')">Running</button>
-                        <button class="chip" data-status="completed" onclick="setStatusFilter(this, 'completed')">Completed</button>
-                        <button class="chip" data-status="stopped" onclick="setStatusFilter(this, 'stopped')">Stopped</button>
-                        <button class="chip" data-status="error" onclick="setStatusFilter(this, 'error')">Error</button>
-                        <button class="chip chip-toggle" onclick="toggleAdvancedFilters()" id="adv-filter-btn">+ Filters</button>
+                        <button class="chip chip-active" data-status="" data-action="setStatusFilter" data-status="">All</button>
+                        <button class="chip" data-status="pending" data-action="setStatusFilter" data-status="pending">Pending</button>
+                        <button class="chip" data-status="running" data-action="setStatusFilter" data-status="running">Running</button>
+                        <button class="chip" data-status="completed" data-action="setStatusFilter" data-status="completed">Completed</button>
+                        <button class="chip" data-status="stopped" data-action="setStatusFilter" data-status="stopped">Stopped</button>
+                        <button class="chip" data-status="error" data-action="setStatusFilter" data-status="error">Error</button>
+                        <button class="chip chip-toggle" data-action="toggleAdvancedFilters" id="adv-filter-btn">+ Filters</button>
                     </div>
 
                     <div class="advanced-filters" id="advanced-filters" style="display:none;">
                         <label class="adv-label">
-                            <input type="checkbox" id="filter-unconfirmed" onchange="applyScanFilters()">
+                            <input type="checkbox" id="filter-unconfirmed" data-action="applyScanFilters">
                             <span>Unconfirmed only</span>
                         </label>
                         <label class="adv-label">
-                            <input type="checkbox" id="filter-confirmed" onchange="applyScanFilters()">
+                            <input type="checkbox" id="filter-confirmed" data-action="applyScanFilters">
                             <span>Confirmed only</span>
                         </label>
                         <label class="adv-label">
-                            <input type="checkbox" id="filter-rejected" onchange="applyScanFilters()">
+                            <input type="checkbox" id="filter-rejected" data-action="applyScanFilters">
                             <span>Rejected only</span>
                         </label>
                     </div>
@@ -180,12 +180,12 @@
                         <div style="margin-bottom:10px;">
                             <div style="font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Quick Flags</div>
                             <div style="display:flex;flex-wrap:wrap;gap:5px;">
-                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="-v" onchange="updateQuickFlags()"> -v</label>
-                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--open" onchange="updateQuickFlags()"> --open</label>
-                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--reason" onchange="updateQuickFlags()"> --reason</label>
-                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--stats-every 5s" onchange="updateQuickFlags()"> --stats-every</label>
-                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="-T5" onchange="updateQuickFlags()"> -T5</label>
-                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--traceroute" onchange="updateQuickFlags()"> --traceroute</label>
+                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="-v" data-action="updateQuickFlags"> -v</label>
+                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--open" data-action="updateQuickFlags"> --open</label>
+                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--reason" data-action="updateQuickFlags"> --reason</label>
+                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--stats-every 5s" data-action="updateQuickFlags"> --stats-every</label>
+                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="-T5" data-action="updateQuickFlags"> -T5</label>
+                                <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--traceroute" data-action="updateQuickFlags"> --traceroute</label>
                             </div>
                         </div>
 
@@ -215,7 +215,7 @@
                 <!-- Right: Profiles Panel -->
                 <div id="new-scan-profiles" style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
                     <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                        <input type="text" id="profile-search" class="form-control" placeholder="Search profiles..." style="height:36px;font-size:0.8rem;padding:6px 12px;box-sizing:border-box;" oninput="filterProfiles()">
+                        <input type="text" id="profile-search" class="form-control" placeholder="Search profiles..." style="height:36px;font-size:0.8rem;padding:6px 12px;box-sizing:border-box;" data-action="filterProfiles">
                         <button class="btn btn-secondary" data-action="showProfileManager" title="Manage Profiles" style="flex-shrink:0;height:36px;font-size:0.8rem;padding:6px 12px;white-space:nowrap;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                             Manage Profiles
@@ -231,11 +231,11 @@
             <div class="asset-actions">
                 <h2 class="card-title" style="margin:0;">Assets <span id="asset-stat" class="title-count"></span></h2>
                 <div style="display:flex;gap:5px;align-items:center;">
-                    <button class="btn btn-danger btn-sm" id="consolidated-bulk-delete-btn" onclick="bulkDeleteConsolidatedPorts()" style="display:none;">
+                    <button class="btn btn-danger btn-sm" id="consolidated-bulk-delete-btn" data-action="bulkDeleteConsolidatedPorts" style="display:none;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         Delete <span id="consolidated-bulk-count"></span>
                     </button>
-                    <select id="consolidated-limit" class="form-control" style="width:auto;" onchange="changeConsolidatedLimit()">
+                    <select id="consolidated-limit" class="form-control" style="width:auto;" data-action="changeConsolidatedLimit">
                         <option value="10">10 rows</option>
                         <option value="25">25 rows</option>
                         <option value="50" selected>50 rows</option>
@@ -244,11 +244,11 @@
                         <option value="500">500 rows</option>
                         <option value="100000">All</option>
                     </select>
-                    <button class="btn btn-secondary btn-sm" id="consolidated-group-btn" onclick="toggleConsolidatedGroup()" title="Group by host">
+                    <button class="btn btn-secondary btn-sm" id="consolidated-group-btn" data-action="toggleConsolidatedGroup" title="Group by host">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                         Group
                     </button>
-                        <button class="btn btn-primary btn-sm" onclick="copyConsolidatedIPs()" title="Copy IPs">
+                        <button class="btn btn-primary btn-sm" data-action="copyConsolidatedIPs" title="Copy IPs">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                             Copy IPs
                         </button>
@@ -257,20 +257,20 @@
                             Refresh
                         </button>
                         <div class="dropdown" style="position:relative;">
-                            <button class="btn btn-success btn-sm" onclick="toggleAssetExportDropdown(event)" title="Export">
+                            <button class="btn btn-success btn-sm" data-action="toggleAssetExportDropdown" title="Export">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
                                 Export <span style="font-size:0.6rem;margin-left:2px;">&#9660;</span>
                             </button>
                             <div id="asset-export-dropdown" class="dropdown-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100;min-width:120px;overflow:hidden;">
-                                <div class="dropdown-item" onclick="exportAsset('xlsx')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+                                <div class="dropdown-item" data-action="exportAsset" data-format="xlsx" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
                                     Excel (.xlsx)
                                 </div>
-                                <div class="dropdown-item" onclick="exportAsset('json')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+                                <div class="dropdown-item" data-action="exportAsset" data-format="json" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                                     JSON (.json)
                                 </div>
-                                <div class="dropdown-item" onclick="exportAsset('txt')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+                                <div class="dropdown-item" data-action="exportAsset" data-format="txt" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                                     TXT (.txt)
                                 </div>
@@ -283,19 +283,23 @@
                     <div class="filter-search-row">
                         <div class="search-wrapper">
                             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <input type="text" id="consolidated-search" class="search-input" placeholder="Search IP, service, OS..." oninput="debounceSearchConsolidated()" autocomplete="off">
-                            <button class="search-clear" id="consolidated-search-clear" onclick="clearConsolidatedSearch()" style="display:none;">&#10005;</button>
+                            <input type="text" id="consolidated-search" class="search-input" placeholder="Search IP, service, OS..." data-action="debounceSearchConsolidated" autocomplete="off">
+                            <button class="search-clear" id="consolidated-search-clear" data-action="clearConsolidatedSearch" style="display:none;">&#10005;</button>
                         </div>
-                        <select id="consolidated-filter-state" class="form-control" onchange="filterAssets()">
+                        <select id="consolidated-filter-state" class="form-control" data-action="filterAssets">
                             <option value="">All States</option>
                             <option value="open">Open</option>
                             <option value="closed">Closed</option>
                             <option value="filtered">Filtered</option>
                         </select>
-                        <select id="consolidated-filter-service" class="form-control" onchange="filterAssets()">
+                        <select id="consolidated-filter-service" class="form-control" data-action="filterAssets">
                             <option value="">All Services</option>
                         </select>
-                        <button class="btn btn-secondary btn-sm" onclick="toggleAdvancedFilterModal()" title="Advanced filters" style="white-space:nowrap;">
+                        <button id="hide-closed-toggle" class="btn btn-sm" data-action="toggleHideClosed" title="Hide closed ports" style="white-space:nowrap;display:flex;align-items:center;gap:5px;">
+                            <span class="toggle-dot" style="width:10px;height:10px;border-radius:50%;border:2px solid var(--text-muted);display:inline-block;flex-shrink:0;"></span>
+                            Hide Closed
+                        </button>
+                        <button class="btn btn-secondary btn-sm" data-action="toggleAdvancedFilterModal" title="Advanced filters" style="white-space:nowrap;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="10" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
                             Advanced Search
                         </button>
@@ -314,7 +318,7 @@
             <div class="live-actions">
                 <h2 class="card-title" style="margin:0;">Live Hosts</h2>
                 <div style="display:flex;gap:5px;align-items:center;">
-                    <select id="live-limit" class="form-control" style="width:auto;" onchange="changeLiveLimit()">
+                    <select id="live-limit" class="form-control" style="width:auto;" data-action="changeLiveLimit">
                         <option value="25">25 rows</option>
                         <option value="50" selected>50 rows</option>
                         <option value="100">100 rows</option>
@@ -325,29 +329,29 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                         Refresh
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="live-subnet-btn" onclick="toggleLiveSubnetGroup()" title="Group by subnet">
+                    <button class="btn btn-secondary btn-sm" id="live-subnet-btn" data-action="toggleLiveSubnetGroup" title="Group by subnet">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                         Group
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="live-compare-btn" onclick="toggleLiveCompareMode()" title="Compare hosts">
+                    <button class="btn btn-secondary btn-sm" id="live-compare-btn" data-action="toggleLiveCompareMode" title="Compare hosts">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                         Compare
                     </button>
                     <div class="dropdown" style="position:relative;">
-                        <button class="btn btn-success btn-sm" onclick="toggleExportDropdown(event)" title="Export">
+                        <button class="btn btn-success btn-sm" data-action="toggleExportDropdown" title="Export">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
                             Export <span style="font-size:0.6rem;margin-left:2px;">&#9660;</span>
                         </button>
                         <div id="export-dropdown" class="dropdown-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100;min-width:120px;overflow:hidden;">
-                            <div class="dropdown-item" onclick="exportLive('xlsx')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+                            <div class="dropdown-item" data-action="exportLive" data-format="xlsx" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
                                 Excel (.xlsx)
                             </div>
-                            <div class="dropdown-item" onclick="exportLive('json')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+                            <div class="dropdown-item" data-action="exportLive" data-format="json" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                                 JSON (.json)
                             </div>
-                            <div class="dropdown-item" onclick="exportLive('txt')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+                            <div class="dropdown-item" data-action="exportLive" data-format="txt" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                                 TXT (.txt)
                             </div>
@@ -360,30 +364,30 @@
                     <div class="filter-search-row">
                         <div class="search-wrapper">
                             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <input type="text" id="live-search" class="search-input" placeholder="Search IP, hostname, or OS..." oninput="filterLiveHosts()" autocomplete="off">
+                            <input type="text" id="live-search" class="search-input" placeholder="Search IP, hostname, or OS..." data-action="filterLiveHosts" autocomplete="off">
                         </div>
-                        <select id="live-filter-status" class="form-control" onchange="applyLiveFilterStatus()">
+                        <select id="live-filter-status" class="form-control" data-action="applyLiveFilterStatus">
                             <option value="">All Status</option>
                         </select>
-                        <select id="live-filter-os" class="form-control" onchange="applyLiveFilterOS()">
+                        <select id="live-filter-os" class="form-control" data-action="applyLiveFilterOS">
                             <option value="">All OS</option>
                         </select>
-                        <select id="live-filter-method" class="form-control" onchange="applyLiveFilterMethod()">
+                        <select id="live-filter-method" class="form-control" data-action="applyLiveFilterMethod">
                             <option value="">All Methods</option>
                         </select>
                     </div>
                 </div>
                 <div id="live-bulk-bar" style="display:none;padding:8px 16px;background:var(--card-bg);border-bottom:1px solid var(--border);align-items:center;gap:8px;">
                     <span class="bulk-count" style="font-size:0.8rem;color:var(--text-muted);"></span>
-                    <button class="btn btn-danger btn-sm" onclick="bulkDeleteLiveHosts()">
+                    <button class="btn btn-danger btn-sm" data-action="bulkDeleteLiveHosts">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         Delete Selected
                     </button>
-                    <button class="btn btn-warning btn-sm" onclick="bulkChangeLiveStatus()">
+                    <button class="btn btn-warning btn-sm" data-action="bulkChangeLiveStatus">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                         Change Status
                     </button>
-                    <button class="btn btn-secondary btn-sm" onclick="compareSelectedHosts()" id="live-compare-action-btn" style="display:none;">
+                    <button class="btn btn-secondary btn-sm" data-action="compareSelectedHosts" id="live-compare-action-btn" style="display:none;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                         Compare
                     </button>
@@ -401,11 +405,11 @@
                 <h2 class="card-title" style="margin:0;">NSE Scripts</h2>
                 <div style="display:flex;gap:5px;align-items:center;">
                     <div class="btn-group" style="display:flex;gap:2px;">
-                        <button class="btn btn-sm btn-primary" onclick="toggleScriptGroup('flat')" data-mode="flat">All</button>
-                            <button class="btn btn-sm btn-secondary" onclick="toggleScriptGroup('script')" data-mode="script">Group by Script</button>
-                            <button class="btn btn-sm btn-secondary" onclick="toggleScriptGroup('host')" data-mode="host">Group by Host</button>
+                        <button class="btn btn-sm btn-primary" data-action="toggleScriptGroup" data-mode="flat">All</button>
+                            <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="script">Group by Script</button>
+                            <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="host">Group by Host</button>
                     </div>
-                    <select id="scripts-limit" class="form-control" style="width:auto;" onchange="changeScriptsLimit()">
+                    <select id="scripts-limit" class="form-control" style="width:auto;" data-action="changeScriptsLimit">
                         <option value="25">25 rows</option>
                         <option value="50" selected>50 rows</option>
                         <option value="100">100 rows</option>
@@ -413,7 +417,7 @@
                         <option value="500">500 rows</option>
                         <option value="100000">All</option>
                     </select>
-                    <button class="btn btn-secondary btn-sm" onclick="copyScriptIPs()" title="Copy IPs">
+                    <button class="btn btn-secondary btn-sm" data-action="copyScriptIPs" title="Copy IPs">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                         Copy IPs
                     </button>
@@ -422,20 +426,20 @@
                         Refresh
                     </button>
                     <div class="dropdown" style="position:relative;">
-                        <button class="btn btn-success btn-sm" onclick="toggleScriptExportDropdown(event)" title="Export">
+                        <button class="btn btn-success btn-sm" data-action="toggleScriptExportDropdown" title="Export">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
                             Export <span style="font-size:0.6rem;margin-left:2px;">&#9660;</span>
                         </button>
                         <div id="script-export-dropdown" class="dropdown-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100;min-width:120px;overflow:hidden;">
-                            <div class="dropdown-item" onclick="exportScript('xlsx')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+                            <div class="dropdown-item" data-action="exportScript" data-format="xlsx" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
                                 Excel (.xlsx)
                             </div>
-                            <div class="dropdown-item" onclick="exportScript('json')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+                            <div class="dropdown-item" data-action="exportScript" data-format="json" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                                 JSON (.json)
                             </div>
-                            <div class="dropdown-item" onclick="exportScript('txt')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'">
+                            <div class="dropdown-item" data-action="exportScript" data-format="txt" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                                 TXT (.txt)
                             </div>
@@ -446,20 +450,20 @@
             <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
                 <div class="filter-bar">
                     <div class="filter-search-row">
-                        <input type="text" id="script-search-tab" class="form-control" style="width:160px;" placeholder="Search..." oninput="applyScriptFilters()">
-                        <select id="script-filter-state" class="form-control" style="width:85px;" onchange="applyScriptFilters()">
+                        <input type="text" id="script-search-tab" class="form-control" style="width:160px;" placeholder="Search..." data-action="applyScriptFilters">
+                        <select id="script-filter-state" class="form-control" style="width:85px;" data-action="applyScriptFilters">
                             <option value="">State</option>
                             <option value="open">Open</option>
                             <option value="closed">Closed</option>
                             <option value="filtered">Filtered</option>
                         </select>
-                        <select id="script-filter-proto" class="form-control" style="width:75px;" onchange="applyScriptFilters()">
+                        <select id="script-filter-proto" class="form-control" style="width:75px;" data-action="applyScriptFilters">
                             <option value="">Proto</option>
                             <option value="tcp">TCP</option>
                             <option value="udp">UDP</option>
                         </select>
-                        <select id="script-filter-service" class="form-control" style="width:120px;" onchange="applyScriptFilters()"><option value="">Service</option></select>
-                        <select id="script-filter" class="form-control" style="width:140px;" onchange="applyScriptFilters()"><option value="">All Scripts</option></select>
+                        <select id="script-filter-service" class="form-control" style="width:120px;" data-action="applyScriptFilters"><option value="">Service</option></select>
+                        <select id="script-filter" class="form-control" style="width:140px;" data-action="applyScriptFilters"><option value="">All Scripts</option></select>
                     </div>
                 </div>
                 <div id="scripts-table" class="table-container">
@@ -496,7 +500,7 @@
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="margin-bottom:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     <p style="font-size:0.95rem;margin:0 0 4px 0;">Drop files or click to select</p>
                     <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">.xml .nmap .gnmap .csv .json .zip &middot; Up to 5 files</p>
-                    <input type="file" id="import-file-input" accept=".xml,.nmap,.gnmap,.csv,.json,.zip,.txt" multiple style="display:none;" onchange="onImportFilesSelected(this)">
+                    <input type="file" id="import-file-input" accept=".xml,.nmap,.gnmap,.csv,.json,.zip,.txt" multiple style="display:none;" data-action="onImportFilesSelected">
                 </div>
 
                 <!-- File List -->
@@ -508,7 +512,7 @@
                         <span style="font-weight:600;font-size:0.85rem;">Or paste raw output:</span>
                         <span id="import-raw-detect" style="font-size:0.75rem;color:var(--text-muted);display:none;"></span>
                     </div>
-                    <textarea id="import-raw-text" class="form-control" rows="4" placeholder="Paste XML output, normal nmap output, or grepable output here..." style="resize:vertical;font-family:var(--font-mono, monospace);font-size:0.8rem;" oninput="onImportRawInput()"></textarea>
+                    <textarea id="import-raw-text" class="form-control" rows="4" placeholder="Paste XML output, normal nmap output, or grepable output here..." style="resize:vertical;font-family:var(--font-mono, monospace);font-size:0.8rem;" data-action="onImportRawInput"></textarea>
                 </div>
 
                 <!-- Options -->
@@ -605,7 +609,7 @@
                     <div style="flex:1;overflow-y:auto;">
 
                         <div class="pf-section">
-                            <div class="pf-section-header" onclick="togglePfSection(this)">
+                            <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow open" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 <span>Basic Info</span>
                             </div>
@@ -613,11 +617,11 @@
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                                     <div>
                                         <label style="font-size:0.75rem;">Name</label>
-                                        <input type="text" id="profile-form-name" class="pf-input" placeholder="My Custom Scan" onchange="onPfChange()">
+                                        <input type="text" id="profile-form-name" class="pf-input" placeholder="My Custom Scan" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">Category</label>
-                                        <select id="profile-form-cat" class="pf-select" onchange="onPfChange()">
+                                        <select id="profile-form-cat" class="pf-select" data-action="onPfChange">
                                             <option value="Network Discovery">Network Discovery</option>
                                             <option value="Port Scanning">Port Scanning</option>
                                             <option value="UDP Scanning">UDP Scanning</option>
@@ -629,13 +633,13 @@
                                 </div>
                                 <div style="margin-top:8px;">
                                     <label style="font-size:0.75rem;">Description</label>
-                                    <input type="text" id="profile-form-desc" class="pf-input" placeholder="What this scan does" onchange="onPfChange()">
+                                    <input type="text" id="profile-form-desc" class="pf-input" placeholder="What this scan does" data-action="onPfChange">
                                 </div>
                             </div>
                         </div>
 
                         <div class="pf-section">
-                            <div class="pf-section-header" onclick="togglePfSection(this)">
+                            <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow open" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 <span>Scan</span>
                             </div>
@@ -643,7 +647,7 @@
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                                     <div>
                                         <label style="font-size:0.75rem;">TCP Scan</label>
-                                        <select id="pf-tcp-scan" class="pf-select" onchange="onPfChange()">
+                                        <select id="pf-tcp-scan" class="pf-select" data-action="onPfChange">
                                             <option value="">None</option>
                                             <option value="-sA">-sA (ACK scan)</option>
                                             <option value="-sF">-sF (FIN scan)</option>
@@ -657,7 +661,7 @@
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">Non-TCP Scan</label>
-                                        <select id="pf-non-tcp" class="pf-select" onchange="onPfChange()">
+                                        <select id="pf-non-tcp" class="pf-select" data-action="onPfChange">
                                             <option value="">None</option>
                                             <option value="-sU">-sU (UDP scan)</option>
                                             <option value="-sO">-sO (IP protocol scan)</option>
@@ -670,7 +674,7 @@
                                 </div>
                                 <div style="margin-top:8px;">
                                     <label style="font-size:0.75rem;">Timing</label>
-                                    <select id="pf-timing" class="pf-select" onchange="onPfChange()">
+                                    <select id="pf-timing" class="pf-select" data-action="onPfChange">
                                         <option value="">None</option>
                                         <option value="-T0">-T0 (Paranoid)</option>
                                         <option value="-T1">-T1 (Sneaky)</option>
@@ -681,60 +685,60 @@
                                     </select>
                                 </div>
                                 <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
-                                    <label><input type="checkbox" id="pf-A" class="pf-checkbox" onchange="onPfChange()"> -A <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Enable all advanced/aggressive options</span></label>
-                                    <label><input type="checkbox" id="pf-O" class="pf-checkbox" onchange="onPfChange()"> -O <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Operating system detection</span></label>
-                                    <label><input type="checkbox" id="pf-sV" class="pf-checkbox" onchange="onPfChange()"> -sV <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Version detection</span></label>
-                                    <label><input type="checkbox" id="pf-n" class="pf-checkbox" onchange="onPfChange()"> -n <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Disable reverse DNS resolution</span></label>
-                                    <label><input type="checkbox" id="pf-6" class="pf-checkbox" onchange="onPfChange()"> -6 <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">IPv6 support</span></label>
+                                    <label><input type="checkbox" id="pf-A" class="pf-checkbox" data-action="onPfChange"> -A <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Enable all advanced/aggressive options</span></label>
+                                    <label><input type="checkbox" id="pf-O" class="pf-checkbox" data-action="onPfChange"> -O <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Operating system detection</span></label>
+                                    <label><input type="checkbox" id="pf-sV" class="pf-checkbox" data-action="onPfChange"> -sV <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Version detection</span></label>
+                                    <label><input type="checkbox" id="pf-n" class="pf-checkbox" data-action="onPfChange"> -n <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Disable reverse DNS resolution</span></label>
+                                    <label><input type="checkbox" id="pf-6" class="pf-checkbox" data-action="onPfChange"> -6 <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">IPv6 support</span></label>
                                 </div>
                                 <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
-                                    <label><input type="checkbox" id="pf-enable-sl" class="pf-checkbox" onchange="onPfChange()"> Idle Scan (Zombie) <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-sI</span></label>
-                                    <input type="text" id="pf-sl-ip" class="pf-input" placeholder="zombie IP" onchange="onPfChange()" style="flex:1;">
+                                    <label><input type="checkbox" id="pf-enable-sl" class="pf-checkbox" data-action="onPfChange"> Idle Scan (Zombie) <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-sI</span></label>
+                                    <input type="text" id="pf-sl-ip" class="pf-input" placeholder="zombie IP" data-action="onPfChange" style="flex:1;">
                                 </div>
                                 <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-b" class="pf-checkbox" onchange="onPfChange()"> FTP bounce attack <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-b</span></label>
-                                    <input type="text" id="pf-b-ip" class="pf-input" placeholder="FTP server IP" onchange="onPfChange()" style="flex:1;">
+                                    <label><input type="checkbox" id="pf-enable-b" class="pf-checkbox" data-action="onPfChange"> FTP bounce attack <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-b</span></label>
+                                    <input type="text" id="pf-b-ip" class="pf-input" placeholder="FTP server IP" data-action="onPfChange" style="flex:1;">
                                 </div>
                             </div>
                         </div>
 
                         <div class="pf-section">
-                            <div class="pf-section-header" onclick="togglePfSection(this)">
+                            <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 <span>Ping</span>
                             </div>
                             <div class="pf-section-body collapsed">
                                 <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                                    <label><input type="checkbox" id="pf-Pn" class="pf-checkbox" onchange="onPfChange()"> -Pn <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Don't ping before scanning</span></label>
-                                    <label><input type="checkbox" id="pf-PE" class="pf-checkbox" onchange="onPfChange()"> -PE <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">ICMP ping</span></label>
-                                    <label><input type="checkbox" id="pf-PP" class="pf-checkbox" onchange="onPfChange()"> -PP <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">ICMP timestamp request</span></label>
-                                    <label><input type="checkbox" id="pf-PM" class="pf-checkbox" onchange="onPfChange()"> -PM <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">ICMP netmask request</span></label>
+                                    <label><input type="checkbox" id="pf-Pn" class="pf-checkbox" data-action="onPfChange"> -Pn <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Don't ping before scanning</span></label>
+                                    <label><input type="checkbox" id="pf-PE" class="pf-checkbox" data-action="onPfChange"> -PE <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">ICMP ping</span></label>
+                                    <label><input type="checkbox" id="pf-PP" class="pf-checkbox" data-action="onPfChange"> -PP <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">ICMP timestamp request</span></label>
+                                    <label><input type="checkbox" id="pf-PM" class="pf-checkbox" data-action="onPfChange"> -PM <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">ICMP netmask request</span></label>
                                 </div>
                                 <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PA" class="pf-checkbox" onchange="onPfChange()"> ACK ping <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PA</span></label>
-                                    <input type="text" id="pf-PA-ports" class="pf-input" placeholder="ports" onchange="onPfChange()" style="flex:1;">
+                                    <label><input type="checkbox" id="pf-enable-PA" class="pf-checkbox" data-action="onPfChange"> ACK ping <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PA</span></label>
+                                    <input type="text" id="pf-PA-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
                                 </div>
                                 <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PS" class="pf-checkbox" onchange="onPfChange()"> SYN ping <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PS</span></label>
-                                    <input type="text" id="pf-PS-ports" class="pf-input" placeholder="ports" onchange="onPfChange()" style="flex:1;">
+                                    <label><input type="checkbox" id="pf-enable-PS" class="pf-checkbox" data-action="onPfChange"> SYN ping <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PS</span></label>
+                                    <input type="text" id="pf-PS-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
                                 </div>
                                 <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PU" class="pf-checkbox" onchange="onPfChange()"> UDP probes <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PU</span></label>
-                                    <input type="text" id="pf-PU-ports" class="pf-input" placeholder="ports" onchange="onPfChange()" style="flex:1;">
+                                    <label><input type="checkbox" id="pf-enable-PU" class="pf-checkbox" data-action="onPfChange"> UDP probes <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PU</span></label>
+                                    <input type="text" id="pf-PU-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
                                 </div>
                                 <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PO" class="pf-checkbox" onchange="onPfChange()"> IPProto probes <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PO</span></label>
-                                    <input type="text" id="pf-PO-ports" class="pf-input" placeholder="ports" onchange="onPfChange()" style="flex:1;">
+                                    <label><input type="checkbox" id="pf-enable-PO" class="pf-checkbox" data-action="onPfChange"> IPProto probes <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PO</span></label>
+                                    <input type="text" id="pf-PO-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
                                 </div>
                                 <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PY" class="pf-checkbox" onchange="onPfChange()"> SCTP INIT ping <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PY</span></label>
-                                    <input type="text" id="pf-PY-ports" class="pf-input" placeholder="ports" onchange="onPfChange()" style="flex:1;">
+                                    <label><input type="checkbox" id="pf-enable-PY" class="pf-checkbox" data-action="onPfChange"> SCTP INIT ping <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PY</span></label>
+                                    <input type="text" id="pf-PY-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
                                 </div>
                             </div>
                         </div>
 
                         <div class="pf-section">
-                            <div class="pf-section-header" onclick="togglePfSection(this)">
+                            <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 <span>Target</span>
                             </div>
@@ -742,33 +746,33 @@
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                                     <div>
                                         <label style="font-size:0.75rem;">--exclude <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Excluded hosts/networks</span></label>
-                                        <input type="text" id="pf-exclude" class="pf-input" placeholder="ip,hostname,..." onchange="onPfChange()">
+                                        <input type="text" id="pf-exclude" class="pf-input" placeholder="ip,hostname,..." data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--excludefile <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Exclusion file</span></label>
-                                        <input type="text" id="pf-excludefile" class="pf-input" placeholder="file" onchange="onPfChange()">
+                                        <input type="text" id="pf-excludefile" class="pf-input" placeholder="file" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">-iL <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Target list file</span></label>
-                                        <input type="text" id="pf-iL" class="pf-input" placeholder="file" onchange="onPfChange()">
+                                        <input type="text" id="pf-iL" class="pf-input" placeholder="file" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">-iR <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Scan random hosts</span></label>
-                                        <input type="text" id="pf-iR" class="pf-input" placeholder="e.g. 10" onchange="onPfChange()">
+                                        <input type="text" id="pf-iR" class="pf-input" placeholder="e.g. 10" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">-p <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Ports to scan</span></label>
-                                        <input type="text" id="pf-p" class="pf-input" placeholder="1-1023,3389" onchange="onPfChange()">
+                                        <input type="text" id="pf-p" class="pf-input" placeholder="1-1023,3389" data-action="onPfChange">
                                     </div>
                                     <div style="display:flex;align-items:flex-end;padding-bottom:4px;">
-                                        <label><input type="checkbox" id="pf-F" class="pf-checkbox" onchange="onPfChange()"> -F <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Fast scan</span></label>
+                                        <label><input type="checkbox" id="pf-F" class="pf-checkbox" data-action="onPfChange"> -F <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Fast scan</span></label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="pf-section">
-                            <div class="pf-section-header" onclick="togglePfSection(this)">
+                            <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 <span>Source</span>
                             </div>
@@ -776,26 +780,26 @@
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                                     <div>
                                         <label style="font-size:0.75rem;">-D <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Use decoys to hide identity</span></label>
-                                        <input type="text" id="pf-D" class="pf-input" placeholder="&lt;decoy1&gt;,&lt;decoy2&gt;,ME,RND,RND" onchange="onPfChange()">
+                                        <input type="text" id="pf-D" class="pf-input" placeholder="&lt;decoy1&gt;,&lt;decoy2&gt;,ME,RND,RND" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">-S <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Set source IP address</span></label>
-                                        <input type="text" id="pf-S" class="pf-input" placeholder="64.13.134.52" onchange="onPfChange()">
+                                        <input type="text" id="pf-S" class="pf-input" placeholder="64.13.134.52" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--source-port <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Set source port</span></label>
-                                        <input type="text" id="pf-source-port" class="pf-input" placeholder="53 or ..." onchange="onPfChange()">
+                                        <input type="text" id="pf-source-port" class="pf-input" placeholder="53 or ..." data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">-e <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Set network interface</span></label>
-                                        <input type="text" id="pf-e" class="pf-input" placeholder="eth0" onchange="onPfChange()">
+                                        <input type="text" id="pf-e" class="pf-input" placeholder="eth0" data-action="onPfChange">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="pf-section">
-                            <div class="pf-section-header" onclick="togglePfSection(this)">
+                            <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 <span>Other</span>
                             </div>
@@ -803,28 +807,28 @@
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                                     <div>
                                         <label style="font-size:0.75rem;">Extra options <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Extra options defined by user</span></label>
-                                        <input type="text" id="pf-extra" class="pf-input" placeholder="extra nmap args" onchange="onPfChange()">
+                                        <input type="text" id="pf-extra" class="pf-input" placeholder="extra nmap args" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--ttl <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Set IPv4 time to live</span></label>
-                                        <input type="text" id="pf-ttl" class="pf-input" placeholder="100" onchange="onPfChange()">
+                                        <input type="text" id="pf-ttl" class="pf-input" placeholder="100" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--max-retries <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max Retries</span></label>
-                                        <input type="text" id="pf-max-retries" class="pf-input" placeholder="10" onchange="onPfChange()">
+                                        <input type="text" id="pf-max-retries" class="pf-input" placeholder="10" data-action="onPfChange">
                                     </div>
                                 </div>
                                 <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
-                                    <label><input type="checkbox" id="pf-f" class="pf-checkbox" onchange="onPfChange()"> -f <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Fragment IP packets</span></label>
-                                    <label><input type="checkbox" id="pf-packet-trace" class="pf-checkbox" onchange="onPfChange()"> --packet-trace <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Packet trace</span></label>
-                                    <label><input type="checkbox" id="pf-r" class="pf-checkbox" onchange="onPfChange()"> -r <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Disable randomizing scanned ports</span></label>
-                                    <label><input type="checkbox" id="pf-traceroute" class="pf-checkbox" onchange="onPfChange()"> --traceroute <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Trace routes to targets</span></label>
+                                    <label><input type="checkbox" id="pf-f" class="pf-checkbox" data-action="onPfChange"> -f <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Fragment IP packets</span></label>
+                                    <label><input type="checkbox" id="pf-packet-trace" class="pf-checkbox" data-action="onPfChange"> --packet-trace <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Packet trace</span></label>
+                                    <label><input type="checkbox" id="pf-r" class="pf-checkbox" data-action="onPfChange"> -r <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Disable randomizing scanned ports</span></label>
+                                    <label><input type="checkbox" id="pf-traceroute" class="pf-checkbox" data-action="onPfChange"> --traceroute <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Trace routes to targets</span></label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="pf-section">
-                            <div class="pf-section-header" onclick="togglePfSection(this)">
+                            <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 <span>Timing</span>
                             </div>
@@ -832,63 +836,63 @@
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                                     <div>
                                         <label style="font-size:0.75rem;">--host-timeout <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max time to scan a target</span></label>
-                                        <input type="text" id="pf-host-timeout" class="pf-input" placeholder="1s; 4m; 2h" onchange="onPfChange()">
+                                        <input type="text" id="pf-host-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--max-rtt-timeout <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max probe timeout</span></label>
-                                        <input type="text" id="pf-max-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" onchange="onPfChange()">
+                                        <input type="text" id="pf-max-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--min-rtt-timeout <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Min probe timeout</span></label>
-                                        <input type="text" id="pf-min-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" onchange="onPfChange()">
+                                        <input type="text" id="pf-min-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--initial-rtt-timeout <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Initial probe timeout</span></label>
-                                        <input type="text" id="pf-initial-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" onchange="onPfChange()">
+                                        <input type="text" id="pf-initial-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--max-hostgroup <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max hosts in parallel</span></label>
-                                        <input type="text" id="pf-max-hostgroup" class="pf-input" placeholder="1024" onchange="onPfChange()">
+                                        <input type="text" id="pf-max-hostgroup" class="pf-input" placeholder="1024" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--min-hostgroup <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Min hosts in parallel</span></label>
-                                        <input type="text" id="pf-min-hostgroup" class="pf-input" placeholder="50" onchange="onPfChange()">
+                                        <input type="text" id="pf-min-hostgroup" class="pf-input" placeholder="50" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--max-parallelism <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max outstanding probes</span></label>
-                                        <input type="text" id="pf-max-parallelism" class="pf-input" placeholder="1" onchange="onPfChange()">
+                                        <input type="text" id="pf-max-parallelism" class="pf-input" placeholder="1" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--min-parallelism <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Min outstanding probes</span></label>
-                                        <input type="text" id="pf-min-parallelism" class="pf-input" placeholder="10" onchange="onPfChange()">
+                                        <input type="text" id="pf-min-parallelism" class="pf-input" placeholder="10" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--max-scan-delay <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max scan delay</span></label>
-                                        <input type="text" id="pf-max-scan-delay" class="pf-input" placeholder="20" onchange="onPfChange()">
+                                        <input type="text" id="pf-max-scan-delay" class="pf-input" placeholder="20" data-action="onPfChange">
                                     </div>
                                     <div>
                                         <label style="font-size:0.75rem;">--scan-delay <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Min delay between probes</span></label>
-                                        <input type="text" id="pf-scan-delay" class="pf-input" placeholder="4s; 2m" onchange="onPfChange()">
+                                        <input type="text" id="pf-scan-delay" class="pf-input" placeholder="4s; 2m" data-action="onPfChange">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="pf-section">
-                            <div class="pf-section-header" onclick="togglePfSection(this)">
+                            <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 <span>NSE Scripts</span>
                             </div>
                             <div class="pf-section-body collapsed">
                                 <div>
                                     <label style="font-size:0.75rem;">Search NSE scripts <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">--script</span></label>
-                                    <input type="text" id="pf-nse-search" class="pf-input" placeholder="Search NSE scripts..." oninput="searchProfileNse()">
+                                    <input type="text" id="pf-nse-search" class="pf-input" placeholder="Search NSE scripts..." data-action="searchProfileNse">
                                 </div>
                                 <div id="pf-nse-results" style="margin-top:4px;"></div>
                                 <div id="pf-nse-chips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;"></div>
                                 <div style="margin-top:8px;">
                                     <label style="font-size:0.75rem;">Script args</label>
-                                    <textarea id="pf-nse-args" class="pf-input" placeholder="key=value, one per line" rows="3" style="resize:vertical;font-family:var(--font-mono);font-size:0.8rem;" onchange="onPfChange()"></textarea>
+                                    <textarea id="pf-nse-args" class="pf-input" placeholder="key=value, one per line" rows="3" style="resize:vertical;font-family:var(--font-mono);font-size:0.8rem;" data-action="onPfChange"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -915,7 +919,7 @@
     </div>
 
     <!-- About Modal -->
-    <div id="about-modal" class="modal-overlay" style="display: none;" onclick="if(event.target===this)hideAboutModal()">
+    <div id="about-modal" class="modal-overlay" style="display: none;" >
         <div class="modal" style="max-width: 480px;">
             <div class="modal-header">
                 <h3>About NexusMap</h3>
@@ -962,13 +966,13 @@
         <div class="modal-content modal-medium">
             <div class="modal-header">
                 <h3>Advanced Filters</h3>
-                <span class="modal-close" onclick="closeModal('advanced-filter-modal')">&times;</span>
+                <span class="modal-close" data-action="closeModal" data-modal="advanced-filter-modal">&times;</span>
             </div>
             <div class="modal-body">
                 <div id="adv-filter-rows"></div>
                 <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
-                    <button class="btn btn-secondary btn-sm" onclick="addFilterRow(0)">+ Add Filter</button>
-                    <button class="btn btn-secondary btn-sm" onclick="addFilterGroup()">+ Add Group</button>
+                    <button class="btn btn-secondary btn-sm" data-action="addFilterRow" data-idx="0">+ Add Filter</button>
+                    <button class="btn btn-secondary btn-sm" data-action="addFilterGroup">+ Add Group</button>
                     <div style="flex:1;"></div>
                     <label style="font-size:0.8rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
                         <select id="adv-filter-mode" class="form-control" style="width:auto;font-size:0.8rem;padding:4px 8px;">
@@ -980,18 +984,23 @@
                 </div>
             </div>
             <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end;">
-                <button class="btn btn-secondary" onclick="clearAdvancedFilters()">Clear All</button>
-                <button class="btn btn-secondary" onclick="cancelAdvancedFilters()">Cancel</button>
-                <button class="btn btn-primary" onclick="applyAdvancedFilters()">Apply</button>
+                <button class="btn btn-secondary" data-action="clearAdvancedFilters">Clear All</button>
+                <button class="btn btn-secondary" data-action="cancelAdvancedFilters">Cancel</button>
+                <button class="btn btn-primary" data-action="applyAdvancedFilters">Apply</button>
             </div>
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=20"></script>
-    <script src="/static/js/project.js?v=1"></script>
+    <script src="/static/js/app.js?v=22"></script>
+    <script src="/static/js/project-scans.js?v=1"></script>
+    <script src="/static/js/project-consolidated.js?v=1"></script>
+    <script src="/static/js/project-live.js?v=1"></script>
+    <script src="/static/js/project-import.js?v=1"></script>
+    <script src="/static/js/project-profiles.js?v=1"></script>
+    <script src="/static/js/project-main.js?v=2"></script>
 
     <div class="footer">
-        NexusMap v1.0 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap v1.1 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

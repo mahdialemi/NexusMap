@@ -1,19 +1,19 @@
 ﻿:root, [data-theme="dark"] {
-    --bg: #0f172a;
-    --bg-card: #1e293b;
-    --bg-input: #334155;
-    --bg-secondary: #162032;
-    --border: #475569;
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-    --green: #22c55e;
-    --red: #ef4444;
-    --yellow: #eab308;
-    --orange: #f97316;
-    --cyan: #06b6d4;
-    --purple: #8b5cf6;
+    --bg: #0d0d14;
+    --bg-card: #16161f;
+    --bg-input: #1e1e2c;
+    --bg-secondary: #12121c;
+    --border: #2a2a3a;
+    --text: #e8e6f0;
+    --text-muted: #8a88a0;
+    --accent: #e6952e;
+    --accent-hover: #d48422;
+    --green: #45c486;
+    --red: #e0696a;
+    --yellow: #e8b84b;
+    --orange: #e8924b;
+    --cyan: #4fc4cf;
+    --purple: #9b87f5;
     --card-bg: var(--bg-card);
     --font-mono: 'Consolas', 'Courier New', monospace;
     --font: inherit;
@@ -21,21 +21,21 @@
     --radius-input: 6px;
 }
 [data-theme="light"] {
-    --bg: #f5f0eb;
-    --bg-card: #fdfaf5;
-    --bg-input: #ede8e2;
-    --bg-secondary: #f2eee8;
-    --border: #d8d2cb;
-    --text: #2c2c3a;
-    --text-muted: #7a7a88;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-    --green: #4caf50;
-    --red: #e57373;
-    --yellow: #ca8a04;
-    --orange: #e08e3f;
-    --cyan: #4aa3b8;
-    --purple: #9575cd;
+    --bg: #edf1f7;
+    --bg-card: #f5f8fc;
+    --bg-input: #e4e9f0;
+    --bg-secondary: #f0f4f9;
+    --border: #d0d7e2;
+    --text: #1c1e2a;
+    --text-muted: #6e7a90;
+    --accent: #b87d22;
+    --accent-hover: #a06c18;
+    --green: #3a9a6a;
+    --red: #cc5c5c;
+    --yellow: #b8943a;
+    --orange: #ca7a3a;
+    --cyan: #3a9aac;
+    --purple: #7a68d2;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -55,6 +55,8 @@ a:hover { text-decoration: underline; }
 
 .container { max-width: 98vw; margin: 0 auto; padding: 20px; width: 100%; box-sizing: border-box; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .main-area > [id^="tab-"] { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.main-area > .panel { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+#activity-log-container { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: auto; }
 
 /* Header */
 .header {
@@ -68,9 +70,9 @@ a:hover { text-decoration: underline; }
 .header h1 { font-size: 1.4rem; font-weight: 600; }
 .header-nav { display: flex; gap: 15px; align-items: center; }
 .header-nav span { color: var(--text-muted); font-size: 0.9rem; }
-.user-admin {
+.header-nav .user-admin {
     background: var(--accent);
-    color: #fff;
+    color: #000;
     padding: 2px 10px;
     border-radius: 12px;
     font-weight: 700;
@@ -207,7 +209,7 @@ select.form-control { cursor: pointer; }
 .btn-ghost { background: transparent; color: var(--text-muted); border: none; padding: 4px 8px; font-size: 0.78rem; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s; }
 .btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--text); }
 [data-theme="light"] .btn-ghost:hover { background: rgba(0,0,0,0.06); }
-.btn-primary { background: var(--accent); color: white; }
+.btn-primary { background: var(--accent); color: #111118; }
 .btn-primary:hover { background: var(--accent-hover); }
 .btn-danger { background: var(--red); color: white; }
 .btn-danger:hover { background: #dc2626; }
@@ -826,7 +828,7 @@ tr.script-group-header .group-count { font-weight: 400; font-size: 0.75rem; colo
     transition: all 0.15s;
 }
 .log-tab:hover { border-color: var(--accent); color: var(--text); }
-.log-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.log-tab.active { background: var(--accent); color: #111118; border-color: var(--accent); }
 
 /* Log viewer */
 .log-viewer {
@@ -2008,3 +2010,6 @@ th.sortable:hover { color: var(--accent); }
     border-top: 1px solid var(--border);
     margin: 10px 0;
 }
+
+.dropdown-item:hover { background: var(--bg-input); }
+.dropdown-item { background: transparent; }

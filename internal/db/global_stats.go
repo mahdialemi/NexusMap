@@ -31,9 +31,10 @@ func (d *DB) GetGlobalStats() (*GlobalStats, error) {
 		SELECT
 			(SELECT COUNT(*) FROM consolidated_hosts) as total_hosts,
 			(SELECT COUNT(*) FROM consolidated_ports) as total_ports,
-			(SELECT COUNT(DISTINCT service) FROM consolidated_ports WHERE service IS NOT NULL AND service != '') as unique_services
+			(SELECT COUNT(DISTINCT service) FROM consolidated_ports WHERE service IS NOT NULL AND service != '') as unique_services,
+			(SELECT COUNT(*) FROM live_hosts) as total_live_hosts
 	`)
-	if err := row3.Scan(&s.TotalHosts, &s.TotalPorts, &s.UniqueServices); err != nil {
+	if err := row3.Scan(&s.TotalHosts, &s.TotalPorts, &s.UniqueServices, &s.TotalLiveHosts); err != nil {
 		return nil, err
 	}
 

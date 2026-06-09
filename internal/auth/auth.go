@@ -110,8 +110,8 @@ func (a *Auth) ValidateSession(sessionID string) (*db.User, string, error) {
 }
 
 func validatePasswordStrength(password string) error {
-	if len(password) < 8 {
-		return fmt.Errorf("password must be at least 8 characters long")
+	if len(password) < 12 {
+		return fmt.Errorf("password must be at least 12 characters long")
 	}
 	var hasUpper, hasLower, hasDigit, hasSpecial bool
 	for _, ch := range password {
@@ -141,7 +141,11 @@ func validatePasswordStrength(password string) error {
 	return nil
 }
 
-func (a *Auth) ChangePassword(userID int, oldPassword, newPassword string) error {
+func (a *Auth) ChangePassword(userID int, oldPassword, newPassword, confirmPassword, currentSessionID string) error {
+	if newPassword != confirmPassword {
+		return fmt.Errorf("passwords do not match")
+	}
+
 	var hash string
 	err := a.DB.QueryRow("SELECT password_hash FROM users WHERE id = ?", userID).Scan(&hash)
 	if err != nil {
@@ -176,7 +180,7 @@ func (a *Auth) ChangePassword(userID int, oldPassword, newPassword string) error
 		return err
 	}
 
-	newHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), 12)
+	newHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), 13)
 	if err != nil {
 		return err
 	}
@@ -192,6 +196,11 @@ func (a *Auth) ChangePassword(userID int, oldPassword, newPassword string) error
 	}
 	if _, err := tx.Exec("UPDATE users SET password_hash = ?, must_change_password = 0 WHERE id = ?", string(newHash), userID); err != nil {
 		return err
+	}
+	if currentSessionID != "" {
+		if _, err := tx.Exec("DELETE FROM sessions WHERE user_id = ? AND id != ?", userID, currentSessionID); err != nil {
+			return err
+		}
 	}
 
 	return tx.Commit()

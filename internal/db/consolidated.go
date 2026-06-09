@@ -6,14 +6,14 @@ import (
 )
 
 func (d *DB) GetConsolidatedPorts(projectID int) ([]ConsolidatedPort, error) {
-	result, err := d.GetConsolidatedPortsPaged(projectID, 1, 100000, "", "", "")
+	result, err := d.GetConsolidatedPortsPaged(projectID, 1, 100000, "", "", "", false)
 	if err != nil {
 		return nil, err
 	}
 	return result.Ports, nil
 }
 
-func (d *DB) GetConsolidatedPortsPaged(projectID, page, limit int, search, state, service string) (*PaginatedPorts, error) {
+func (d *DB) GetConsolidatedPortsPaged(projectID, page, limit int, search, state, service string, hideClosed bool) (*PaginatedPorts, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -35,6 +35,9 @@ func (d *DB) GetConsolidatedPortsPaged(projectID, page, limit int, search, state
 	if service != "" {
 		wheres = append(wheres, "cp.service LIKE ?")
 		args = append(args, "%"+service+"%")
+	}
+	if hideClosed {
+		wheres = append(wheres, "cp.state != 'closed'")
 	}
 	whereClause := ""
 	if len(wheres) > 0 {
@@ -185,7 +188,11 @@ func (d *DB) GetHostEditHistory(ip string) ([]ConsolidatedEdit, error) {
 	return edits, nil
 }
 
+var hostEditFields = map[string]bool{"mac": true, "hostname": true, "os": true}
+
 func (d *DB) RevertHostEdit(editID int, ip string) error {
+	hostFields := hostEditFields
+
 	tx, err := d.Begin()
 	if err != nil {
 		return err
@@ -198,6 +205,10 @@ func (d *DB) RevertHostEdit(editID int, ip string) error {
 	`, editID).Scan(&edit.Field, &edit.OldValue, &edit.NewValue)
 	if err != nil {
 		return err
+	}
+
+	if !hostFields[edit.Field] {
+		return fmt.Errorf("invalid field: %s", edit.Field)
 	}
 
 	_, err = tx.Exec(fmt.Sprintf("UPDATE consolidated_hosts SET %s = ? WHERE ip = ?", edit.Field), edit.OldValue, ip)
@@ -675,6 +686,11 @@ func (d *DB) GetConsolidatedPortsFiltered(projectID int, req *PortsQueryRequest)
 		allWheres = append(allWheres, "(cp.ip LIKE ? OR cp.service LIKE ? OR ch.hostname LIKE ? OR ch.os LIKE ?)")
 		s := "%" + req.Search + "%"
 		args = append(args, s, s, s, s)
+	}
+
+	// hide closed ports
+	if req.HideClosed {
+		allWheres = append(allWheres, "cp.state != 'closed'")
 	}
 
 	// Process filters: either groups or flat list

@@ -65,10 +65,7 @@ var AuthRateLimiter = newRateLimiter(10, time.Minute)
 
 func RateLimitMiddleware(next http.HandlerFunc, limiter *rateLimiter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
-		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-			ip = xff
-		}
+		ip := getClientIP(r)
 
 		if !limiter.allow(ip) {
 			w.Header().Set("Content-Type", "application/json")

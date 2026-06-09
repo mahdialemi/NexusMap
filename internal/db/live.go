@@ -1,5 +1,7 @@
 package db
 
+import "fmt"
+
 func (d *DB) GetLiveHosts(projectID int) ([]LiveHost, error) {
 	rows, err := d.Query(`
 		SELECT DISTINCT h.ip,
@@ -47,7 +49,14 @@ func (d *DB) DeleteLiveHost(ip string) error {
 	return err
 }
 
+var liveHostValidFields = map[string]bool{
+	"hostname": true, "mac": true, "os": true, "note": true, "status": true,
+}
+
 func (d *DB) UpdateLiveHostField(ip, field, value string) error {
+	if !liveHostValidFields[field] {
+		return fmt.Errorf("invalid field: %s", field)
+	}
 	_, err := d.Exec("UPDATE live_hosts SET "+field+" = ?, last_seen = CURRENT_TIMESTAMP WHERE ip = ?", value, ip)
 	return err
 }

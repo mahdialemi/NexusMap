@@ -22,7 +22,7 @@ func (s *Server) HandleResults(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.DB.AddPort(req.HostID, req.Port, req.Protocol, req.State, req.Service, req.Version); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	jsonResponse(w, 200, map[string]string{"status": "ok"})
@@ -49,7 +49,7 @@ func (s *Server) HandleResultByID(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := s.DB.UpdateResultField(req.Table, resultID, req.Field, req.Value); err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		jsonResponse(w, 200, map[string]string{"status": "ok"})
@@ -75,7 +75,7 @@ func (s *Server) HandleResultByID(w http.ResponseWriter, r *http.Request) {
 			err = s.DB.DeletePort(resultID)
 		}
 		if err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		jsonResponse(w, 200, map[string]string{"status": "ok"})
@@ -103,7 +103,7 @@ func (s *Server) HandleRevertResult(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.DB.RevertResultField(req.Table, resultID, req.Field); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	jsonResponse(w, 200, map[string]string{"status": "ok"})
@@ -126,7 +126,7 @@ func (s *Server) HandleBulkUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.DB.BulkUpdatePorts(req.IDs, req.Field, req.Value); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	jsonResponse(w, 200, map[string]string{"status": "ok"})

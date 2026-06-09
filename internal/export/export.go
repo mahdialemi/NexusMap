@@ -4,12 +4,19 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"scanner-mgmt/internal/db"
 	"strings"
 
 	"github.com/xuri/excelize/v2"
 )
+
+func escapeXML(s string) string {
+	var buf bytes.Buffer
+	xml.EscapeText(&buf, []byte(s))
+	return buf.String()
+}
 
 func escapeCSV(s string) string {
 	if len(s) > 0 && (s[0] == '=' || s[0] == '+' || s[0] == '-' || s[0] == '@') {
@@ -523,34 +530,34 @@ func ToXML(results []db.ResultRow, scan *db.Scan) ([]byte, error) {
 	for ip, ports := range hosts {
 		h := ports[0]
 		buf.WriteString(fmt.Sprintf("<host starttime=\"0\" endtime=\"0\">\n"))
-		buf.WriteString(fmt.Sprintf("<status state=\"%s\" reason=\"generated\"/>\n", h.HostStatus))
-		buf.WriteString(fmt.Sprintf("<address addr=\"%s\" addrtype=\"ipv4\"/>\n", ip))
+		buf.WriteString(fmt.Sprintf("<status state=\"%s\" reason=\"generated\"/>\n", escapeXML(h.HostStatus)))
+		buf.WriteString(fmt.Sprintf("<address addr=\"%s\" addrtype=\"ipv4\"/>\n", escapeXML(ip)))
 		if h.MAC != "" {
-			buf.WriteString(fmt.Sprintf("<address addr=\"%s\" addrtype=\"mac\"/>\n", h.MAC))
+			buf.WriteString(fmt.Sprintf("<address addr=\"%s\" addrtype=\"mac\"/>\n", escapeXML(h.MAC)))
 		}
 		if h.Hostname != "" {
-			buf.WriteString(fmt.Sprintf("<hostnames><hostname name=\"%s\" type=\"user\"/></hostnames>\n", h.Hostname))
+			buf.WriteString(fmt.Sprintf("<hostnames><hostname name=\"%s\" type=\"user\"/></hostnames>\n", escapeXML(h.Hostname)))
 		}
 		buf.WriteString("<ports>\n")
 		for _, p := range ports {
-			buf.WriteString(fmt.Sprintf("<port protocol=\"%s\" portid=\"%d\">", p.Protocol, p.Port))
-			buf.WriteString(fmt.Sprintf("<state state=\"%s\" reason=\"%s\"/>", p.State, p.Reason))
-			buf.WriteString(fmt.Sprintf("<service name=\"%s\"", p.Service))
+			buf.WriteString(fmt.Sprintf("<port protocol=\"%s\" portid=\"%d\">", escapeXML(p.Protocol), p.Port))
+			buf.WriteString(fmt.Sprintf("<state state=\"%s\" reason=\"%s\"/>", escapeXML(p.State), escapeXML(p.Reason)))
+			buf.WriteString(fmt.Sprintf("<service name=\"%s\"", escapeXML(p.Service)))
 			if p.Product != "" {
-				buf.WriteString(fmt.Sprintf(" product=\"%s\"", p.Product))
+				buf.WriteString(fmt.Sprintf(" product=\"%s\"", escapeXML(p.Product)))
 			}
 			if p.Version != "" {
-				buf.WriteString(fmt.Sprintf(" version=\"%s\"", p.Version))
+				buf.WriteString(fmt.Sprintf(" version=\"%s\"", escapeXML(p.Version)))
 			}
 			if p.ExtraInfo != "" {
-				buf.WriteString(fmt.Sprintf(" extrainfo=\"%s\"", p.ExtraInfo))
+				buf.WriteString(fmt.Sprintf(" extrainfo=\"%s\"", escapeXML(p.ExtraInfo)))
 			}
 			buf.WriteString("/>\n")
 			buf.WriteString("</port>\n")
 		}
 		buf.WriteString("</ports>\n")
 		if h.OS != "" {
-			buf.WriteString(fmt.Sprintf("<os><osmatch name=\"%s\" accuracy=\"100\"/></os>\n", h.OS))
+			buf.WriteString(fmt.Sprintf("<os><osmatch name=\"%s\" accuracy=\"100\"/></os>\n", escapeXML(h.OS)))
 		}
 		buf.WriteString("</host>\n")
 	}

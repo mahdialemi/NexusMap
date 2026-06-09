@@ -106,7 +106,8 @@ async function getGlobalStats() {
 async function getTagCloud() {
     const res = await fetch(`${API}/api/tags`);
     if (!res.ok) throw new Error('Failed to load tag cloud');
-    return res.json();
+    const data = await res.json();
+    return data.tags || [];
 }
 
 // Scans
@@ -137,6 +138,7 @@ async function stopScanAPI(scanId) {
 
 async function getScanLog(scanId) {
     const res = await fetch(`${API}/api/scans/${scanId}/log`);
+    if (!res.ok) throw new Error('Failed to load scan log: ' + res.status);
     return res.json();
 }
 
@@ -174,6 +176,7 @@ async function getResults(scanId, page, limit) {
     if (limit) params.push('limit=' + limit);
     if (params.length) url += '?' + params.join('&');
     const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to load results: ' + res.status);
     return res.json();
 }
 
@@ -183,39 +186,45 @@ async function updateResult(id, table, field, value) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ table, field, value })
     });
-    return res.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update result');
+    return data;
 }
 
 async function revertResult(id, table, field) {
-    await fetch(`${API}/api/results/${id}/revert`, {
+    const res = await fetch(`${API}/api/results/${id}/revert`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ table, field })
     });
+    if (!res.ok) throw new Error('Failed to revert result: ' + res.status);
 }
 
 async function addPort(hostId, port, protocol, state, service, version) {
-    await fetch(`${API}/api/results`, {
+    const res = await fetch(`${API}/api/results`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ host_id: hostId, port, protocol, state, service, version })
     });
+    if (!res.ok) throw new Error('Failed to add port: ' + res.status);
 }
 
 async function deleteResult(id, table) {
-    await fetch(`${API}/api/results/${id}`, {
+    const res = await fetch(`${API}/api/results/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ table })
     });
+    if (!res.ok) throw new Error('Failed to delete result: ' + res.status);
 }
 
 async function bulkUpdate(ids, field, value) {
-    await fetch(`${API}/api/results/bulk`, {
+    const res = await fetch(`${API}/api/results/bulk`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids, field, value })
     });
+    if (!res.ok) throw new Error('Failed to bulk update: ' + res.status);
 }
 
 // Export
@@ -283,12 +292,16 @@ async function resetUserPassword(id, newPassword) {
     return data;
 }
 
-async function changePassword(oldPass, newPass) {
-    await fetch(`${API}/api/change-password`, {
+async function changePassword(oldPass, newPass, confirmPass) {
+    var res = await fetch(`${API}/api/change-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ old_password: oldPass, new_password: newPass })
+        body: JSON.stringify({ old_password: oldPass, new_password: newPass, confirm_password: confirmPass })
     });
+    if (!res.ok) {
+        var data = await res.json().catch(function() { return {error: 'request failed'}; });
+        throw new Error(data.error || 'password change failed');
+    }
 }
 
 // Toast notifications
@@ -297,7 +310,18 @@ function showToast(message, type = 'success') {
     if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.innerHTML = '<button class="toast-close" onclick="this.parentElement.remove()">&times;</button><span>' + esc(message) + '</span><div class="toast-progress" style="animation-duration: 3s;"></div>';
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'toast-close';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.addEventListener('click', () => toast.remove());
+    toast.appendChild(closeBtn);
+    const span = document.createElement('span');
+    span.textContent = message;
+    toast.appendChild(span);
+    const progress = document.createElement('div');
+    progress.className = 'toast-progress';
+    progress.style.animationDuration = '3s';
+    toast.appendChild(progress);
     container.appendChild(toast);
     setTimeout(() => { if (toast.parentElement) toast.remove(); }, 3000);
 }
@@ -314,10 +338,14 @@ function esc(s) {
     return d.innerHTML;
 }
 
+function escAttr(s) {
+    return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
 function stateBadge(state) {
     const cls = state === 'open' || state === 'up' ? 'badge-open' :
                 state === 'closed' || state === 'down' ? 'badge-closed' : 'badge-filtered';
-    return `<span class="badge ${cls}">${state}</span>`;
+    return `<span class="badge ${cls}">${esc(state)}</span>`;
 }
 
 // Modal helpers
@@ -348,6 +376,10 @@ function showModal(id, title, bodyHTML, sizeClass) {
 }
 
 function closeModal(id) {
+    if (!id) {
+        if (this && this.getAttribute) id = this.getAttribute('data-modal');
+        else return;
+    }
     var el = document.getElementById(id);
     if (el) el.style.display = 'none';
 }
@@ -367,6 +399,22 @@ function hideLoading(el) {
 
 // Event delegation: handles data-action elements
 document.addEventListener('click', function(e) {
+    var el = e.target.closest('[data-action]');
+    if (!el) return;
+    var action = el.getAttribute('data-action');
+    var fn = typeof window[action] === 'function' ? window[action] : null;
+    if (fn) fn.call(el, e);
+});
+
+document.addEventListener('change', function(e) {
+    var el = e.target.closest('[data-action]');
+    if (!el) return;
+    var action = el.getAttribute('data-action');
+    var fn = typeof window[action] === 'function' ? window[action] : null;
+    if (fn) fn.call(el, e);
+});
+
+document.addEventListener('input', function(e) {
     var el = e.target.closest('[data-action]');
     if (!el) return;
     var action = el.getAttribute('data-action');
@@ -470,10 +518,12 @@ document.addEventListener('click', function(e) {
 
 if (document.getElementById('notif-badge')) {
     fetchNotifications();
-    setInterval(fetchNotifications, NOTIF_POLL_INTERVAL);
+    var notifInterval = setInterval(fetchNotifications, NOTIF_POLL_INTERVAL);
     if (typeof EventSource !== 'undefined') {
         var es = new EventSource('/api/events');
         es.addEventListener('message', function() { fetchNotifications(); });
         es.addEventListener('error', function() {});
+        window.addEventListener('beforeunload', function() { es.close(); });
     }
+    window.addEventListener('beforeunload', function() { clearInterval(notifInterval); });
 }

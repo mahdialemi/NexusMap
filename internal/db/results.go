@@ -68,7 +68,8 @@ func (d *DB) SavePortScripts(hostMap map[string]int64, portScripts []PortScript)
 	}
 	defer tx.Rollback()
 
-	stmt, err := tx.Prepare("INSERT INTO port_scripts (host_id, port_id, script_id, output) VALUES (?, ?, ?, ?)")
+	stmt, err := tx.Prepare(`INSERT INTO port_scripts (host_id, port_id, script_id, output) VALUES (?, ?, ?, ?)
+		ON CONFLICT(host_id, port_id, script_id) DO UPDATE SET output = excluded.output`)
 	if err != nil {
 		return err
 	}
@@ -99,7 +100,8 @@ func (d *DB) SaveHostScripts(hostMap map[string]int64, hostScripts []HostScript)
 	}
 	defer tx.Rollback()
 
-	stmt, err := tx.Prepare("INSERT INTO host_scripts (host_id, script_id, output) VALUES (?, ?, ?)")
+	stmt, err := tx.Prepare(`INSERT INTO host_scripts (host_id, script_id, output) VALUES (?, ?, ?)
+		ON CONFLICT(host_id, script_id) DO UPDATE SET output = excluded.output`)
 	if err != nil {
 		return err
 	}
@@ -120,10 +122,10 @@ func (d *DB) SaveHostScripts(hostMap map[string]int64, hostScripts []HostScript)
 
 func (d *DB) GetResults(scanID int) ([]ResultRow, error) {
 	rows, err := d.Query(`
-		SELECT h.id as host_id, p.id as port_id, h.ip, h.mac, h.hostname, h.os, h.status,
-			p.port, p.protocol, p.state, p.service, p.version, p.extra_info, p.product, p.reason, p.is_modified
-		FROM ports p
-		JOIN hosts h ON p.host_id = h.id
+		SELECT h.id as host_id, COALESCE(p.id, 0) as port_id, h.ip, h.mac, h.hostname, h.os, h.status,
+			COALESCE(p.port, 0), COALESCE(p.protocol, ''), COALESCE(p.state, ''), COALESCE(p.service, ''), COALESCE(p.version, ''), COALESCE(p.extra_info, ''), COALESCE(p.product, ''), COALESCE(p.reason, ''), COALESCE(p.is_modified, 0)
+		FROM hosts h
+		LEFT JOIN ports p ON p.host_id = h.id
 		WHERE h.scan_id = ?
 		ORDER BY h.ip, p.port`, scanID)
 	if err != nil {
@@ -145,17 +147,17 @@ func (d *DB) GetResults(scanID int) ([]ResultRow, error) {
 
 func (d *DB) GetResultsPaginated(scanID, page, limit int) (*PaginatedResults, error) {
 	var total int
-	err := d.QueryRow("SELECT COUNT(*) FROM ports p JOIN hosts h ON p.host_id = h.id WHERE h.scan_id = ?", scanID).Scan(&total)
+	err := d.QueryRow("SELECT COUNT(*) FROM hosts h WHERE h.scan_id = ?", scanID).Scan(&total)
 	if err != nil {
 		return nil, err
 	}
 
 	offset := (page - 1) * limit
 	rows, err := d.Query(`
-		SELECT h.id as host_id, p.id as port_id, h.ip, h.mac, h.hostname, h.os, h.status,
-			p.port, p.protocol, p.state, p.service, p.version, p.extra_info, p.product, p.reason, p.is_modified
-		FROM ports p
-		JOIN hosts h ON p.host_id = h.id
+		SELECT h.id as host_id, COALESCE(p.id, 0) as port_id, h.ip, h.mac, h.hostname, h.os, h.status,
+			COALESCE(p.port, 0), COALESCE(p.protocol, ''), COALESCE(p.state, ''), COALESCE(p.service, ''), COALESCE(p.version, ''), COALESCE(p.extra_info, ''), COALESCE(p.product, ''), COALESCE(p.reason, ''), COALESCE(p.is_modified, 0)
+		FROM hosts h
+		LEFT JOIN ports p ON p.host_id = h.id
 		WHERE h.scan_id = ?
 		ORDER BY h.ip, p.port
 		LIMIT ? OFFSET ?`, scanID, limit, offset)

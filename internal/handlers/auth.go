@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -12,10 +13,7 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ip := r.RemoteAddr
-	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		ip = xff
-	}
+	ip := getClientIP(r)
 
 	var req struct {
 		Username string `json:"username"`
@@ -42,7 +40,7 @@ func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		Value:    sessionID,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   r.TLS != nil,
 		SameSite: http.SameSiteLaxMode,
 		Expires:  time.Now().Add(24 * time.Hour),
 	})
@@ -79,8 +77,9 @@ func (s *Server) HandleCSRFToken(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		OldPassword string `json:"old_password"`
-		NewPassword string `json:"new_password"`
+		OldPassword     string `json:"old_password"`
+		NewPassword     string `json:"new_password"`
+		ConfirmPassword string `json:"confirm_password"`
 	}
 	if err := jsonDecode(r, &req); err != nil {
 		jsonResponse(w, 400, map[string]string{"error": "invalid JSON"})
@@ -92,10 +91,17 @@ func (s *Server) HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.AuthSvc.ChangePassword(user.ID, req.OldPassword, req.NewPassword); err != nil {
+	sessionID := ""
+	if cookie, err := r.Cookie("session"); err == nil {
+		sessionID = cookie.Value
+	}
+
+	if err := s.AuthSvc.ChangePassword(user.ID, req.OldPassword, req.NewPassword, req.ConfirmPassword, sessionID); err != nil {
 		jsonResponse(w, 400, map[string]string{"error": err.Error()})
 		return
 	}
+
+	s.LogAndNotify("password_change", fmt.Sprintf("User %s changed their password", user.Username), user.Username)
 	jsonResponse(w, 200, map[string]string{"status": "ok"})
 }
 

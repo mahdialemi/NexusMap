@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	validNmapFlags = regexp.MustCompile(`^-[a-zA-Z0-9-]+$`)
+	validNmapFlags = regexp.MustCompile(`^-[a-zA-Z0-9-,]+$`)
 	safeArgRe      = regexp.MustCompile(`^[a-zA-Z0-9./_\-:,\[\]{}@!~*?+$%^&()=<>]+$`)
 )
 
@@ -21,10 +21,6 @@ func ValidateNmapArgs(args []string) error {
 	for _, arg := range args {
 		if strings.Contains(arg, "`") || strings.Contains(arg, "$(") || strings.Contains(arg, ";") || strings.Contains(arg, "|") || strings.Contains(arg, "&&") || strings.Contains(arg, "||") || strings.Contains(arg, "\n") || strings.Contains(arg, "\r") {
 			return fmt.Errorf("invalid characters in args: %s", arg)
-		}
-
-		if strings.HasPrefix(arg, "--script") {
-			return fmt.Errorf("direct --script not allowed, use NSE finder")
 		}
 
 		if strings.HasPrefix(arg, "-o") {

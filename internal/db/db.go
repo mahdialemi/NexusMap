@@ -448,6 +448,26 @@ func (d *DB) Init() error {
 		}
 	}
 
+	// Deduplicate port_scripts and add unique index
+	if _, pErr := d.Exec(`
+		DELETE FROM port_scripts WHERE id NOT IN (
+			SELECT MIN(id) FROM port_scripts GROUP BY host_id, port_id, script_id
+		)
+	`); pErr != nil {
+		log.Printf("Error deduplicating port_scripts: %v", pErr)
+	}
+	d.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_port_scripts_unique ON port_scripts(host_id, port_id, script_id)")
+
+	// Deduplicate host_scripts and add unique index
+	if _, pErr := d.Exec(`
+		DELETE FROM host_scripts WHERE id NOT IN (
+			SELECT MIN(id) FROM host_scripts GROUP BY host_id, script_id
+		)
+	`); pErr != nil {
+		log.Printf("Error deduplicating host_scripts: %v", pErr)
+	}
+	d.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_host_scripts_unique ON host_scripts(host_id, script_id)")
+
 	return nil
 }
 
@@ -455,7 +475,7 @@ func containsIgnoreCase(s, substr string) bool {
 	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }
 
-func (d *DB) SeedAdmin() (string, error) {
+func (d *DB) SeedAdmin(adminPassword string) (string, error) {
 	var count int
 	err := d.QueryRow("SELECT COUNT(*) FROM users WHERE username = 'admin'").Scan(&count)
 	if err != nil {
@@ -465,7 +485,10 @@ func (d *DB) SeedAdmin() (string, error) {
 		return "", nil
 	}
 
-	rawPassword := generateRandomPassword()
+	rawPassword := adminPassword
+	if rawPassword == "" {
+		rawPassword = generateRandomPassword()
+	}
 	hash, err := hashPassword(rawPassword)
 	if err != nil {
 		return "", err

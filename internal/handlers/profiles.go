@@ -7,14 +7,32 @@ import (
 )
 
 func (s *Server) HandleScanProfiles(w http.ResponseWriter, r *http.Request) {
+	user := getRequestUser(r)
+	if user == nil {
+		jsonResponse(w, 401, map[string]string{"error": "unauthorized"})
+		return
+	}
+
 	switch r.Method {
 	case "GET":
 		s.getProfiles(w, r)
 	case "POST":
+		if user.Role != "admin" {
+			jsonResponse(w, 403, map[string]string{"error": "forbidden"})
+			return
+		}
 		s.createProfile(w, r)
 	case "PUT":
+		if user.Role != "admin" {
+			jsonResponse(w, 403, map[string]string{"error": "forbidden"})
+			return
+		}
 		s.updateProfile(w, r)
 	case "DELETE":
+		if user.Role != "admin" {
+			jsonResponse(w, 403, map[string]string{"error": "forbidden"})
+			return
+		}
 		s.deleteProfile(w, r)
 	default:
 		jsonResponse(w, 405, map[string]string{"error": "method not allowed"})
@@ -24,7 +42,7 @@ func (s *Server) HandleScanProfiles(w http.ResponseWriter, r *http.Request) {
 func (s *Server) getProfiles(w http.ResponseWriter, r *http.Request) {
 	profiles, err := s.DB.GetProfiles()
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	jsonResponse(w, 200, map[string]interface{}{"profiles": profiles})
@@ -49,7 +67,7 @@ func (s *Server) createProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := s.DB.CreateProfile(req.Name, req.Description, req.Command, req.Category); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	jsonResponse(w, 201, map[string]string{"message": "profile created"})
@@ -75,7 +93,7 @@ func (s *Server) updateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := s.DB.UpdateProfile(req.ID, req.Name, req.Description, req.Command, req.Category); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	jsonResponse(w, 200, map[string]string{"message": "profile updated"})
@@ -90,7 +108,7 @@ func (s *Server) deleteProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := s.DB.DeleteProfile(req.ID); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	jsonResponse(w, 200, map[string]string{"message": "profile deleted"})

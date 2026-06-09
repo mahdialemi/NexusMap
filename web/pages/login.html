@@ -27,29 +27,10 @@
     </div>
 
     <script src="/static/js/app.js"></script>
-    <script>
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorEl = document.getElementById('login-error');
-            
-            try {
-                const data = await login(username, password);
-                if (data.must_change_password) {
-                    window.location.href = '/change-password';
-                } else {
-                    window.location.href = '/';
-                }
-            } catch (err) {
-                errorEl.textContent = err.message;
-                errorEl.style.display = 'block';
-            }
-        });
-    </script>
+    <script src="/static/js/login.js"></script>
 
     <div class="footer">
-        NexusMap v1.0 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap v1.1 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

@@ -173,6 +173,6 @@ nexusmap
 
 <div align="center">
 
-**NexusMap** v1.0 &middot; Made with vibe coding by [Mahdi Alemi](https://github.com/mahdialemi)
+**NexusMap** v1.1 &middot; Made with vibe coding by [Mahdi Alemi](https://github.com/mahdialemi)
 
 </div>

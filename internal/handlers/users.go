@@ -13,7 +13,7 @@ func (s *Server) HandleUsers(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		users, err := s.AuthSvc.GetUsers()
 		if err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		jsonResponse(w, 200, users)
@@ -32,7 +32,7 @@ func (s *Server) HandleUsers(w http.ResponseWriter, r *http.Request) {
 			req.Role = "user"
 		}
 		if err := s.AuthSvc.CreateUser(req.Username, req.Password, req.Role); err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		s.LogAndNotify("user_create", "Created user: "+req.Username+" ("+req.Role+")", uname)
@@ -62,7 +62,7 @@ func (s *Server) HandleUserByID(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 		tname := getTargetName()
 		if err := s.AuthSvc.DeleteUser(userID); err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		s.LogAndNotify("user_delete", "Deleted user: "+tname, uname)
@@ -82,7 +82,7 @@ func (s *Server) HandleUserByID(w http.ResponseWriter, r *http.Request) {
 		}
 		tname := getTargetName()
 		if err := s.AuthSvc.UpdateUser(userID, req.Role); err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		s.LogAndNotify("user_update", "Updated user "+tname+" to role: "+req.Role, uname)
@@ -104,7 +104,7 @@ func (s *Server) HandleUserByID(w http.ResponseWriter, r *http.Request) {
 			}
 			tname := getTargetName()
 			if err := s.AuthSvc.ResetUserPassword(userID, req.NewPassword); err != nil {
-				jsonResponse(w, 500, map[string]string{"error": err.Error()})
+				serverError(w, err)
 				return
 			}
 			s.LogAndNotify("user_reset_password", "Reset password for user: "+tname, uname)

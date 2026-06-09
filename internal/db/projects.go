@@ -195,6 +195,31 @@ func (d *DB) UpdateProjectStatus(id int, status string) error {
 }
 
 func (d *DB) DeleteProject(id int) error {
-	_, err := d.Exec("DELETE FROM projects WHERE id = ?", id)
-	return err
+	tx, err := d.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec("DELETE FROM scans WHERE project_id = ?", id); err != nil {
+		return err
+	}
+
+	for _, q := range []string{
+		"DELETE FROM consolidated_hosts WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
+		"DELETE FROM consolidated_ports WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
+		"DELETE FROM live_hosts WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
+		"DELETE FROM consolidated_notes WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
+		"DELETE FROM consolidated_edits WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
+	} {
+		if _, err := tx.Exec(q); err != nil {
+			return err
+		}
+	}
+
+	if _, err := tx.Exec("DELETE FROM projects WHERE id = ?", id); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

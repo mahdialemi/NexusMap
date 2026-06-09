@@ -55,13 +55,13 @@ func (b *SSEBroker) HandleSSE(w http.ResponseWriter, r *http.Request) {
 	ch := b.Subscribe()
 	defer b.Unsubscribe(ch)
 
-	fmt.Fprintf(w, "event: connected\ndata: {}\n\n")
+	_, _ = fmt.Fprintf(w, "event: connected\ndata: {}\n\n")
 	flusher.Flush()
 
 	for {
 		select {
 		case msg := <-ch:
-			fmt.Fprintf(w, "event: message\ndata: %s\n\n", msg)
+			_, _ = fmt.Fprintf(w, "event: message\ndata: %s\n\n", msg)
 			flusher.Flush()
 		case <-r.Context().Done():
 			return

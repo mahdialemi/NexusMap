@@ -37,23 +37,27 @@ type updateStatusRequest struct {
 func (s *Server) HandleProjects(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
+		user := getRequestUser(r)
 		filter := db.ProjectFilter{
 			Status:   r.URL.Query().Get("status"),
 			Priority: r.URL.Query().Get("priority"),
 			Search:   r.URL.Query().Get("search"),
 		}
+		if user != nil && user.Role != "admin" {
+			filter.OwnerID = user.ID
+		}
 
 		var projects []db.Project
 		var err error
 
-		if filter.Status != "" || filter.Priority != "" || filter.Search != "" {
+		if filter.Status != "" || filter.Priority != "" || filter.Search != "" || filter.OwnerID > 0 {
 			projects, err = s.DB.GetProjectsFiltered(filter)
 		} else {
 			projects, err = s.DB.GetProjects()
 		}
 
 		if err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		jsonResponse(w, 200, projects)
@@ -69,12 +73,15 @@ func (s *Server) HandleProjects(w http.ResponseWriter, r *http.Request) {
 			jsonResponse(w, 400, map[string]string{"error": "invalid JSON"})
 			return
 		}
+		if req.OwnerID == nil || *req.OwnerID == 0 {
+			req.OwnerID = &user.ID
+		}
 		id, err := s.DB.CreateProject(
 			req.Name, req.Description, req.Status, req.Priority,
 			req.Tags, req.Client, req.OwnerID, req.DueDate,
 		)
 		if err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		uname := ""
@@ -91,11 +98,15 @@ func (s *Server) HandleProjectByID(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	projectID := parseIntID(id)
 
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
+
 	switch r.Method {
 	case "GET":
 		project, err := s.DB.GetProject(projectID)
 		if err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		jsonResponse(w, 200, project)
@@ -115,7 +126,7 @@ func (s *Server) HandleProjectByID(w http.ResponseWriter, r *http.Request) {
 			projectID, req.Name, req.Description, req.Status, req.Priority,
 			req.Tags, req.Client, req.OwnerID, req.DueDate,
 		); err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		jsonResponse(w, 200, map[string]string{"status": "ok"})
@@ -128,7 +139,7 @@ func (s *Server) HandleProjectByID(w http.ResponseWriter, r *http.Request) {
 		}
 		proj, _ := s.DB.GetProject(projectID)
 		if err := s.DB.DeleteProject(projectID); err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		uname := ""
@@ -147,9 +158,13 @@ func (s *Server) HandleProjectScans(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	projectID := parseIntID(id)
 
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
+
 	scans, err := s.DB.GetScans(projectID)
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	jsonResponse(w, 200, scans)
@@ -183,7 +198,7 @@ func (s *Server) HandleProjectStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.DB.UpdateProjectStatus(projectID, req.Status); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	jsonResponse(w, 200, map[string]string{"status": "ok"})
@@ -195,9 +210,21 @@ func (s *Server) HandleTagCloud(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	projects, err := s.DB.GetProjects()
+	user := getRequestUser(r)
+	filter := db.ProjectFilter{}
+	if user != nil && user.Role != "admin" {
+		filter.OwnerID = user.ID
+	}
+
+	var projects []db.Project
+	var err error
+	if filter.OwnerID > 0 {
+		projects, err = s.DB.GetProjectsFiltered(filter)
+	} else {
+		projects, err = s.DB.GetProjects()
+	}
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -234,7 +261,7 @@ func (s *Server) HandleGlobalStats(w http.ResponseWriter, r *http.Request) {
 
 	stats, err := s.DB.GetGlobalStats()
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 

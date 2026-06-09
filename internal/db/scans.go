@@ -1,6 +1,9 @@
 package db
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 func (d *DB) GetScans(projectID int) ([]Scan, error) {
 	rows, err := d.Query(`
@@ -71,9 +74,18 @@ func (d *DB) CreatePendingScan(projectID int, profile, target, nmapCommand, note
 }
 
 func (d *DB) UpdateScanStatus(id int, status string, progress int, phase string) error {
+	now := time.Now().UTC().Format(time.RFC3339)
 	if status == "completed" || status == "error" || status == "cancelled" {
 		_, err := d.Exec("UPDATE scans SET status = ?, progress = ?, phase = ?, completed_at = CURRENT_TIMESTAMP WHERE id = ?", status, progress, phase, id)
-		return err
+		if err != nil {
+			return err
+		}
+		// Update project's updated_at to reflect latest activity
+		var projectID int
+		if err := d.QueryRow("SELECT project_id FROM scans WHERE id = ?", id).Scan(&projectID); err == nil {
+			d.Exec("UPDATE projects SET updated_at = ? WHERE id = ?", now, projectID)
+		}
+		return nil
 	}
 	_, err := d.Exec("UPDATE scans SET status = ?, progress = ?, phase = ? WHERE id = ?", status, progress, phase, id)
 	return err
@@ -155,9 +167,15 @@ func (d *DB) GetAllScans(projectID int) ([]Scan, error) {
 }
 
 func (d *DB) DeleteScan(id int) error {
+	tx, err := d.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	profile := d.getScanProfile(id)
 
-	rows, err := d.Query("SELECT DISTINCT ip FROM hosts WHERE scan_id = ?", id)
+	rows, err := tx.Query("SELECT DISTINCT ip FROM hosts WHERE scan_id = ?", id)
 	if err != nil {
 		return err
 	}
@@ -174,12 +192,6 @@ func (d *DB) DeleteScan(id int) error {
 	if err := rows.Err(); err != nil {
 		return err
 	}
-
-	tx, err := d.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
 
 	for _, ip := range ips {
 		var otherCount int
@@ -218,6 +230,12 @@ func (d *DB) DeleteScan(id int) error {
 			if _, err := tx.Exec("DELETE FROM live_hosts WHERE ip = ?", ip); err != nil {
 				return err
 			}
+			if _, err := tx.Exec("DELETE FROM consolidated_edits WHERE ip = ?", ip); err != nil {
+				return err
+			}
+			if _, err := tx.Exec("DELETE FROM consolidated_notes WHERE ip = ?", ip); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -252,6 +270,12 @@ func (d *DB) GetScan(id int) (*Scan, error) {
 	return &s, nil
 }
 
+func (d *DB) GetScanProjectID(scanID int) (int, error) {
+	var projectID int
+	err := d.QueryRow("SELECT project_id FROM scans WHERE id = ?", scanID).Scan(&projectID)
+	return projectID, err
+}
+
 func (d *DB) GetScanProgress(id int) (*ScanStatus, error) {
 	var s Scan
 	err := d.QueryRow(
@@ -273,6 +297,11 @@ func (d *DB) GetScanProgress(id int) (*ScanStatus, error) {
 }
 
 func (d *DB) ConfirmScan(scanID int) error {
+	var projectID int
+	if err := d.QueryRow("SELECT project_id FROM scans WHERE id = ?", scanID).Scan(&projectID); err != nil {
+		return err
+	}
+
 	rows, err := d.Query(`
 		SELECT h.id, h.ip, h.mac, h.hostname, h.os, h.status,
 			   COALESCE(p.id, 0), COALESCE(p.port, 0), COALESCE(p.protocol, ''), COALESCE(p.state, ''), COALESCE(p.service, ''), COALESCE(p.version, ''), COALESCE(p.product, ''), COALESCE(p.extra_info, '')
@@ -364,7 +393,14 @@ func (d *DB) ConfirmScan(scanID int) error {
 			version = CASE WHEN excluded.version != '' THEN excluded.version ELSE consolidated_ports.version END,
 			product = CASE WHEN excluded.product != '' THEN excluded.product ELSE consolidated_ports.product END,
 			extra_info = CASE WHEN excluded.extra_info != '' THEN excluded.extra_info ELSE consolidated_ports.extra_info END,
-			change_count = consolidated_ports.change_count + 1,
+			change_count = consolidated_ports.change_count + CASE
+				WHEN excluded.state != consolidated_ports.state THEN 1
+				WHEN excluded.service != '' AND excluded.service != consolidated_ports.service THEN 1
+				WHEN excluded.version != '' AND excluded.version != consolidated_ports.version THEN 1
+				WHEN excluded.product != '' AND excluded.product != consolidated_ports.product THEN 1
+				WHEN excluded.extra_info != '' AND excluded.extra_info != consolidated_ports.extra_info THEN 1
+				ELSE 0
+			END,
 			last_seen = CURRENT_TIMESTAMP,
 			last_scan_id = excluded.last_scan_id
 	`)
@@ -416,12 +452,39 @@ func (d *DB) ConfirmScan(scanID int) error {
 		return err
 	}
 
+	// Update project's updated_at to reflect latest activity
+	if _, err := tx.Exec("UPDATE projects SET updated_at = ? WHERE id = ?",
+		time.Now().UTC().Format(time.RFC3339), projectID); err != nil {
+		return err
+	}
+
 	return tx.Commit()
 }
 
 func (d *DB) RejectScan(scanID int) error {
-	_, err := d.Exec("UPDATE scans SET confirmed = -1 WHERE id = ?", scanID)
-	return err
+	tx, err := d.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec("DELETE FROM ports WHERE host_id IN (SELECT id FROM hosts WHERE scan_id = ?)", scanID); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("DELETE FROM host_scripts WHERE host_id IN (SELECT id FROM hosts WHERE scan_id = ?)", scanID); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("DELETE FROM port_scripts WHERE host_id IN (SELECT id FROM hosts WHERE scan_id = ?)", scanID); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("DELETE FROM hosts WHERE scan_id = ?", scanID); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("UPDATE scans SET status = 'rejected', confirmed = -1 WHERE id = ?", scanID); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (d *DB) getScanProfile(scanID int) string {
@@ -434,6 +497,6 @@ func (d *DB) getScanProfile(scanID int) string {
 
 func isDiscoveryProfile(profile string) bool {
 	p := strings.ToLower(profile)
-	return p == "arp-discovery" || p == "ping-sweep" || p == "host-discovery" ||
-		p == "discovery" || strings.HasPrefix(p, "live")
+	return strings.Contains(p, "discovery") || strings.Contains(p, "ping") ||
+		strings.HasPrefix(p, "live")
 }

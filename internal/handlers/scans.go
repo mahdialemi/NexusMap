@@ -47,6 +47,17 @@ func (s *Server) HandleCreateScan(w http.ResponseWriter, r *http.Request) {
 		req.Profile = "default"
 	}
 
+	if err := nmap.ValidateNmapArgs([]string{req.Target}); err != nil {
+		jsonResponse(w, 400, map[string]string{"error": "invalid target"})
+		return
+	}
+	if req.ExtraArgs != "" {
+		if err := nmap.ValidateNmapArgs(strings.Fields(req.ExtraArgs)); err != nil {
+			jsonResponse(w, 400, map[string]string{"error": "invalid extra_args"})
+			return
+		}
+	}
+
 	var nmapCmd string
 	var profileName string
 
@@ -79,7 +90,7 @@ func (s *Server) HandleCreateScan(w http.ResponseWriter, r *http.Request) {
 
 	scanID, err := s.DB.CreatePendingScan(int(projectID), profileName, req.Target, nmapCmd, req.Note)
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -151,6 +162,12 @@ func (s *Server) runCommand(scanID int, cmdStr, target, username string) {
 		return
 	}
 
+	if err := nmap.ValidateNmapArgs(parts); err != nil {
+		s.DB.UpdateScanStatus(scanID, "error", 0, "")
+		s.LogAndNotify("scan_error", fmt.Sprintf("Scan on %s failed: invalid command args", target), username)
+		return
+	}
+
 	bin := parts[0]
 	args := parts[1:]
 
@@ -209,7 +226,7 @@ func (s *Server) runCommand(scanID int, cmdStr, target, username string) {
 					s.NmapRunner.ClearPhase(scanID)
 					return
 				}
-				progress, phase := parseNmapProgress(buf)
+				progress, phase := parseNmapProgress(s.NmapRunner.GetOutput(scanID))
 				s.DB.UpdateScanStatus(scanID, "running", progress, phase)
 				if phase != "" {
 					s.NmapRunner.SetPhase(scanID, phase)
@@ -299,6 +316,9 @@ func (s *Server) HandleStopScan(w http.ResponseWriter, r *http.Request) {
 func (s *Server) HandleScanLog(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
 	format := r.URL.Query().Get("format")
 
 	scan, err := s.DB.GetScan(scanID)
@@ -345,6 +365,9 @@ func (s *Server) HandleScanLog(w http.ResponseWriter, r *http.Request) {
 func (s *Server) HandleDownloadXML(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
 
 	xmlData, err := s.DB.GetScanXML(scanID)
 	if err != nil || xmlData == "" {
@@ -374,6 +397,9 @@ func (s *Server) HandleDownloadXML(w http.ResponseWriter, r *http.Request) {
 func (s *Server) HandleDownloadNmap(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
 
 	data, err := s.readScanFile(scanID, "scan.nmap")
 	if err != nil {
@@ -398,6 +424,9 @@ func (s *Server) HandleDownloadNmap(w http.ResponseWriter, r *http.Request) {
 func (s *Server) HandleDownloadGnmap(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
 
 	data, err := s.readScanFile(scanID, "scan.gnmap")
 	if err != nil {
@@ -435,10 +464,13 @@ func (s *Server) readScanFile(scanID int, filename string) ([]byte, error) {
 func (s *Server) HandleScanStatus(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
 
 	status, err := s.DB.GetScanProgress(scanID)
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	// For running scans, prefer in-memory phase (more up-to-date); fall back to DB
@@ -454,6 +486,9 @@ func (s *Server) HandleScanStatus(w http.ResponseWriter, r *http.Request) {
 func (s *Server) HandleScanResults(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
 
 	page := parseIntID(r.URL.Query().Get("page"))
 	limit := parseIntID(r.URL.Query().Get("limit"))
@@ -544,7 +579,7 @@ func (s *Server) HandleScanByID(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err := s.DB.DeleteScan(scanID); err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		jsonResponse(w, 200, map[string]string{"status": "ok"})
@@ -581,7 +616,7 @@ func (s *Server) HandleConfirmScan(w http.ResponseWriter, r *http.Request) {
 
 	if err := s.DB.ConfirmScan(scanID); err != nil {
 		log.Printf("Confirm scan %d error: %v", scanID, err)
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -598,7 +633,7 @@ func (s *Server) HandleRejectScan(w http.ResponseWriter, r *http.Request) {
 	scanID := parseIntID(id)
 
 	if err := s.DB.RejectScan(scanID); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -651,7 +686,7 @@ func (s *Server) HandleBackfillScripts(w http.ResponseWriter, r *http.Request) {
 
 	projects, err := s.DB.GetProjects()
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -741,13 +776,13 @@ func (s *Server) HandleBackfillSingleScan(w http.ResponseWriter, r *http.Request
 
 	_, _, portScripts, hostScripts, parseErr := nmap.ParseXML(string(xmlBytes))
 	if parseErr != nil {
-		jsonResponse(w, 500, map[string]string{"error": parseErr.Error()})
+		serverError(w, parseErr)
 		return
 	}
 
 	ps, hs, backfillErr := s.DB.BackfillScripts(scanID, portScripts, hostScripts)
 	if backfillErr != nil {
-		jsonResponse(w, 500, map[string]string{"error": backfillErr.Error()})
+		serverError(w, backfillErr)
 		return
 	}
 
@@ -758,8 +793,7 @@ func (s *Server) HandleBackfillSingleScan(w http.ResponseWriter, r *http.Request
 	})
 }
 
-func parseNmapProgress(buf *bytes.Buffer) (int, string) {
-	data := buf.String()
+func parseNmapProgress(data string) (int, string) {
 	if data == "" {
 		return 0, ""
 	}

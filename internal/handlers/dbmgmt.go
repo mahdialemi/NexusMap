@@ -23,7 +23,7 @@ func (s *Server) HandleDBManagement(w http.ResponseWriter, r *http.Request) {
 		case "stats":
 			stats, err := s.DB.GetDBStats()
 			if err != nil {
-				jsonResponse(w, 500, map[string]string{"error": err.Error()})
+				serverError(w, err)
 				return
 			}
 
@@ -49,7 +49,7 @@ func (s *Server) HandleDBManagement(w http.ResponseWriter, r *http.Request) {
 			offset := 0
 			entries, total, err := s.DB.GetActivityLog(limit, offset)
 			if err != nil {
-				jsonResponse(w, 500, map[string]string{"error": err.Error()})
+				serverError(w, err)
 				return
 			}
 			jsonResponse(w, 200, map[string]interface{}{"entries": entries, "total": total})
@@ -74,7 +74,7 @@ func (s *Server) HandleDBManagement(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if err := s.DB.ResetDatabase(); err != nil {
-				jsonResponse(w, 500, map[string]string{"error": err.Error()})
+				serverError(w, err)
 				return
 			}
 			s.LogAndNotify("reset", "Database reset by admin", uname)
@@ -90,7 +90,7 @@ func (s *Server) HandleDBManagement(w http.ResponseWriter, r *http.Request) {
 			}
 			before, after, err := s.DB.VacuumDatabase()
 			if err != nil {
-				jsonResponse(w, 500, map[string]string{"error": err.Error()})
+				serverError(w, err)
 				return
 			}
 			saved := before - after
@@ -108,13 +108,12 @@ func (s *Server) HandleDBManagement(w http.ResponseWriter, r *http.Request) {
 				jsonResponse(w, 403, map[string]string{"error": "admin required"})
 				return
 			}
-			pwd, err := s.DB.FactoryReset()
-			if err != nil {
-				jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			if _, err := s.DB.FactoryReset(); err != nil {
+				serverError(w, err)
 				return
 			}
 			s.LogAndNotify("factory_reset", "Factory reset performed", uname)
-			jsonResponse(w, 200, map[string]string{"status": "factory_reset", "password": pwd})
+			jsonResponse(w, 200, map[string]string{"status": "factory_reset"})
 
 		default:
 			jsonResponse(w, 400, map[string]string{"error": "invalid action"})
@@ -145,7 +144,7 @@ func (s *Server) handlePrune(w http.ResponseWriter, r *http.Request, uname strin
 	}
 	count, err := s.DB.PruneOldScans(req.Days)
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	s.LogAndNotify("prune", fmt.Sprintf("Deleted %d scans older than %d days", count, req.Days), uname)
@@ -163,27 +162,27 @@ func (s *Server) doDBBackup(w http.ResponseWriter, r *http.Request) {
 
 	src, err := os.Open(dbPath)
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": "open db: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 	defer src.Close()
 
 	dst, err := os.Create(backupPath)
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": "create backup: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 
 	if _, err := io.Copy(dst, src); err != nil {
 		dst.Close()
 		os.Remove(backupPath)
-		jsonResponse(w, 500, map[string]string{"error": "copy db: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 
 	if err := dst.Close(); err != nil {
 		os.Remove(backupPath)
-		jsonResponse(w, 500, map[string]string{"error": "close backup: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -212,10 +211,9 @@ func (s *Server) HandleFactoryReset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pwd, err := s.DB.FactoryReset()
-	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+	if _, err := s.DB.FactoryReset(); err != nil {
+		serverError(w, err)
 		return
 	}
-	jsonResponse(w, 200, map[string]string{"status": "factory_reset", "password": pwd})
+	jsonResponse(w, 200, map[string]string{"status": "factory_reset"})
 }

@@ -208,9 +208,10 @@ type PortsQueryRequest struct {
 	Page       int           `json:"page"`
 	Limit      int           `json:"limit"`
 	Search     string        `json:"search,omitempty"`
-	FilterMode string        `json:"filter_mode"`          // join groups: "and" or "or"
-	Filters    []FilterQuery `json:"filters,omitempty"`    // backward compat: flat list
-	Groups     []FilterGroup `json:"groups,omitempty"`     // new: grouped structure
+	FilterMode string        `json:"filter_mode"`            // join groups: "and" or "or"
+	Filters    []FilterQuery `json:"filters,omitempty"`      // backward compat: flat list
+	Groups     []FilterGroup `json:"groups,omitempty"`       // new: grouped structure
+	HideClosed bool          `json:"hide_closed,omitempty"`  // exclude closed ports
 }
 
 type FieldOption struct {
@@ -281,6 +282,7 @@ type GlobalStats struct {
 	TotalHosts       int `json:"total_hosts"`
 	TotalPorts       int `json:"total_ports"`
 	UniqueServices   int `json:"unique_services"`
+	TotalLiveHosts   int `json:"total_live_hosts"`
 }
 
 type ScanScriptExport struct {

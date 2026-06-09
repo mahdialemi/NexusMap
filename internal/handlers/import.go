@@ -246,6 +246,9 @@ func (s *Server) HandleImport(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(50 << 20)
 	pid := parseIntID(r.PathValue("project_id"))
+	if !s.requireProjectAccess(w, r, pid) {
+		return
+	}
 
 	rawText := r.FormValue("raw_text")
 
@@ -318,7 +321,7 @@ func (s *Server) HandleImport(w http.ResponseWriter, r *http.Request) {
 	if rawText != "" {
 		h, p, ps, hs, fmtName, err := parseRawText(rawText)
 		if err != nil {
-			jsonResponse(w, 400, map[string]string{"error": "raw text parse error: " + err.Error()})
+			jsonResponse(w, 400, map[string]string{"error": "parse error"})
 			return
 		}
 		if usedFormat == "" {
@@ -349,7 +352,7 @@ func (s *Server) HandleImport(w http.ResponseWriter, r *http.Request) {
 	} else {
 		scanID, err := s.DB.CreateScan(pid, "import", importName, profile)
 		if err != nil {
-			jsonResponse(w, 500, map[string]string{"error": err.Error()})
+			serverError(w, err)
 			return
 		}
 		sid = int(scanID)
@@ -361,7 +364,7 @@ func (s *Server) HandleImport(w http.ResponseWriter, r *http.Request) {
 
 	hostMap, _, saveErr := s.DB.SaveResults(sid, allHosts, allPorts)
 	if saveErr != nil {
-		jsonResponse(w, 500, map[string]string{"error": saveErr.Error()})
+		serverError(w, saveErr)
 		return
 	}
 
@@ -430,9 +433,12 @@ func (s *Server) HandleImport(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) HandleImportHistory(w http.ResponseWriter, r *http.Request) {
 	pid := parseIntID(r.PathValue("project_id"))
+	if !s.requireProjectAccess(w, r, pid) {
+		return
+	}
 	scans, err := s.DB.GetImportHistory(pid)
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": err.Error()})
+		serverError(w, err)
 		return
 	}
 	type historyItem struct {
@@ -467,6 +473,9 @@ func (s *Server) HandleUnifiedExport(w http.ResponseWriter, r *http.Request) {
 	scanID := r.PathValue("scan_id")
 	format := r.PathValue("format")
 	sid := parseIntID(scanID)
+	if !s.requireScanAccess(w, r, sid) {
+		return
+	}
 
 	scan, _ := s.DB.GetScan(sid)
 	scanName := fmt.Sprintf("scan-%d", sid)
@@ -486,13 +495,13 @@ func (s *Server) HandleUnifiedExport(w http.ResponseWriter, r *http.Request) {
 	case "xlsx":
 		results, err := s.DB.GetResults(sid)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 		scripts, _ := s.DB.GetScanScriptsForExport(sid)
 		data, err := export.ToExcelWithScripts(results, scan, scripts)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 		w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -502,12 +511,12 @@ func (s *Server) HandleUnifiedExport(w http.ResponseWriter, r *http.Request) {
 	case "json":
 		results, err := s.DB.GetResults(sid)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 		data, err := export.ToJSON(results)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -517,13 +526,13 @@ func (s *Server) HandleUnifiedExport(w http.ResponseWriter, r *http.Request) {
 	case "csv":
 		results, err := s.DB.GetResults(sid)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 		scripts, _ := s.DB.GetScanScriptsForExport(sid)
 		data, err := export.ToCSVWithScripts(results, scripts)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 		w.Header().Set("Content-Type", "text/csv")
@@ -614,6 +623,9 @@ func (s *Server) HandleUnifiedExport(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) HandleExportAvailability(w http.ResponseWriter, r *http.Request) {
 	sid := parseIntID(r.PathValue("scan_id"))
+	if !s.requireScanAccess(w, r, sid) {
+		return
+	}
 
 	scan, _ := s.DB.GetScan(sid)
 	outDir := ""
@@ -732,7 +744,7 @@ func (s *Server) HandleExport(w http.ResponseWriter, r *http.Request) {
 
 	results, err := s.DB.GetResults(sid)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		serverError(w, err)
 		return
 	}
 
@@ -748,7 +760,7 @@ func (s *Server) HandleExport(w http.ResponseWriter, r *http.Request) {
 	case "xlsx":
 		data, err := export.ToExcelWithScripts(results, scan, scripts)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 		w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -758,7 +770,7 @@ func (s *Server) HandleExport(w http.ResponseWriter, r *http.Request) {
 	case "json":
 		data, err := export.ToJSON(results)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -768,7 +780,7 @@ func (s *Server) HandleExport(w http.ResponseWriter, r *http.Request) {
 	case "csv":
 		data, err := export.ToCSVWithScripts(results, scripts)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			serverError(w, err)
 			return
 		}
 		w.Header().Set("Content-Type", "text/csv")

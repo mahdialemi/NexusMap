@@ -30,7 +30,7 @@ func (s *Server) handleDBImportPreview(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			log.Printf("[DBImport] panic in preview: %v", rec)
-			jsonResponse(w, 500, map[string]string{"error": fmt.Sprintf("server error: %v", rec)})
+			jsonResponse(w, 500, map[string]string{"error": "internal server error"})
 		}
 	}()
 
@@ -53,7 +53,7 @@ func (s *Server) handleDBImportPreview(w http.ResponseWriter, r *http.Request) {
 	srcFile, err := os.Create(tmpPath)
 	if err != nil {
 		log.Printf("[DBImport] create temp %s: %v", tmpPath, err)
-		jsonResponse(w, 500, map[string]string{"error": "create temp: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -62,7 +62,7 @@ func (s *Server) handleDBImportPreview(w http.ResponseWriter, r *http.Request) {
 		srcFile.Close()
 		os.Remove(tmpPath)
 		log.Printf("[DBImport] copy: %v", err)
-		jsonResponse(w, 500, map[string]string{"error": "save file: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 	log.Printf("[DBImport] copied %d bytes", n)
@@ -70,7 +70,7 @@ func (s *Server) handleDBImportPreview(w http.ResponseWriter, r *http.Request) {
 	if err := srcFile.Close(); err != nil {
 		os.Remove(tmpPath)
 		log.Printf("[DBImport] close: %v", err)
-		jsonResponse(w, 500, map[string]string{"error": "close: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 	defer os.Remove(tmpPath)
@@ -81,7 +81,7 @@ func (s *Server) handleDBImportPreview(w http.ResponseWriter, r *http.Request) {
 	srcDB, err := sql.Open("sqlite", connStr)
 	if err != nil {
 		log.Printf("[DBImport] open: %v", err)
-		jsonResponse(w, 500, map[string]string{"error": "open db: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 	defer srcDB.Close()
@@ -109,7 +109,7 @@ func (s *Server) handleDBImportExecute(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			log.Printf("[DBImport] panic in execute: %v", rec)
-			jsonResponse(w, 500, map[string]string{"error": fmt.Sprintf("server error: %v", rec)})
+			jsonResponse(w, 500, map[string]string{"error": "internal server error"})
 		}
 	}()
 
@@ -132,7 +132,7 @@ func (s *Server) handleDBImportExecute(w http.ResponseWriter, r *http.Request) {
 	dstFile, err := os.Create(tmpPath)
 	if err != nil {
 		log.Printf("[DBImport] create temp: %v", err)
-		jsonResponse(w, 500, map[string]string{"error": "create temp: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 
@@ -141,14 +141,14 @@ func (s *Server) handleDBImportExecute(w http.ResponseWriter, r *http.Request) {
 		dstFile.Close()
 		os.Remove(tmpPath)
 		log.Printf("[DBImport] copy: %v", err)
-		jsonResponse(w, 500, map[string]string{"error": "save file: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 	log.Printf("[DBImport] copied %d bytes", n)
 
 	if err := dstFile.Close(); err != nil {
 		os.Remove(tmpPath)
-		jsonResponse(w, 500, map[string]string{"error": "close: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 	defer os.Remove(tmpPath)
@@ -156,7 +156,7 @@ func (s *Server) handleDBImportExecute(w http.ResponseWriter, r *http.Request) {
 	srcDB, err := sql.Open("sqlite", tmpPath+"?mode=ro&_foreign_keys=OFF")
 	if err != nil {
 		log.Printf("[DBImport] open: %v", err)
-		jsonResponse(w, 500, map[string]string{"error": "open db: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 	defer srcDB.Close()
@@ -169,7 +169,7 @@ func (s *Server) handleDBImportExecute(w http.ResponseWriter, r *http.Request) {
 
 	tx, err := s.DB.Begin()
 	if err != nil {
-		jsonResponse(w, 500, map[string]string{"error": "begin tx: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 	defer tx.Rollback()
@@ -221,7 +221,7 @@ func (s *Server) handleDBImportExecute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := tx.Commit(); err != nil {
-		jsonResponse(w, 500, map[string]string{"error": "commit: " + err.Error()})
+		serverError(w, err)
 		return
 	}
 

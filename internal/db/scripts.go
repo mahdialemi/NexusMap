@@ -144,33 +144,56 @@ func (d *DB) GetConsolidatedScriptsPaged(projectID, page, limit int, search stri
 	}
 	offset := (page - 1) * limit
 
+	baseQuery := `
+		FROM port_scripts ps3
+		JOIN hosts h3 ON h3.id = ps3.host_id
+		JOIN ports p3 ON p3.id = ps3.port_id
+		JOIN scans s3 ON s3.id = h3.scan_id AND s3.project_id = ?`
+
 	whereClause := ""
-	args := []interface{}{projectID}
+	countArgs := []interface{}{projectID}
+	queryArgs := []interface{}{projectID}
 	if search != "" {
-		whereClause = " AND (h.ip LIKE ? OR ps2.script_id LIKE ? OR p.port LIKE ?)"
-		args = append(args, "%"+search+"%", "%"+search+"%", "%"+search+"%")
+		whereClause = " AND (h3.ip LIKE ? OR ps3.script_id LIKE ? OR p3.port LIKE ?)"
+		searchArgs := []interface{}{"%" + search + "%", "%" + search + "%", "%" + search + "%"}
+		countArgs = append(countArgs, searchArgs...)
 	}
 
 	var total int
-	if err := d.QueryRow(`
-		SELECT COUNT(DISTINCT ps2.id) FROM port_scripts ps2
-		JOIN hosts h ON h.id = ps2.host_id
-		JOIN ports p ON p.id = ps2.port_id
-		JOIN scans s ON s.id = h.scan_id AND s.project_id = ?`+whereClause, args...).Scan(&total); err != nil {
+	if err := d.QueryRow(`SELECT COUNT(*) FROM (SELECT 1`+baseQuery+whereClause+`
+		GROUP BY h3.ip, p3.port, p3.protocol, ps3.script_id)`, countArgs...).Scan(&total); err != nil {
 		return nil, err
 	}
 
-	args = append(args, limit, offset)
+	if search != "" {
+		queryArgs = append(queryArgs, "%"+search+"%", "%"+search+"%", "%"+search+"%")
+	}
+	queryArgs = append(queryArgs, limit, offset)
+
+	var searchWhere string
+	if search != "" {
+		searchWhere = " WHERE h3.ip LIKE ? OR ps3.script_id LIKE ? OR p3.port LIKE ?"
+	}
+
 	rows, err := d.Query(`
-		SELECT DISTINCT h.ip, p.port, p.protocol, COALESCE(cp.service, ''), COALESCE(cp.state, ''),
-			ps2.script_id, ps2.output, COALESCE(cp.extra_info, '')
-		FROM port_scripts ps2
-		JOIN hosts h ON h.id = ps2.host_id
-		JOIN ports p ON p.id = ps2.port_id
-		JOIN scans s ON s.id = h.scan_id AND s.project_id = ?
-		LEFT JOIN consolidated_ports cp ON cp.ip = h.ip AND cp.port = p.port AND cp.protocol = p.protocol
-		`+whereClause+`
-		ORDER BY h.ip, p.port, ps2.script_id LIMIT ? OFFSET ?`, args...)
+		SELECT dedup.ip, dedup.port, dedup.protocol,
+			COALESCE(cp.service, ''), COALESCE(cp.state, ''),
+			dedup.script_id, dedup.output, COALESCE(cp.extra_info, '')
+		FROM (
+			SELECT h3.ip, p3.port, p3.protocol, ps3.script_id, ps3.output,
+				ROW_NUMBER() OVER (
+					PARTITION BY h3.ip, p3.port, p3.protocol, ps3.script_id
+					ORDER BY ps3.id DESC
+				) as rn
+			FROM port_scripts ps3
+			JOIN hosts h3 ON h3.id = ps3.host_id
+			JOIN ports p3 ON p3.id = ps3.port_id
+			JOIN scans s3 ON s3.id = h3.scan_id AND s3.project_id = ?`+searchWhere+`
+		) dedup
+		LEFT JOIN consolidated_ports cp ON cp.ip = dedup.ip AND cp.port = dedup.port AND cp.protocol = dedup.protocol
+		WHERE dedup.rn = 1
+		ORDER BY dedup.ip, dedup.port, dedup.script_id
+		LIMIT ? OFFSET ?`, queryArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,12 +210,7 @@ func (d *DB) GetConsolidatedScriptsPaged(projectID, page, limit int, search stri
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	return &PaginatedScripts{
-		Scripts: scripts,
-		Total:   total,
-		Page:    page,
-		Limit:   limit,
-	}, nil
+	return &PaginatedScripts{Scripts: scripts, Total: total, Page: page, Limit: limit}, nil
 }
 
 func (d *DB) GetConsolidatedScripts(projectID int) ([]ConsolidatedScript, error) {
