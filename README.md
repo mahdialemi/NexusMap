@@ -6,7 +6,7 @@
 
 **A modern web GUI for Nmap** — Organize, run, and visualize network scans from any browser.
 
-[Download](https://github.com/mahdialemi/nexusmap/releases) · [Report Bug](https://github.com/mahdialemi/nexusmap/issues)
+[Download](https://github.com/mahdialemi/NexusMap/releases) · [Report Bug](https://github.com/mahdialemi/NexusMap/issues)
 
 </div>
 
@@ -29,19 +29,25 @@ No JavaScript framework, no CGO, no external dependencies beyond Nmap itself. Th
 
 ## Quick Start
 
+### Install with Go
+
+```bash
+go install github.com/mahdialemi/NexusMap@latest
+nexusmap
+```
+
 ### Pre-built Binary
 
-1. Download the latest release from [Releases](https://github.com/mahdialemi/nexusmap/releases)
+1. Download the latest release from [Releases](https://github.com/mahdialemi/NexusMap/releases)
 2. Extract and run `nexusmap.exe` (or `./nexusmap` on Linux/macOS)
-3. Open `http://127.0.0.1:8080` in your browser
+3. Open `http://127.0.0.1:9090` in your browser
 4. Use the admin password printed in the console to log in
 
 ### Build from Source
 
 ```bash
-git clone https://github.com/mahdialemi/nexusmap.git
-cd nexusmap
-go mod tidy
+git clone https://github.com/mahdialemi/NexusMap.git
+cd NexusMap
 go build -ldflags="-s -w" -o nexusmap .
 ./nexusmap
 ```
@@ -55,13 +61,15 @@ A random 16-character admin password is generated and printed to the console on 
 ### CLI Options
 
 ```
-nexusmap -port 9090 -db /path/to/scanner.db
+nexusmap -port 9090 -bind 127.0.0.1 -db /path/to/scanner.db
 ```
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-port` | `8080` | HTTP server port |
+| `-port` | `9090` | HTTP server port |
+| `-bind` | `0.0.0.0` | Bind address (`0.0.0.0`, `127.0.0.1`, etc.) |
 | `-db` | `scanner.db` | SQLite database path |
+| `-admin-password` | *(random)* | Set initial admin password |
 
 ---
 
@@ -75,13 +83,24 @@ nexusmap -port 9090 -db /path/to/scanner.db
 - **46 built-in NSE profiles** — Select and configure NSE scripts through the UI
 - **Stop and restart** — Cancel running scans and retry with different parameters
 
+### Scan Scheduling
+
+- **One-shot scheduling** — Schedule scans for a specific date/time
+- **Dependency triggers** — Start a scan automatically after another scan completes
+- **Schedule info on scan cards** — See pending schedules and dependency relationships directly on scan cards
+
+### Port Labeling
+
+- **Assign labels** — Tag ports with custom labels (e.g., "web", "database", "admin")
+- **Filter by label** — Filter assets by label using the filter builder
+
 ### Results & Editing
 
 - **Editable results** — Double-click any cell to modify IP, port, service, version, OS, or notes
 - **Bulk editing** — Update multiple ports at once (state, service, version, etc.)
 - **Change tracking** — Every edit is recorded with before/after values for full audit trail
 - **Revert** — Undo individual edits or revert to original scan data
-- **Import results** — Import Nmap XML or Gnmap output files
+- **Import results** — Import Nmap XML, Gnmap, or raw text output files
 
 ### Consolidated View
 
@@ -107,7 +126,7 @@ nexusmap -port 9090 -db /path/to/scanner.db
 - **User CRUD** — Create, edit, and delete users
 - **Password reset** — Force password change on next login
 - **Activity log** — Track important actions across the system
-- **Database management** — Backup, restore, vacuum, and factory reset
+- **Database management** — Backup, restore, vacuum, factory reset, and **database import**
 
 ### Security
 
@@ -133,18 +152,20 @@ nexusmap -port 9090 -db /path/to/scanner.db
 | XML (Nmap) | ✅ (import) | — | — |
 | Gnmap | ✅ (import) | — | — |
 
+### Database Import (Admin)
+
+- **Merge full databases** — Import an entire NexusMap database from another instance
+- **Preview before import** — See row counts per table before committing
+- **Schema-safe** — Works across versions; only common columns are imported
+
 ---
 
 ## Architecture
 
 ```
-nexusmap
-├── web/                 # Frontend (HTML, CSS, vanilla JS)
-│   ├── pages/           # Page templates
-│   ├── css/             # Stylesheets
-│   └── js/              # Client-side logic
-├── scans/               # Nmap output files (auto-created)
-└── scanner.db           # SQLite database (auto-created)
+nexusmap (single binary — all frontend files embedded)
+├── scans/             # Nmap output files (auto-created)
+└── scanner.db         # SQLite database (auto-created)
 ```
 
 | Layer | Technology |
@@ -159,12 +180,6 @@ nexusmap
 
 ---
 
-## Screenshots
-
-*Coming soon.*
-
----
-
 ## License
 
 [MIT](LICENSE)
@@ -173,6 +188,6 @@ nexusmap
 
 <div align="center">
 
-**NexusMap** v1.1 &middot; Made with vibe coding by [Mahdi Alemi](https://github.com/mahdialemi)
+**NexusMap** v1.2 &middot; Made with vibe coding by [Mahdi Alemi](https://github.com/mahdialemi)
 
 </div>
