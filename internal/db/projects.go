@@ -201,16 +201,22 @@ func (d *DB) DeleteProject(id int) error {
 	}
 	defer tx.Rollback()
 
+	// Delete hosts belonging to this project's scans (cascades to ports)
+	if _, err := tx.Exec("DELETE FROM hosts WHERE scan_id IN (SELECT id FROM scans WHERE project_id = ?)", id); err != nil {
+		return err
+	}
+
 	if _, err := tx.Exec("DELETE FROM scans WHERE project_id = ?", id); err != nil {
 		return err
 	}
 
+	// Clean orphaned consolidated data (hosts are now gone)
 	for _, q := range []string{
-		"DELETE FROM consolidated_hosts WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
-		"DELETE FROM consolidated_ports WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
-		"DELETE FROM live_hosts WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
-		"DELETE FROM consolidated_notes WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
-		"DELETE FROM consolidated_edits WHERE ip NOT IN (SELECT DISTINCT ip FROM hosts)",
+		"DELETE FROM consolidated_hosts WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = consolidated_hosts.ip)",
+		"DELETE FROM consolidated_ports WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = consolidated_ports.ip)",
+		"DELETE FROM live_hosts WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = live_hosts.ip)",
+		"DELETE FROM consolidated_notes WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = consolidated_notes.ip)",
+		"DELETE FROM consolidated_edits WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = consolidated_edits.ip)",
 	} {
 		if _, err := tx.Exec(q); err != nil {
 			return err

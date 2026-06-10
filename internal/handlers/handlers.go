@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net"
 	"net/http"
-	"os"
-	"path/filepath"
+	"path"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,7 +21,7 @@ type Server struct {
 	DB         *db.DB
 	AuthSvc    *auth.Auth
 	NmapRunner *nmap.Runner
-	WebRoot    string
+	WebFS      fs.FS
 	ScanWG     sync.WaitGroup
 	SSE        *SSEBroker
 }
@@ -109,7 +109,7 @@ func (s *Server) requireScanAccess(w http.ResponseWriter, r *http.Request, scanI
 
 func (s *Server) HandlePage(page string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data, err := os.ReadFile(filepath.Join(s.WebRoot, "pages", page))
+		data, err := fs.ReadFile(s.WebFS, path.Join("pages", page))
 		if err != nil {
 			http.Error(w, "page not found", 404)
 			return

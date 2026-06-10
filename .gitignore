@@ -3,3 +3,6 @@ bin/
 *.db-wal
 *.db-shm
 scans/
+*.exe
+*.exe~
+nexusmap.log

@@ -645,6 +645,8 @@ tr.script-group-header .group-count { font-weight: 400; font-size: 0.75rem; colo
 .badge-muted { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
 .badge-info { background: rgba(59, 130, 246, 0.2); color: var(--accent); }
 .badge-pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-size: 0.7rem; }
+.badge-dep { background: rgba(168, 85, 247, 0.2); color: #c084fc; font-size: 0.7rem; }
+.badge-sched { background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-size: 0.7rem; }
 
 .ping-result {
     display: inline-flex;
@@ -2013,3 +2015,26 @@ th.sortable:hover { color: var(--accent); }
 
 .dropdown-item:hover { background: var(--bg-input); }
 .dropdown-item { background: transparent; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+::-webkit-scrollbar-corner {
+    background: var(--bg);
+}
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) var(--bg);
+}

@@ -38,8 +38,8 @@ func New(dbPath string) (*DB, error) {
 			log.Printf("db pragma %s: %v", pragma, err)
 		}
 	}
-	conn.SetMaxOpenConns(4)
-	conn.SetMaxIdleConns(2)
+	conn.SetMaxOpenConns(12)
+	conn.SetMaxIdleConns(4)
 	conn.SetConnMaxLifetime(30 * time.Minute)
 	return &DB{conn, dbPath}, nil
 }
@@ -255,6 +255,36 @@ func (d *DB) Init() error {
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			UNIQUE(ip, port, protocol)
 		)`,
+		`CREATE INDEX IF NOT EXISTS idx_password_history_user ON password_history(user_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_projects_owner ON projects(owner_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_login_attempts_time ON login_attempts(attempted_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_sessions_last_active ON sessions(last_active)`,
+		`CREATE INDEX IF NOT EXISTS idx_scans_completed ON scans(completed_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_hosts_ip_scan ON hosts(ip, scan_id)`,
+		`ALTER TABLE consolidated_ports ADD COLUMN label TEXT DEFAULT ''`,
+		`ALTER TABLE consolidated_hosts ADD COLUMN label TEXT DEFAULT ''`,
+		`CREATE TABLE IF NOT EXISTS scan_schedules (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			project_id INTEGER NOT NULL,
+			name TEXT NOT NULL DEFAULT '',
+			profile TEXT NOT NULL DEFAULT 'custom',
+			target TEXT NOT NULL,
+			interval_minutes INTEGER NOT NULL DEFAULT 60,
+			next_run_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_run_at DATETIME,
+			enabled INTEGER DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+		)`,
+		`ALTER TABLE scan_schedules ADD COLUMN trigger_type TEXT NOT NULL DEFAULT 'time'`,
+		`ALTER TABLE scan_schedules ADD COLUMN scheduled_at DATETIME`,
+		`ALTER TABLE scan_schedules ADD COLUMN depends_on_scan_id INTEGER REFERENCES scans(id) ON DELETE SET NULL`,
+		`ALTER TABLE scan_schedules ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'`,
+		`CREATE TABLE IF NOT EXISTS migration_flags (
+			name TEXT PRIMARY KEY,
+			applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`ALTER TABLE scans ADD COLUMN schedule_id INTEGER REFERENCES scan_schedules(id) ON DELETE SET NULL`,
 	}
 
 	for i, sql := range migrations {
@@ -266,117 +296,104 @@ func (d *DB) Init() error {
 		}
 	}
 
-	// Check and recreate consolidated_ports if PRIMARY KEY is missing, then always deduplicate
-	var createSQL string
-	if pErr := d.QueryRow("SELECT sql FROM sqlite_master WHERE type='table' AND name='consolidated_ports'").Scan(&createSQL); pErr != nil {
-		log.Printf("Error checking consolidated_ports schema: %v", pErr)
-	} else if createSQL != "" && !containsIgnoreCase(createSQL, "primary key") {
-		log.Printf("consolidated_ports PRIMARY KEY missing, recreating...")
-		if _, pErr := d.Exec(`
-			CREATE TABLE consolidated_ports_new (
-				ip TEXT NOT NULL,
-				port INTEGER NOT NULL,
-				protocol TEXT NOT NULL DEFAULT 'tcp',
-				state TEXT NOT NULL DEFAULT 'unknown',
-				service TEXT DEFAULT '',
-				version TEXT DEFAULT '',
-				product TEXT DEFAULT '',
-				extra_info TEXT DEFAULT '',
-				change_count INTEGER DEFAULT 1,
-				first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-				last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-				last_scan_id INTEGER DEFAULT 0,
-				PRIMARY KEY (ip, port, protocol)
-			)
-		`); pErr == nil {
+	// Orphan cleanup — runs every startup
+	for _, q := range []string{
+		"DELETE FROM consolidated_hosts WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = consolidated_hosts.ip)",
+		"DELETE FROM consolidated_ports WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = consolidated_ports.ip)",
+		"DELETE FROM live_hosts WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = live_hosts.ip)",
+		"DELETE FROM consolidated_notes WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = consolidated_notes.ip)",
+		"DELETE FROM consolidated_edits WHERE NOT EXISTS (SELECT 1 FROM hosts WHERE hosts.ip = consolidated_edits.ip)",
+	} {
+		d.Exec(q) // ignore errors
+	}
+
+	// Run structural migrations (PK recreation, dedup, unique indexes) only once
+	var dedupDone int
+	d.QueryRow("SELECT 1 FROM migration_flags WHERE name = 'dedup_v2'").Scan(&dedupDone)
+
+	if dedupDone == 0 {
+		// Check and recreate consolidated_ports if PRIMARY KEY is missing
+		var createSQL string
+		if pErr := d.QueryRow("SELECT sql FROM sqlite_master WHERE type='table' AND name='consolidated_ports'").Scan(&createSQL); pErr != nil {
+			log.Printf("Error checking consolidated_ports schema: %v", pErr)
+		} else if createSQL != "" && !containsIgnoreCase(createSQL, "primary key") {
+			log.Printf("consolidated_ports PRIMARY KEY missing, recreating...")
 			if _, pErr := d.Exec(`
-				INSERT OR IGNORE INTO consolidated_ports_new
-				SELECT ip, port, protocol, state, service, version, product, extra_info, change_count, first_seen, last_seen, last_scan_id
-				FROM consolidated_ports
-				GROUP BY ip, port, protocol
+				CREATE TABLE consolidated_ports_new (
+					ip TEXT NOT NULL,
+					port INTEGER NOT NULL,
+					protocol TEXT NOT NULL DEFAULT 'tcp',
+					state TEXT NOT NULL DEFAULT 'unknown',
+					service TEXT DEFAULT '',
+					version TEXT DEFAULT '',
+					product TEXT DEFAULT '',
+					extra_info TEXT DEFAULT '',
+					change_count INTEGER DEFAULT 1,
+					first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+					last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+					last_scan_id INTEGER DEFAULT 0,
+					PRIMARY KEY (ip, port, protocol)
+				)
 			`); pErr == nil {
-				_, _ = d.Exec("DROP TABLE consolidated_ports")
-				_, _ = d.Exec("ALTER TABLE consolidated_ports_new RENAME TO consolidated_ports")
-				log.Printf("consolidated_ports recreated with proper PRIMARY KEY")
+				if _, pErr := d.Exec(`
+					INSERT OR IGNORE INTO consolidated_ports_new
+					SELECT ip, port, protocol, state, service, version, product, extra_info, change_count, first_seen, last_seen, last_scan_id
+					FROM consolidated_ports
+					GROUP BY ip, port, protocol
+				`); pErr == nil {
+					_, _ = d.Exec("DROP TABLE consolidated_ports")
+					_, _ = d.Exec("ALTER TABLE consolidated_ports_new RENAME TO consolidated_ports")
+					log.Printf("consolidated_ports recreated with proper PRIMARY KEY")
+				}
 			}
 		}
-	}
-	// Always clean duplicates on startup
-	var totalRows, distinctRows int
-	if pErr := d.QueryRow("SELECT COUNT(*) FROM consolidated_ports").Scan(&totalRows); pErr == nil {
-		if pErr := d.QueryRow("SELECT COUNT(*) FROM (SELECT ip, port, protocol FROM consolidated_ports GROUP BY ip, port, protocol)").Scan(&distinctRows); pErr == nil {
-			dupCount := totalRows - distinctRows
-			if dupCount > 0 {
-				if _, pErr := d.Exec(`
-					CREATE TABLE consolidated_ports_new (
-						ip TEXT NOT NULL,
-						port INTEGER NOT NULL,
-						protocol TEXT NOT NULL DEFAULT 'tcp',
-						state TEXT NOT NULL DEFAULT 'unknown',
-						service TEXT DEFAULT '',
-						version TEXT DEFAULT '',
-						product TEXT DEFAULT '',
-						extra_info TEXT DEFAULT '',
-						change_count INTEGER DEFAULT 1,
-						first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-						last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-						last_scan_id INTEGER DEFAULT 0,
-						PRIMARY KEY (ip, port, protocol)
-					)
-				`); pErr == nil {
+
+		// Deduplicate consolidated_ports
+		var totalRows, distinctRows int
+		if pErr := d.QueryRow("SELECT COUNT(*) FROM consolidated_ports").Scan(&totalRows); pErr == nil {
+			if pErr := d.QueryRow("SELECT COUNT(*) FROM (SELECT ip, port, protocol FROM consolidated_ports GROUP BY ip, port, protocol)").Scan(&distinctRows); pErr == nil {
+				if dupCount := totalRows - distinctRows; dupCount > 0 {
 					if _, pErr := d.Exec(`
-						INSERT OR IGNORE INTO consolidated_ports_new
-						SELECT ip, port, protocol, state, service, version, product, extra_info,
-							MAX(change_count) as change_count,
-							MIN(first_seen) as first_seen,
-							MAX(last_seen) as last_seen,
-							MAX(last_scan_id) as last_scan_id
-						FROM consolidated_ports
-						GROUP BY ip, port, protocol
+						CREATE TABLE consolidated_ports_new (
+							ip TEXT NOT NULL,
+							port INTEGER NOT NULL,
+							protocol TEXT NOT NULL DEFAULT 'tcp',
+							state TEXT NOT NULL DEFAULT 'unknown',
+							service TEXT DEFAULT '',
+							version TEXT DEFAULT '',
+							product TEXT DEFAULT '',
+							extra_info TEXT DEFAULT '',
+							change_count INTEGER DEFAULT 1,
+							first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+							last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+							last_scan_id INTEGER DEFAULT 0,
+							PRIMARY KEY (ip, port, protocol)
+						)
 					`); pErr == nil {
-						_, _ = d.Exec("DROP TABLE consolidated_ports")
-						_, _ = d.Exec("ALTER TABLE consolidated_ports_new RENAME TO consolidated_ports")
-					} else {
-						_, _ = d.Exec("DROP TABLE IF EXISTS consolidated_ports_new")
+						if _, pErr := d.Exec(`
+							INSERT OR IGNORE INTO consolidated_ports_new
+							SELECT ip, port, protocol, state, service, version, product, extra_info,
+								MAX(change_count) as change_count,
+								MIN(first_seen) as first_seen,
+								MAX(last_seen) as last_seen,
+								MAX(last_scan_id) as last_scan_id
+							FROM consolidated_ports
+							GROUP BY ip, port, protocol
+						`); pErr == nil {
+							_, _ = d.Exec("DROP TABLE consolidated_ports")
+							_, _ = d.Exec("ALTER TABLE consolidated_ports_new RENAME TO consolidated_ports")
+						} else {
+							_, _ = d.Exec("DROP TABLE IF EXISTS consolidated_ports_new")
+						}
 					}
 				}
 			}
 		}
-	}
 
-	// Check and recreate consolidated_hosts if PRIMARY KEY is missing, then always deduplicate
-	var hostCreateSQL string
-	if pErr := d.QueryRow("SELECT sql FROM sqlite_master WHERE type='table' AND name='consolidated_hosts'").Scan(&hostCreateSQL); pErr == nil {
-		if hostCreateSQL != "" && !containsIgnoreCase(hostCreateSQL, "primary key") {
-			if _, pErr := d.Exec(`
-				CREATE TABLE consolidated_hosts_new (
-					ip TEXT PRIMARY KEY,
-					mac TEXT DEFAULT '',
-					hostname TEXT DEFAULT '',
-					os TEXT DEFAULT '',
-					status TEXT DEFAULT 'unknown',
-					discovery_methods TEXT DEFAULT '',
-					first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-					last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-					last_scan_id INTEGER DEFAULT 0
-				)
-			`); pErr == nil {
-				if _, pErr := d.Exec(`
-					INSERT OR IGNORE INTO consolidated_hosts_new
-					SELECT ip, mac, hostname, os, status, discovery_methods, first_seen, last_seen, last_scan_id
-					FROM consolidated_hosts
-					GROUP BY ip
-				`); pErr == nil {
-					_, _ = d.Exec("DROP TABLE consolidated_hosts")
-					_, _ = d.Exec("ALTER TABLE consolidated_hosts_new RENAME TO consolidated_hosts")
-				}
-			}
-		}
-	}
-	var hostTotal, hostDistinct int
-	if pErr := d.QueryRow("SELECT COUNT(*) FROM consolidated_hosts").Scan(&hostTotal); pErr == nil {
-		if pErr := d.QueryRow("SELECT COUNT(*) FROM (SELECT ip FROM consolidated_hosts GROUP BY ip)").Scan(&hostDistinct); pErr == nil {
-			if hostDupCount := hostTotal - hostDistinct; hostDupCount > 0 {
+		// Check and recreate consolidated_hosts if PRIMARY KEY is missing
+		var hostCreateSQL string
+		if pErr := d.QueryRow("SELECT sql FROM sqlite_master WHERE type='table' AND name='consolidated_hosts'").Scan(&hostCreateSQL); pErr == nil {
+			if hostCreateSQL != "" && !containsIgnoreCase(hostCreateSQL, "primary key") {
 				if _, pErr := d.Exec(`
 					CREATE TABLE consolidated_hosts_new (
 						ip TEXT PRIMARY KEY,
@@ -392,81 +409,122 @@ func (d *DB) Init() error {
 				`); pErr == nil {
 					if _, pErr := d.Exec(`
 						INSERT OR IGNORE INTO consolidated_hosts_new
-						SELECT ip, mac, hostname, os, status, discovery_methods,
-							MIN(first_seen) as first_seen,
-							MAX(last_seen) as last_seen,
-							MAX(last_scan_id) as last_scan_id
+						SELECT ip, mac, hostname, os, status, discovery_methods, first_seen, last_seen, last_scan_id
 						FROM consolidated_hosts
 						GROUP BY ip
 					`); pErr == nil {
 						_, _ = d.Exec("DROP TABLE consolidated_hosts")
 						_, _ = d.Exec("ALTER TABLE consolidated_hosts_new RENAME TO consolidated_hosts")
-					} else {
-						_, _ = d.Exec("DROP TABLE IF EXISTS consolidated_hosts_new")
 					}
 				}
 			}
 		}
-	}
-
-	var portTotal, portDistinct int
-	if pErr := d.QueryRow("SELECT COUNT(*) FROM ports").Scan(&portTotal); pErr == nil {
-		if pErr := d.QueryRow("SELECT COUNT(*) FROM (SELECT host_id, port, protocol FROM ports GROUP BY host_id, port, protocol)").Scan(&portDistinct); pErr == nil {
-			if portDupCount := portTotal - portDistinct; portDupCount > 0 {
-				if _, pErr := d.Exec(`
-					CREATE TABLE ports_new (
-						id INTEGER PRIMARY KEY AUTOINCREMENT,
-						host_id INTEGER NOT NULL,
-						port INTEGER NOT NULL,
-						protocol TEXT NOT NULL DEFAULT 'tcp',
-						state TEXT NOT NULL DEFAULT 'unknown',
-						service TEXT DEFAULT '',
-						version TEXT DEFAULT '',
-						extra_info TEXT DEFAULT '',
-						cpe TEXT DEFAULT '',
-						product TEXT DEFAULT '',
-						reason TEXT DEFAULT '',
-						note TEXT DEFAULT '',
-						original_data TEXT DEFAULT '',
-						is_modified INTEGER DEFAULT 0,
-						FOREIGN KEY (host_id) REFERENCES hosts(id) ON DELETE CASCADE
-					)
-				`); pErr == nil {
+		var hostTotal, hostDistinct int
+		if pErr := d.QueryRow("SELECT COUNT(*) FROM consolidated_hosts").Scan(&hostTotal); pErr == nil {
+			if pErr := d.QueryRow("SELECT COUNT(*) FROM (SELECT ip FROM consolidated_hosts GROUP BY ip)").Scan(&hostDistinct); pErr == nil {
+				if hostDupCount := hostTotal - hostDistinct; hostDupCount > 0 {
 					if _, pErr := d.Exec(`
-						INSERT INTO ports_new (id, host_id, port, protocol, state, service, version, extra_info, cpe, product, reason, note, original_data, is_modified)
-						SELECT MIN(id), host_id, port, protocol, state, service, version, extra_info, cpe, product, reason, note, original_data, MAX(is_modified)
-						FROM ports
-						GROUP BY host_id, port, protocol
+						CREATE TABLE consolidated_hosts_new (
+							ip TEXT PRIMARY KEY,
+							mac TEXT DEFAULT '',
+							hostname TEXT DEFAULT '',
+							os TEXT DEFAULT '',
+							status TEXT DEFAULT 'unknown',
+							discovery_methods TEXT DEFAULT '',
+							first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+							last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+							last_scan_id INTEGER DEFAULT 0
+						)
 					`); pErr == nil {
-						_, _ = d.Exec("DROP TABLE ports")
-						_, _ = d.Exec("ALTER TABLE ports_new RENAME TO ports")
-					} else {
-						_, _ = d.Exec("DROP TABLE IF EXISTS ports_new")
+						if _, pErr := d.Exec(`
+							INSERT OR IGNORE INTO consolidated_hosts_new
+							SELECT ip, mac, hostname, os, status, discovery_methods,
+								MIN(first_seen) as first_seen,
+								MAX(last_seen) as last_seen,
+								MAX(last_scan_id) as last_scan_id
+							FROM consolidated_hosts
+							GROUP BY ip
+						`); pErr == nil {
+							_, _ = d.Exec("DROP TABLE consolidated_hosts")
+							_, _ = d.Exec("ALTER TABLE consolidated_hosts_new RENAME TO consolidated_hosts")
+						} else {
+							_, _ = d.Exec("DROP TABLE IF EXISTS consolidated_hosts_new")
+						}
 					}
 				}
 			}
 		}
+
+		// Deduplicate ports
+		var portTotal, portDistinct int
+		if pErr := d.QueryRow("SELECT COUNT(*) FROM ports").Scan(&portTotal); pErr == nil {
+			if pErr := d.QueryRow("SELECT COUNT(*) FROM (SELECT host_id, port, protocol FROM ports GROUP BY host_id, port, protocol)").Scan(&portDistinct); pErr == nil {
+				if portDupCount := portTotal - portDistinct; portDupCount > 0 {
+					if _, pErr := d.Exec(`
+						CREATE TABLE ports_new (
+							id INTEGER PRIMARY KEY AUTOINCREMENT,
+							host_id INTEGER NOT NULL,
+							port INTEGER NOT NULL,
+							protocol TEXT NOT NULL DEFAULT 'tcp',
+							state TEXT NOT NULL DEFAULT 'unknown',
+							service TEXT DEFAULT '',
+							version TEXT DEFAULT '',
+							extra_info TEXT DEFAULT '',
+							cpe TEXT DEFAULT '',
+							product TEXT DEFAULT '',
+							reason TEXT DEFAULT '',
+							note TEXT DEFAULT '',
+							original_data TEXT DEFAULT '',
+							is_modified INTEGER DEFAULT 0,
+							FOREIGN KEY (host_id) REFERENCES hosts(id) ON DELETE CASCADE
+						)
+					`); pErr == nil {
+						if _, pErr := d.Exec(`
+							INSERT INTO ports_new (id, host_id, port, protocol, state, service, version, extra_info, cpe, product, reason, note, original_data, is_modified)
+							SELECT MIN(id), host_id, port, protocol, state, service, version, extra_info, cpe, product, reason, note, original_data, MAX(is_modified)
+							FROM ports
+							GROUP BY host_id, port, protocol
+						`); pErr == nil {
+							_, _ = d.Exec("DROP TABLE ports")
+							_, _ = d.Exec("ALTER TABLE ports_new RENAME TO ports")
+						} else {
+							_, _ = d.Exec("DROP TABLE IF EXISTS ports_new")
+						}
+					}
+				}
+			}
+		}
+
+		// Deduplicate port_scripts and add unique index
+		if _, pErr := d.Exec(`
+			DELETE FROM port_scripts WHERE id NOT IN (
+				SELECT MIN(id) FROM port_scripts GROUP BY host_id, port_id, script_id
+			)
+		`); pErr != nil {
+			log.Printf("Error deduplicating port_scripts: %v", pErr)
+		}
+		d.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_port_scripts_unique ON port_scripts(host_id, port_id, script_id)")
+
+		// Deduplicate host_scripts and add unique index
+		if _, pErr := d.Exec(`
+			DELETE FROM host_scripts WHERE id NOT IN (
+				SELECT MIN(id) FROM host_scripts GROUP BY host_id, script_id
+			)
+		`); pErr != nil {
+			log.Printf("Error deduplicating host_scripts: %v", pErr)
+		}
+		d.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_host_scripts_unique ON host_scripts(host_id, script_id)")
+
+		d.Exec("INSERT OR IGNORE INTO migration_flags (name) VALUES ('dedup_v2')")
 	}
 
-	// Deduplicate port_scripts and add unique index
-	if _, pErr := d.Exec(`
-		DELETE FROM port_scripts WHERE id NOT IN (
-			SELECT MIN(id) FROM port_scripts GROUP BY host_id, port_id, script_id
-		)
-	`); pErr != nil {
-		log.Printf("Error deduplicating port_scripts: %v", pErr)
+	// Backfill schedule_v2: populate trigger_type, scheduled_at from existing data
+	var schedFlag int
+	d.QueryRow("SELECT 1 FROM migration_flags WHERE name = 'schedule_v2'").Scan(&schedFlag)
+	if schedFlag == 0 {
+		d.Exec("UPDATE scan_schedules SET trigger_type = 'time', scheduled_at = next_run_at, status = CASE WHEN enabled = 1 THEN 'pending' ELSE 'completed' END WHERE scheduled_at IS NULL")
+		d.Exec("INSERT OR IGNORE INTO migration_flags (name) VALUES ('schedule_v2')")
 	}
-	d.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_port_scripts_unique ON port_scripts(host_id, port_id, script_id)")
-
-	// Deduplicate host_scripts and add unique index
-	if _, pErr := d.Exec(`
-		DELETE FROM host_scripts WHERE id NOT IN (
-			SELECT MIN(id) FROM host_scripts GROUP BY host_id, script_id
-		)
-	`); pErr != nil {
-		log.Printf("Error deduplicating host_scripts: %v", pErr)
-	}
-	d.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_host_scripts_unique ON host_scripts(host_id, script_id)")
 
 	return nil
 }

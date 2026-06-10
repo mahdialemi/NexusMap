@@ -148,7 +148,7 @@ func (d *DB) GetConsolidatedScriptsPaged(projectID, page, limit int, search stri
 		FROM port_scripts ps3
 		JOIN hosts h3 ON h3.id = ps3.host_id
 		JOIN ports p3 ON p3.id = ps3.port_id
-		JOIN scans s3 ON s3.id = h3.scan_id AND s3.project_id = ?`
+		JOIN scans s3 ON s3.id = h3.scan_id AND s3.project_id = ? AND s3.confirmed = 1`
 
 	whereClause := ""
 	countArgs := []interface{}{projectID}
@@ -188,7 +188,7 @@ func (d *DB) GetConsolidatedScriptsPaged(projectID, page, limit int, search stri
 			FROM port_scripts ps3
 			JOIN hosts h3 ON h3.id = ps3.host_id
 			JOIN ports p3 ON p3.id = ps3.port_id
-			JOIN scans s3 ON s3.id = h3.scan_id AND s3.project_id = ?`+searchWhere+`
+			JOIN scans s3 ON s3.id = h3.scan_id AND s3.project_id = ? AND s3.confirmed = 1`+searchWhere+`
 		) dedup
 		LEFT JOIN consolidated_ports cp ON cp.ip = dedup.ip AND cp.port = dedup.port AND cp.protocol = dedup.protocol
 		WHERE dedup.rn = 1

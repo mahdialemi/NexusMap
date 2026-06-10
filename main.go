@@ -1,14 +1,19 @@
 package main
 
 import (
+	"compress/gzip"
 	"context"
+	"embed"
 	"flag"
 	"fmt"
+	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -20,8 +25,21 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+//go:embed web
+var webFS embed.FS
+
+type gzipResponseWriter struct {
+	http.ResponseWriter
+	Writer io.Writer
+}
+
+func (g *gzipResponseWriter) Write(b []byte) (int, error) {
+	return g.Writer.Write(b)
+}
+
 func main() {
 	port := flag.Int("port", 9090, "HTTP port")
+	bind := flag.String("bind", "0.0.0.0", "Bind address (0.0.0.0, 127.0.0.1, etc.)")
 	dbPath := flag.String("db", "scanner.db", "Database path")
 	adminPassword := flag.String("admin-password", "", "Set admin password (generated randomly if empty)")
 	flag.Parse()
@@ -55,18 +73,14 @@ func main() {
 	os.MkdirAll(scansDir, 0755)
 	nmapRunner := nmap.New(scansDir)
 
-	exeDir := filepath.Dir(exe)
-	webRoot := filepath.Join(exeDir, "..", "web")
-	if _, err := os.Stat(filepath.Join(webRoot, "pages")); os.IsNotExist(err) {
-		webRoot = filepath.Join(exeDir, "web")
-	}
+	webSubFS, _ := fs.Sub(webFS, "web")
 
 	sseBroker := handlers.NewSSEBroker()
 	srv := &handlers.Server{
 		DB:         appDB,
 		AuthSvc:    authSvc,
 		NmapRunner: nmapRunner,
-		WebRoot:    webRoot,
+		WebFS:      webSubFS,
 		SSE:        sseBroker,
 	}
 
@@ -78,7 +92,7 @@ func main() {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
-		http.FileServer(http.Dir(webRoot)).ServeHTTP(w, r)
+		http.FileServer(http.FS(webSubFS)).ServeHTTP(w, r)
 	})))
 
 	mux.HandleFunc("/login", srv.HandlePage("login.html"))
@@ -98,6 +112,9 @@ func main() {
 	mux.HandleFunc("/api/projects/{id}", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleProjectByID)))
 	mux.HandleFunc("/api/projects/{id}/status", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleProjectStatus)))
 	mux.HandleFunc("/api/projects/{id}/scans", auth.APIAuthMiddleware(authSvc, srv.HandleProjectScans))
+	mux.HandleFunc("/api/projects/{id}/schedules", auth.APIAuthMiddleware(authSvc, srv.HandleGetSchedules))
+	mux.HandleFunc("/api/projects/{id}/schedules/create", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleCreateSchedule)))
+	mux.HandleFunc("/api/projects/{id}/schedules/{schedule_id}/delete", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleDeleteSchedule)))
 	mux.HandleFunc("/api/tags", auth.APIAuthMiddleware(authSvc, srv.HandleTagCloud))
 
 	mux.HandleFunc("/api/scans/create", csrf(auth.APIAuthMiddleware(authSvc, handlers.RateLimitMiddleware(srv.HandleCreateScan, handlers.ApiRateLimiter))))
@@ -190,13 +207,23 @@ func main() {
 		if r.TLS != nil {
 			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		}
+		// Gzip compression for API responses
+		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") && !strings.Contains(r.URL.Path, "/events") {
+			w.Header().Set("Content-Encoding", "gzip")
+			gz := gzip.NewWriter(w)
+			defer gz.Close()
+			gzw := &gzipResponseWriter{ResponseWriter: w, Writer: gz}
+			mux.ServeHTTP(gzw, r)
+			return
+		}
 		mux.ServeHTTP(w, r)
 	})
 
-	addr := fmt.Sprintf(":%d", *port)
-	log.Printf("NexusMap starting on http://0.0.0.0%s", addr)
+	addr := fmt.Sprintf("%s:%d", *bind, *port)
+	log.Printf("NexusMap starting on http://%s", addr)
 
 	go srv.BackfillAllScripts()
+	go srv.StartScheduler()
 
 	httpSrv := &http.Server{Addr: addr, Handler: handler, ReadTimeout: 30 * time.Second, WriteTimeout: 300 * time.Second, IdleTimeout: 120 * time.Second}
 

@@ -31,13 +31,13 @@ func parseRawText(rawText string) ([]db.Host, []db.Port, []db.PortScript, []db.H
 		h, p, ps, hs, err := nmap.ParseXML(rawText)
 		return h, p, ps, hs, "XML", err
 	}
+	if strings.Contains(rawText, "Host:") && strings.Contains(rawText, "Ports:") {
+		h, p, ps, hs, err := nmap.ParseImportGnmap(rawText)
+		return h, p, ps, hs, "Gnmap", err
+	}
 	if strings.Contains(rawText, "# Nmap") || strings.HasPrefix(rawText, "Nmap scan report for") {
 		h, p, ps, hs, err := nmap.ParseNmapNormal(rawText)
 		return h, p, ps, hs, "Nmap", err
-	}
-	if strings.HasPrefix(rawText, "Host:") && strings.Contains(rawText, "Ports:") {
-		h, p, ps, hs, err := nmap.ParseImportGnmap(rawText)
-		return h, p, ps, hs, "Gnmap", err
 	}
 	return nil, nil, nil, nil, "", fmt.Errorf("unrecognized format")
 }
@@ -320,17 +320,17 @@ func (s *Server) HandleImport(w http.ResponseWriter, r *http.Request) {
 
 	if rawText != "" {
 		h, p, ps, hs, fmtName, err := parseRawText(rawText)
-		if err != nil {
-			jsonResponse(w, 400, map[string]string{"error": "parse error"})
-			return
+		if err == nil {
+			if usedFormat == "" {
+				usedFormat = fmtName
+			} else {
+				usedFormat = usedFormat + "+" + fmtName
+			}
+			allHosts = append(allHosts, h...)
+			allPorts = append(allPorts, p...)
+			allPortScripts = append(allPortScripts, ps...)
+			allHostScripts = append(allHostScripts, hs...)
 		}
-		if usedFormat == "" {
-			usedFormat = fmtName
-		}
-		allHosts = append(allHosts, h...)
-		allPorts = append(allPorts, p...)
-		allPortScripts = append(allPortScripts, ps...)
-		allHostScripts = append(allHostScripts, hs...)
 	}
 
 	if usedFormat == "" {
@@ -350,7 +350,7 @@ func (s *Server) HandleImport(w http.ResponseWriter, r *http.Request) {
 	if mergeScan != "" {
 		sid = parseIntID(mergeScan)
 	} else {
-		scanID, err := s.DB.CreateScan(pid, "import", importName, profile)
+		scanID, err := s.DB.CreateScan(pid, "import", importName, usedFormat, nil)
 		if err != nil {
 			serverError(w, err)
 			return

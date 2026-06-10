@@ -42,7 +42,12 @@ async function init() {
         if (ui) ui.classList.add('user-admin');
     }
 
-    document.getElementById('global-search').addEventListener('input', function() { globalSearch(this.value); });
+    var searchTimer;
+    document.getElementById('global-search').addEventListener('input', function() {
+        clearTimeout(searchTimer);
+        var val = this.value;
+        searchTimer = setTimeout(function() { globalSearch(val); }, 300);
+    });
     document.getElementById('page-size-select').addEventListener('change', function() { changePageSize(this.value); });
 
     try {

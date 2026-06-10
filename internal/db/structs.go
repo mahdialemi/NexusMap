@@ -38,21 +38,26 @@ type Project struct {
 }
 
 type Scan struct {
-	ID          int        `json:"id"`
-	ProjectID   int        `json:"project_id"`
-	Profile     string     `json:"profile"`
-	Target      string     `json:"target"`
-	NmapCommand string     `json:"nmap_command"`
-	Status      string     `json:"status"`
-	Confirmed   int        `json:"confirmed"`
-	Progress    int        `json:"progress"`
-	Phase       string     `json:"phase"`
-	Note        string     `json:"note"`
-	HostCount   int        `json:"host_count,omitempty"`
-	PortCount   int        `json:"port_count,omitempty"`
-	OutputDir   string     `json:"output_dir,omitempty"`
-	StartedAt   time.Time  `json:"started_at"`
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	ID                  int        `json:"id"`
+	ProjectID           int        `json:"project_id"`
+	Profile             string     `json:"profile"`
+	Target              string     `json:"target"`
+	NmapCommand         string     `json:"nmap_command"`
+	Status              string     `json:"status"`
+	Confirmed           int        `json:"confirmed"`
+	Progress            int        `json:"progress"`
+	Phase               string     `json:"phase"`
+	Note                string     `json:"note"`
+	HostCount           int        `json:"host_count,omitempty"`
+	PortCount           int        `json:"port_count,omitempty"`
+	OutputDir           string     `json:"output_dir,omitempty"`
+	StartedAt           time.Time  `json:"started_at"`
+	CompletedAt         *time.Time `json:"completed_at,omitempty"`
+	ScheduleID          *int       `json:"schedule_id,omitempty"`
+	ScheduleTriggerType *string    `json:"schedule_trigger_type,omitempty"`
+	ScheduleScheduledAt *string    `json:"schedule_scheduled_at,omitempty"`
+	ScheduleDependsOn   *int       `json:"schedule_depends_on,omitempty"`
+	ScheduleName        *string    `json:"schedule_name,omitempty"`
 }
 
 type Host struct {
@@ -161,6 +166,7 @@ type ConsolidatedHost struct {
 	FirstSeen        string `json:"first_seen"`
 	LastSeen         string `json:"last_seen"`
 	LastScanID       int    `json:"last_scan_id"`
+	Label            string `json:"label"`
 }
 
 type ConsolidatedPort struct {
@@ -181,6 +187,7 @@ type ConsolidatedPort struct {
 	LastSeen    string `json:"last_seen"`
 	LastScanID  int    `json:"last_scan_id"`
 	NotePreview string `json:"note_preview"`
+	Label       string `json:"label"`
 }
 
 type PaginatedPorts struct {
@@ -312,6 +319,21 @@ type Profile struct {
 	SortOrder   int    `json:"sort_order"`
 	IsBuiltin   bool   `json:"is_builtin"`
 	CreatedAt   string `json:"created_at"`
+}
+
+type ScanSchedule struct {
+	ID              int     `json:"id"`
+	ProjectID       int     `json:"project_id"`
+	Name            string  `json:"name"`
+	Profile         string  `json:"profile"`
+	Target          string  `json:"target"`
+	TriggerType     string  `json:"trigger_type"`
+	ScheduledAt     *string `json:"scheduled_at,omitempty"`
+	DependsOnScanID *int    `json:"depends_on_scan_id,omitempty"`
+	Status          string  `json:"status"`
+	NextRunAt       *string `json:"next_run_at,omitempty"`
+	LastRunAt       *string `json:"last_run_at,omitempty"`
+	CreatedAt       string  `json:"created_at"`
 }
 
 func parseInt(s string) int {

@@ -8,10 +8,29 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 
 	_ "modernc.org/sqlite"
 )
+
+// getColumnNames returns the list of column names for a table.
+func getColumnNames(db *sql.DB, table string) ([]string, error) {
+	rows, err := db.Query(fmt.Sprintf("SELECT name FROM pragma_table_info('%s')", table))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var cols []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		cols = append(cols, name)
+	}
+	return cols, nil
+}
 
 func (s *Server) HandleDBImport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -93,12 +112,22 @@ func (s *Server) handleDBImportPreview(w http.ResponseWriter, r *http.Request) {
 	}
 
 	preview := map[string]int{}
-	tables := []string{"projects", "scans", "hosts", "ports", "consolidated_hosts", "consolidated_ports", "port_scripts", "host_scripts", "consolidated_edits"}
+	tables := []string{"projects", "scans", "hosts", "ports", "consolidated_hosts", "consolidated_ports", "port_scripts", "host_scripts", "consolidated_edits", "consolidated_notes", "scan_schedules"}
+	hasKnownTable := false
 	for _, t := range tables {
 		var count int
 		if err := srcDB.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", t)).Scan(&count); err == nil {
 			preview[t] = count
+			if count > 0 {
+				hasKnownTable = true
+			}
 		}
+	}
+
+	if !hasKnownTable {
+		log.Printf("[DBImport] not a nexusmap database")
+		jsonResponse(w, 400, map[string]string{"error": "not a NexusMap database"})
+		return
 	}
 
 	log.Printf("[DBImport] preview done: %+v", preview)
@@ -179,31 +208,77 @@ func (s *Server) handleDBImportExecute(w http.ResponseWriter, r *http.Request) {
 		"projects", "scans", "hosts", "ports",
 		"consolidated_hosts", "consolidated_ports",
 		"port_scripts", "host_scripts", "consolidated_edits",
+		"consolidated_notes", "scan_schedules",
+	}
+
+	// Verify this is a nexusmap database
+	hasKnown := false
+	for _, table := range tables {
+		var n int
+		if err := srcDB.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", table)).Scan(&n); err == nil && n > 0 {
+			hasKnown = true
+			break
+		}
+	}
+	if !hasKnown {
+		log.Printf("[DBImport] not a nexusmap database")
+		jsonResponse(w, 400, map[string]string{"error": "not a NexusMap database"})
+		return
 	}
 
 	for _, table := range tables {
-		rows, err := srcDB.Query(fmt.Sprintf("SELECT * FROM %s", table))
+		// Get destination columns
+		dstCols, err := getColumnNames(s.DB.DB, table)
+		if err != nil {
+			log.Printf("[DBImport] dst columns %s: %v", table, err)
+			continue
+		}
+		dstSet := make(map[string]bool, len(dstCols))
+		for _, c := range dstCols {
+			dstSet[c] = true
+		}
+
+		// Get source columns
+		srcCols, err := getColumnNames(srcDB, table)
+		if err != nil {
+			log.Printf("[DBImport] src columns %s: %v", table, err)
+			continue
+		}
+
+		// Intersection — only columns that exist in both
+		var common []string
+		for _, c := range srcCols {
+			if dstSet[c] {
+				common = append(common, c)
+			}
+		}
+		if len(common) == 0 {
+			log.Printf("[DBImport] no common columns for %s, skipping", table)
+			continue
+		}
+		sort.Strings(common)
+
+		// Build column list and placeholders
+		colList := ""
+		placeholders := ""
+		for i, c := range common {
+			if i > 0 {
+				colList += ", "
+				placeholders += ", "
+			}
+			colList += c
+			placeholders += "?"
+		}
+
+		rows, err := srcDB.Query(fmt.Sprintf("SELECT %s FROM %s", colList, table))
 		if err != nil {
 			log.Printf("[DBImport] query %s: %v", table, err)
 			continue
 		}
 
-		columns, err := rows.Columns()
-		if err != nil {
-			rows.Close()
-			continue
-		}
-		placeholders := ""
-		for i := range columns {
-			if i > 0 {
-				placeholders += ","
-			}
-			placeholders += "?"
-		}
-
 		for rows.Next() {
-			values := make([]interface{}, len(columns))
-			valuePtrs := make([]interface{}, len(columns))
+			values := make([]interface{}, len(common))
+			valuePtrs := make([]interface{}, len(common))
 			for i := range values {
 				valuePtrs[i] = &values[i]
 			}
@@ -212,7 +287,7 @@ func (s *Server) handleDBImportExecute(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			query := fmt.Sprintf("INSERT OR IGNORE INTO %s VALUES (%s)", table, placeholders)
+			query := fmt.Sprintf("INSERT OR IGNORE INTO %s (%s) VALUES (%s)", table, colList, placeholders)
 			if _, err := tx.Exec(query, values...); err == nil {
 				imported++
 			}

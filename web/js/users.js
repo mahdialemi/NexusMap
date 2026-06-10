@@ -2,20 +2,6 @@ var allUsers = [];
 var dbImportFile = null;
 var dbImportPreviewData = {};
 
-document.addEventListener('input', function(e) {
-    var el = e.target.closest('[data-action]');
-    if (!el) return;
-    var action = el.getAttribute('data-action');
-    if (action === 'filterUsers') { filterUsers(e.target.value); }
-});
-
-document.addEventListener('change', function(e) {
-    var el = e.target.closest('[data-action]');
-    if (!el) return;
-    var action = el.getAttribute('data-action');
-    if (action === 'onDBImportFileSelect') { onDBImportFileSelect(e.target); }
-});
-
 document.addEventListener('click', function(e) {
     var el = e.target.closest('#about-modal.modal-overlay');
     if (el && el === e.target) { hideAboutModal(); return; }
@@ -111,8 +97,9 @@ function renderUsers(users) {
     }).join('');
 }
 
-function filterUsers(query) {
-    var q = query.toLowerCase();
+function filterUsers(e) {
+    var val = typeof e === 'string' ? e : this.value;
+    var q = val.toLowerCase();
     var filtered = allUsers.filter(function(u) {
         return (u.username || '').toLowerCase().indexOf(q) !== -1 ||
                (u.role || '').toLowerCase().indexOf(q) !== -1;
@@ -231,37 +218,7 @@ async function deleteUserConfirm(e) {
     }
 }
 
-document.addEventListener('click', function(e) {
-    var target = e.target.closest('[data-action]');
-    if (!target) return;
-    var action = target.getAttribute('data-action');
-    if (action === 'switchTab') switchTab.call(target, e);
-    else if (action === 'vacuumDB') vacuumDB();
-    else if (action === 'backupDB') backupDB();
-    else if (action === 'resetDB') resetDB();
-    else if (action === 'factoryReset') factoryReset();
-    else if (action === 'loadActivityLog') loadActivityLog();
-    else if (action === 'doPrune') doPrune();
-    else if (action === 'backToProjects') backToProjects();
-    else if (action === 'showAboutModal') showAboutModal();
-    else if (action === 'hideAboutModal') hideAboutModal();
-    else if (action === 'showCreateModal') showCreateModal();
-    else if (action === 'hideCreateModal') hideCreateModal();
-    else if (action === 'showEditModal') showEditModal.call(target, e);
-    else if (action === 'hideEditModal') hideEditModal();
-    else if (action === 'saveEditUser') saveEditUser();
-    else if (action === 'showResetModal') showResetModal.call(target, e);
-    else if (action === 'hideResetModal') hideResetModal();
-    else if (action === 'doResetPassword') doResetPassword();
-    else if (action === 'deleteUserConfirm') deleteUserConfirm.call(target, e);
-    else if (action === 'togglePassword') togglePassword.call(target, e);
-    else if (action === 'clickImport') clickImport();
-    else if (action === 'previewDBImport') previewDBImport();
-    else if (action === 'doDBImport') doDBImport();
-    else if (action === 'closeModalBackdrop') closeModalBackdrop.call(target, e);
-    else if (action === 'toggleTheme') toggleTheme();
-    else if (action === 'logout') logout();
-});
+
 
 init();
 

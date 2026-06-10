@@ -2,6 +2,12 @@
             const target = document.getElementById('target').value.trim();
             if (!target) { showToast('Please enter a target', 'error'); return; }
 
+            const schedEnabled = document.getElementById('sched-enabled').checked;
+            if (schedEnabled) {
+                await createScheduledScan(target);
+                return;
+            }
+
             const btn = document.getElementById('create-btn');
             btn.disabled = true;
             btn.textContent = 'Creating...';
@@ -14,6 +20,72 @@
                 document.getElementById('target').value = '';
                 document.getElementById('scan-notes').value = '';
                 await loadScans();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Create Scan';
+            }
+        }
+
+        async function createScheduledScan(target) {
+            const btn = document.getElementById('create-btn');
+            btn.disabled = true;
+            btn.textContent = 'Scheduling...';
+
+            try {
+                const triggerType = document.querySelector('input[name="sched-type"]:checked').value;
+                let scheduledAt = '';
+                let dependsOnScanID = null;
+
+                if (triggerType === 'time') {
+                    scheduledAt = document.getElementById('sched-datetime').value;
+                    if (!scheduledAt) {
+                        showToast('Please select a date and time', 'error');
+                        btn.disabled = false;
+                        btn.textContent = 'Create Scan';
+                        return;
+                    }
+                    // Convert to ISO format (append seconds if not present)
+                    if (scheduledAt.length === 16) scheduledAt += ':00';
+                    scheduledAt = scheduledAt.replace('T', ' ') + ':00';
+                } else {
+                    const sel = document.getElementById('sched-dep-scan');
+                    dependsOnScanID = parseInt(sel.value);
+                    if (!dependsOnScanID) {
+                        showToast('Please select a scan to depend on', 'error');
+                        btn.disabled = false;
+                        btn.textContent = 'Create Scan';
+                        return;
+                    }
+                }
+
+                const profile = selectedProfile;
+                const res = await fetch(`/api/projects/${projectId}/schedules/create`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken},
+                    body: JSON.stringify({
+                        name: target,
+                        profile: profile,
+                        target: target,
+                        trigger_type: triggerType,
+                        scheduled_at: triggerType === 'time' ? scheduledAt : '',
+                        depends_on_scan_id: triggerType === 'dependency' ? dependsOnScanID : null
+                    })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Failed to schedule');
+                }
+
+                const msg = triggerType === 'time'
+                    ? 'Scheduled for ' + scheduledAt
+                    : 'Scheduled after scan #' + dependsOnScanID;
+                showToast(msg, 'success');
+                document.getElementById('target').value = '';
+                document.getElementById('scan-notes').value = '';
+                document.getElementById('sched-enabled').checked = false;
+                document.getElementById('sched-options').style.display = 'none';
             } catch (e) {
                 showToast('Error: ' + e.message, 'error');
             } finally {
@@ -171,42 +243,55 @@
 
         // Scan progress polling
         let scanPollInterval = null;
+        let scanPollBackoff = 2000;
 
         function startScanPolling() {
-            const running = document.querySelectorAll('.scan-state');
-            if (running.length === 0) {
-                if (scanPollInterval) {
-                    clearInterval(scanPollInterval);
-                    scanPollInterval = null;
-                }
+            scanPollBackoff = 2000;
+            const runningEls = document.querySelectorAll('.scan-state');
+            if (runningEls.length === 0) {
+                stopScanPolling();
                 return;
             }
             if (scanPollInterval) return;
             scanPollInterval = setInterval(pollScanStatuses, 2000);
         }
 
+        function stopScanPolling() {
+            if (scanPollInterval) {
+                clearInterval(scanPollInterval);
+                scanPollInterval = null;
+            }
+            scanPollBackoff = 2000;
+        }
+
         async function pollScanStatuses() {
             const states = document.querySelectorAll('.scan-state');
             if (states.length === 0) {
-                clearInterval(scanPollInterval);
-                scanPollInterval = null;
+                stopScanPolling();
                 return;
             }
+            let anyRunning = false;
             for (const el of states) {
                 const id = el.id.replace('sp-', '');
                 try {
                     const resp = await fetch('/api/scans/' + id + '/status');
                     const data = await resp.json();
                     if (data.status === 'completed' || data.status === 'error' || data.status === 'stopped') {
-                        clearInterval(scanPollInterval);
-                        scanPollInterval = null;
+                        stopScanPolling();
                         await loadScans();
                         return;
                     }
                     if (data.phase) el.innerHTML = getStateIcon(data.phase) + ' ' + esc(data.phase);
+                    if (data.status === 'running') anyRunning = true;
                 } catch (e) {
                     // ignore
                 }
+            }
+            // Exponential backoff: slow polling when scans are idle
+            if (!anyRunning && states.length > 0) {
+                scanPollBackoff = Math.min(scanPollBackoff * 1.5, 30000);
+                stopScanPolling();
+                scanPollInterval = setInterval(pollScanStatuses, scanPollBackoff);
             }
         }
 
@@ -237,7 +322,25 @@
                 applyScanFilters();
                 updateRecentTargets();
 
-                stopAutoRefresh();
+                // Build dependency map: scan ID → schedules that depend on it
+                try {
+                    const allScheds = await getSchedules(projectId);
+                    window.scheduleDepMap = {};
+                    for (const sc of allScheds) {
+                        if (sc.trigger_type === 'dependency' && sc.depends_on_scan_id && sc.status === 'pending') {
+                            if (!window.scheduleDepMap[sc.depends_on_scan_id]) {
+                                window.scheduleDepMap[sc.depends_on_scan_id] = [];
+                            }
+                            window.scheduleDepMap[sc.depends_on_scan_id].push(sc);
+                        }
+                    }
+                } catch (e) {
+                    window.scheduleDepMap = {};
+                }
+
+                var hasRunning = allScans.some(function(s) { return s.status === 'running' || s.status === 'pending'; });
+                manageRefresh(hasRunning);
+                if (hasRunning) { startScanPolling(); } else { stopScanPolling(); }
             } catch (e) {
                 console.error('loadScans error:', e);
                 list.innerHTML = '<div class="empty-state"><p>Error loading scans: ' + esc(e.message) + '</p></div>';
@@ -314,6 +417,17 @@
             return mins + 'm ' + rem + 's';
         }
 
+        function formatSchedDate(dt) {
+            if (!dt) return '';
+            const d = new Date(dt.replace(' ', 'T') + 'Z');
+            if (isNaN(d.getTime())) return dt;
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hour = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return month + '/' + day + ' ' + hour + ':' + min;
+        }
+
         function renderScans(scans) {
             const list = document.getElementById('scans-list');
             const countEl = document.getElementById('scan-count');
@@ -364,6 +478,15 @@
                 if (isPendingConfirm) html += '<span class="badge badge-pending">Pending</span>';
                 if (isConfirmed) html += '<span class="badge badge-confirmed">&#10003;</span>';
                 if (isRejected) html += '<span class="badge badge-rejected">&#10007;</span>';
+                if (window.scheduleDepMap && window.scheduleDepMap[s.id]) {
+                    html += '<span class="badge badge-dep" title="' + window.scheduleDepMap[s.id][0].target + ' - ' + window.scheduleDepMap[s.id].length + ' schedule(s) waiting">&#9203; dep: ' + window.scheduleDepMap[s.id].length + '</span>';
+                }
+                if (s.schedule_trigger_type === 'time' && s.schedule_scheduled_at) {
+                    html += '<span class="badge badge-sched" title="' + esc(s.schedule_name || '') + '">&#128197; ' + formatSchedDate(s.schedule_scheduled_at) + '</span>';
+                }
+                if (s.schedule_trigger_type === 'dependency' && s.schedule_depends_on) {
+                    html += '<span class="badge badge-sched" title="Waits for scan #' + s.schedule_depends_on + '">&#128279; after #' + s.schedule_depends_on + '</span>';
+                }
                 html += statusBadge(s.status);
                 if (isPending) html += '<button class="btn btn-sm btn-run" onclick="event.stopPropagation();runScan(' + s.id + ')" title="Run"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></button>';
                 if (isRunning) html += '<button class="btn btn-sm btn-stop" onclick="event.stopPropagation();stopScan(' + s.id + ')" title="Stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button>';

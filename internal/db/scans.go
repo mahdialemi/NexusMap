@@ -10,8 +10,11 @@ func (d *DB) GetScans(projectID int) ([]Scan, error) {
 		SELECT s.id, s.project_id, s.profile, s.target, s.nmap_command, s.status, s.confirmed, s.progress,
 			   COALESCE(s.phase, ''), s.note, s.started_at, s.completed_at,
 			   (SELECT COUNT(*) FROM hosts h WHERE h.scan_id = s.id) as host_count,
-			   (SELECT COUNT(*) FROM ports p JOIN hosts h ON h.id = p.host_id WHERE h.scan_id = s.id) as port_count
-		FROM scans s WHERE s.project_id = ? ORDER BY s.started_at DESC`, projectID,
+			   (SELECT COUNT(*) FROM ports p JOIN hosts h ON h.id = p.host_id WHERE h.scan_id = s.id) as port_count,
+			   s.schedule_id, ss.trigger_type, ss.scheduled_at, ss.depends_on_scan_id, ss.name
+		FROM scans s
+		LEFT JOIN scan_schedules ss ON ss.id = s.schedule_id
+		WHERE s.project_id = ? ORDER BY s.started_at DESC`, projectID,
 	)
 	if err != nil {
 		return nil, err
@@ -20,7 +23,7 @@ func (d *DB) GetScans(projectID int) ([]Scan, error) {
 	scans := []Scan{}
 	for rows.Next() {
 		var s Scan
-		if err := rows.Scan(&s.ID, &s.ProjectID, &s.Profile, &s.Target, &s.NmapCommand, &s.Status, &s.Confirmed, &s.Progress, &s.Phase, &s.Note, &s.StartedAt, &s.CompletedAt, &s.HostCount, &s.PortCount); err != nil {
+		if err := rows.Scan(&s.ID, &s.ProjectID, &s.Profile, &s.Target, &s.NmapCommand, &s.Status, &s.Confirmed, &s.Progress, &s.Phase, &s.Note, &s.StartedAt, &s.CompletedAt, &s.HostCount, &s.PortCount, &s.ScheduleID, &s.ScheduleTriggerType, &s.ScheduleScheduledAt, &s.ScheduleDependsOn, &s.ScheduleName); err != nil {
 			return nil, err
 		}
 		scans = append(scans, s)
@@ -33,8 +36,11 @@ func (d *DB) GetImportHistory(projectID int) ([]Scan, error) {
 		SELECT s.id, s.project_id, s.profile, s.target, s.nmap_command, s.status, s.confirmed, s.progress,
 			   COALESCE(s.phase, ''), s.note, s.started_at, s.completed_at,
 			   (SELECT COUNT(*) FROM hosts h WHERE h.scan_id = s.id) as host_count,
-			   (SELECT COUNT(*) FROM ports p JOIN hosts h ON h.id = p.host_id WHERE h.scan_id = s.id) as port_count
-		FROM scans s WHERE s.project_id = ? AND s.profile = 'import' ORDER BY s.started_at DESC`, projectID,
+			   (SELECT COUNT(*) FROM ports p JOIN hosts h ON h.id = p.host_id WHERE h.scan_id = s.id) as port_count,
+			   s.schedule_id, ss.trigger_type, ss.scheduled_at, ss.depends_on_scan_id, ss.name
+		FROM scans s
+		LEFT JOIN scan_schedules ss ON ss.id = s.schedule_id
+		WHERE s.project_id = ? AND s.profile = 'import' ORDER BY s.started_at DESC`, projectID,
 	)
 	if err != nil {
 		return nil, err
@@ -43,7 +49,7 @@ func (d *DB) GetImportHistory(projectID int) ([]Scan, error) {
 	scans := []Scan{}
 	for rows.Next() {
 		var s Scan
-		if err := rows.Scan(&s.ID, &s.ProjectID, &s.Profile, &s.Target, &s.NmapCommand, &s.Status, &s.Confirmed, &s.Progress, &s.Phase, &s.Note, &s.StartedAt, &s.CompletedAt, &s.HostCount, &s.PortCount); err != nil {
+		if err := rows.Scan(&s.ID, &s.ProjectID, &s.Profile, &s.Target, &s.NmapCommand, &s.Status, &s.Confirmed, &s.Progress, &s.Phase, &s.Note, &s.StartedAt, &s.CompletedAt, &s.HostCount, &s.PortCount, &s.ScheduleID, &s.ScheduleTriggerType, &s.ScheduleScheduledAt, &s.ScheduleDependsOn, &s.ScheduleName); err != nil {
 			return nil, err
 		}
 		scans = append(scans, s)
@@ -51,10 +57,14 @@ func (d *DB) GetImportHistory(projectID int) ([]Scan, error) {
 	return scans, nil
 }
 
-func (d *DB) CreateScan(projectID int, profile, target, nmapCommand string) (int64, error) {
+func (d *DB) CreateScan(projectID int, profile, target, nmapCommand string, scheduleID *int) (int64, error) {
+	var sid interface{}
+	if scheduleID != nil {
+		sid = *scheduleID
+	}
 	result, err := d.Exec(
-		"INSERT INTO scans (project_id, profile, target, nmap_command, status) VALUES (?, ?, ?, ?, 'running')",
-		projectID, profile, target, nmapCommand,
+		"INSERT INTO scans (project_id, profile, target, nmap_command, schedule_id, status) VALUES (?, ?, ?, ?, ?, 'running')",
+		projectID, profile, target, nmapCommand, sid,
 	)
 	if err != nil {
 		return 0, err
@@ -261,9 +271,14 @@ func (d *DB) DeleteScan(id int) error {
 func (d *DB) GetScan(id int) (*Scan, error) {
 	var s Scan
 	err := d.QueryRow(
-		"SELECT id, project_id, profile, target, nmap_command, status, confirmed, progress, COALESCE(phase, ''), note, output_dir, started_at, completed_at FROM scans WHERE id = ?",
+		`SELECT s.id, s.project_id, s.profile, s.target, s.nmap_command, s.status, s.confirmed, s.progress,
+				COALESCE(s.phase, ''), s.note, s.output_dir, s.started_at, s.completed_at,
+				s.schedule_id, ss.trigger_type, ss.scheduled_at, ss.depends_on_scan_id, ss.name
+		FROM scans s
+		LEFT JOIN scan_schedules ss ON ss.id = s.schedule_id
+		WHERE s.id = ?`,
 		id,
-	).Scan(&s.ID, &s.ProjectID, &s.Profile, &s.Target, &s.NmapCommand, &s.Status, &s.Confirmed, &s.Progress, &s.Phase, &s.Note, &s.OutputDir, &s.StartedAt, &s.CompletedAt)
+	).Scan(&s.ID, &s.ProjectID, &s.Profile, &s.Target, &s.NmapCommand, &s.Status, &s.Confirmed, &s.Progress, &s.Phase, &s.Note, &s.OutputDir, &s.StartedAt, &s.CompletedAt, &s.ScheduleID, &s.ScheduleTriggerType, &s.ScheduleScheduledAt, &s.ScheduleDependsOn, &s.ScheduleName)
 	if err != nil {
 		return nil, err
 	}
@@ -277,23 +292,17 @@ func (d *DB) GetScanProjectID(scanID int) (int, error) {
 }
 
 func (d *DB) GetScanProgress(id int) (*ScanStatus, error) {
-	var s Scan
-	err := d.QueryRow(
-		"SELECT status, progress, COALESCE(phase, '') FROM scans WHERE id = ?", id,
-	).Scan(&s.Status, &s.Progress, &s.Phase)
+	var s ScanStatus
+	err := d.QueryRow(`
+		SELECT s.status, s.progress, COALESCE(s.phase, ''),
+			COALESCE((SELECT COUNT(*) FROM hosts WHERE scan_id = s.id), 0),
+			COALESCE((SELECT COUNT(*) FROM ports WHERE host_id IN (SELECT id FROM hosts WHERE scan_id = s.id)), 0)
+		FROM scans s WHERE s.id = ?`, id,
+	).Scan(&s.Status, &s.Progress, &s.Phase, &s.Hosts, &s.Ports)
 	if err != nil {
 		return nil, err
 	}
-	var hosts, ports int
-	d.QueryRow("SELECT COUNT(*) FROM hosts WHERE scan_id = ?", id).Scan(&hosts)
-	d.QueryRow("SELECT COUNT(*) FROM ports WHERE host_id IN (SELECT id FROM hosts WHERE scan_id = ?)", id).Scan(&ports)
-	return &ScanStatus{
-		Status:   s.Status,
-		Progress: s.Progress,
-		Phase:    s.Phase,
-		Hosts:    hosts,
-		Ports:    ports,
-	}, nil
+	return &s, nil
 }
 
 func (d *DB) ConfirmScan(scanID int) error {
@@ -315,47 +324,8 @@ func (d *DB) ConfirmScan(scanID int) error {
 	}
 	defer rows.Close()
 
-	type hostData struct {
-		ID       int
-		IP       string
-		MAC      string
-		Hostname string
-		OS       string
-		Status   string
-	}
-	type portData struct {
-		Port      int
-		Protocol  string
-		State     string
-		Service   string
-		Version   string
-		Product   string
-		ExtraInfo string
-	}
-
-	hostMap := make(map[int]*hostData)
-	portMap := make(map[int][]portData)
-
-	for rows.Next() {
-		var hID, pID, pPort int
-		var hIP, hMAC, hHostname, hOS, hStatus string
-		var pProtocol, pState, pService, pVersion, pProduct, pExtraInfo string
-
-		if err := rows.Scan(&hID, &hIP, &hMAC, &hHostname, &hOS, &hStatus,
-			&pID, &pPort, &pProtocol, &pState, &pService, &pVersion, &pProduct, &pExtraInfo); err != nil {
-			return err
-		}
-
-		if _, ok := hostMap[hID]; !ok {
-			hostMap[hID] = &hostData{ID: hID, IP: hIP, MAC: hMAC, Hostname: hHostname, OS: hOS, Status: hStatus}
-		}
-		if pID != 0 {
-			portMap[hID] = append(portMap[hID], portData{
-				Port: pPort, Protocol: pProtocol, State: pState,
-				Service: pService, Version: pVersion, Product: pProduct, ExtraInfo: pExtraInfo,
-			})
-		}
-	}
+	isDiscovery := isDiscoveryProfile(d.getScanProfile(scanID))
+	method := d.getScanProfile(scanID)
 
 	tx, err := d.Begin()
 	if err != nil {
@@ -429,23 +399,37 @@ func (d *DB) ConfirmScan(scanID int) error {
 	}
 	defer upsertLiveStmt.Close()
 
-	isDiscovery := isDiscoveryProfile(d.getScanProfile(scanID))
-	method := d.getScanProfile(scanID)
+	// Stream through rows — no intermediate Go maps
+	var lastHostID int
+	for rows.Next() {
+		var hID, pID, pPort int
+		var hIP, hMAC, hHostname, hOS, hStatus string
+		var pProtocol, pState, pService, pVersion, pProduct, pExtraInfo string
 
-	for _, h := range hostMap {
-		if _, err := upsertHostStmt.Exec(h.IP, h.MAC, h.Hostname, h.OS, h.Status, method, scanID); err != nil {
+		if err := rows.Scan(&hID, &hIP, &hMAC, &hHostname, &hOS, &hStatus,
+			&pID, &pPort, &pProtocol, &pState, &pService, &pVersion, &pProduct, &pExtraInfo); err != nil {
 			return err
 		}
-		if isDiscovery {
-			if _, err := upsertLiveStmt.Exec(h.IP, h.MAC, h.Hostname, h.OS, h.Status, method); err != nil {
+
+		if hID != lastHostID {
+			if _, err := upsertHostStmt.Exec(hIP, hMAC, hHostname, hOS, hStatus, method, scanID); err != nil {
+				return err
+			}
+			if isDiscovery {
+				if _, err := upsertLiveStmt.Exec(hIP, hMAC, hHostname, hOS, hStatus, method); err != nil {
+					return err
+				}
+			}
+			lastHostID = hID
+		}
+		if pID != 0 {
+			if _, err := upsertPortStmt.Exec(hIP, pPort, pProtocol, pState, pService, pVersion, pProduct, pExtraInfo, scanID); err != nil {
 				return err
 			}
 		}
-		for _, p := range portMap[h.ID] {
-			if _, err := upsertPortStmt.Exec(h.IP, p.Port, p.Protocol, p.State, p.Service, p.Version, p.Product, p.ExtraInfo, scanID); err != nil {
-				return err
-			}
-		}
+	}
+	if err := rows.Err(); err != nil {
+		return err
 	}
 
 	if _, err := tx.Exec("UPDATE scans SET confirmed = 1 WHERE id = ?", scanID); err != nil {

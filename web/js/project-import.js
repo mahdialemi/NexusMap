@@ -45,14 +45,16 @@
         }
 
         function onImportFilesSelected(input) {
-            const files = input.files;
-            if (!files.length) return;
+            var el = input;
+            if (!el || !el.files) el = this;
+            var files = el.files;
+            if (!files || !files.length) return;
             const maxFiles = 5;
             for (let i = 0; i < files.length; i++) {
                 if (importedFiles.length >= maxFiles) break;
                 importedFiles.push(files[i]);
             }
-            input.value = '';
+            el.value = '';
             renderImportFileList();
             updateImportButtons();
             if (!document.getElementById('import-name').value && importedFiles.length) {

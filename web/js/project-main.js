@@ -80,8 +80,8 @@
         }
 
         function startAutoRefresh() {
-            stopAutoRefresh();
-            refreshInterval = setInterval(() => loadScans(), 2000);
+            if (refreshInterval) return;
+            refreshInterval = setInterval(() => loadScans(), 3000);
         }
 
         function stopAutoRefresh() {
@@ -89,6 +89,11 @@
                 clearInterval(refreshInterval);
                 refreshInterval = null;
             }
+        }
+
+        function manageRefresh(hasRunning) {
+            if (hasRunning) { startAutoRefresh(); }
+            else { stopAutoRefresh(); }
         }
 
         function showTab(tab, el) {
@@ -164,6 +169,33 @@
             document.getElementById('about-modal').style.display = 'none';
         }
         function goToAdmin() { window.location.href = '/admin'; }
+
+        // Schedule helpers
+        function toggleSchedOptions() {
+            const enabled = document.getElementById('sched-enabled').checked;
+            document.getElementById('sched-options').style.display = enabled ? '' : 'none';
+            if (enabled) populateSchedDepScans();
+        }
+
+        function toggleSchedType() {
+            const type = document.querySelector('input[name="sched-type"]:checked').value;
+            document.getElementById('sched-time-options').style.display = type === 'time' ? '' : 'none';
+            document.getElementById('sched-dep-options').style.display = type === 'dependency' ? '' : 'none';
+        }
+
+        function populateSchedDepScans() {
+            const sel = document.getElementById('sched-dep-scan');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Select a scan...</option>';
+            for (const s of allScans) {
+                if (s.status !== 'pending' && s.status !== 'running') continue;
+                const o = document.createElement('option');
+                o.value = s.id;
+                const label = '#' + s.id + ' ' + esc(s.target) + ' (' + s.status + ')';
+                o.textContent = label;
+                sel.appendChild(o);
+            }
+        }
 
         document.addEventListener('click', function(e) {
             if (e.target.closest('#about-modal.modal-overlay') && e.target === e.target.closest('#about-modal')) {

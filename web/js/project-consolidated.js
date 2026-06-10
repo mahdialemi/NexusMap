@@ -679,7 +679,7 @@
             }
             let html = '<table><thead><tr>';
             html += '<th style="width:36px"><input type="checkbox" onchange="toggleConsolidatedSelectAll(this.checked)" title="Select all"></th>';
-            html += '<th>IP</th><th>MAC</th><th>Hostname</th><th>OS</th><th>Status</th><th>Port</th><th>Proto</th><th>State</th><th>Service</th><th>Version</th><th>Product</th><th>Extra</th><th>Changes</th><th>Last Seen</th><th>Note</th><th class="sticky-right-2">NSE</th><th class="sticky-right"></th>';
+            html += '<th>IP</th><th>MAC</th><th>Hostname</th><th>OS</th><th>Status</th><th>Port</th><th>Proto</th><th>State</th><th>Service</th><th>Version</th><th>Product</th><th>Extra</th><th>Changes</th><th>Last Seen</th><th>Note</th><th>Label</th><th class="sticky-right-2">NSE</th><th class="sticky-right"></th>';
             html += '</tr></thead><tbody>';
             for (const p of ports) {
                 const key = p.ip + '|' + p.port + '|' + p.protocol;
@@ -703,13 +703,14 @@
                 html += '<td class="editable-cell" ondblclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'extra_info\',\'' + esc(p.extra_info || '') + '\')" title="' + esc(p.extra_info || '') + '">' + (esc(p.extra_info) || '-') + '</td>';
                 html += '<td style="text-align:center;">' + p.change_count + '</td>';
                 html += '<td>' + formatDate(p.last_seen) + '</td>';
-                html += '<td class="editable-cell" ondblclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'note\',\'' + esc(p.note_preview || '') + '\')" title="' + esc(p.note_preview || '') + '">' + (esc(p.note_preview) || '-') + '</td>';
+                html += '<td class="editable-cell" onclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'note\',\'' + esc(p.note_preview || '') + '\')" title="' + esc(p.note_preview || '') + '">' + (esc(p.note_preview) || '-') + '</td>';
+                html += '<td>' + renderLabelDropdown(p) + '</td>';
                 html += '<td class="sticky-right-2">' + nseBtn + '</td>';
                 html += '<td class="sticky-right">' + histBtn + '</td>';
                 html += '</tr>';
                 if (nseScripts.length > 0) {
                     html += '<tr class="nse-row" style="display:none;" data-parent-ip="' + esc(p.ip) + '" data-parent-port="' + p.port + '" data-parent-proto="' + esc(p.protocol) + '">';
-                    html += '<td colspan="18"><div class="nse-content">';
+                    html += '<td colspan="19"><div class="nse-content">';
                     for (const s of nseScripts) {
                         html += '<div class="nse-item"><div class="nse-left"><span class="nse-id">' + esc(s.script_id) + '</span><pre class="nse-output">' + esc(s.output) + '</pre></div><span class="nse-eye" onclick="showScriptModalFromData(\'' + esc(s.script_id) + '\',\'' + esc(s.ip) + '\',' + s.port + ')" title="View full output"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span></div>';
                     }
@@ -718,6 +719,52 @@
             }
             html += '</tbody></table>';
             container.innerHTML = html;
+        }
+
+        const LABEL_OPTIONS = [
+            {value: '', label: 'None', color: ''},
+            {value: 'critical', label: 'Critical', color: '#ef4444'},
+            {value: 'high', label: 'High', color: '#f97316'},
+            {value: 'medium', label: 'Medium', color: '#eab308'},
+            {value: 'low', label: 'Low', color: '#22c55e'},
+            {value: 'info', label: 'Info', color: '#3b82f6'},
+            {value: 'interesting', label: 'Interesting', color: '#a855f7'}
+        ];
+
+        function renderLabelDropdown(p) {
+            const current = (p.label || '').toLowerCase();
+            const opt = LABEL_OPTIONS.find(o => o.value === current);
+            const color = opt ? opt.color : '';
+            const displayLabel = opt && opt.value ? opt.label : '';
+            let html = `<div class="label-dd" style="position:relative;display:inline-block;">`;
+            html += `<button class="label-btn" onclick="event.stopPropagation();this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'" style="padding:2px 6px;border-radius:4px;font-size:0.7rem;font-weight:600;text-transform:uppercase;border:1px solid ${color || 'var(--border)'};background:${color ? color+'22' : 'transparent'};color:${color || 'var(--text-muted)'};cursor:pointer;white-space:nowrap;">${displayLabel || '-'}</button>`;
+            html += `<div class="label-menu" style="display:none;position:absolute;top:100%;left:0;z-index:50;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;min-width:110px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">`;
+            for (const o of LABEL_OPTIONS) {
+                const sel = o.value === current ? ' style="background:var(--accent);color:white;"' : '';
+                html += `<div class="label-menu-item"${sel} onclick="event.stopPropagation();setPortLabel('${esc(p.ip)}',${p.port},'${esc(p.protocol)}','${o.value}');this.closest('.label-menu').style.display='none';" style="padding:5px 10px;cursor:pointer;font-size:0.75rem;display:flex;align-items:center;gap:6px;">`;
+                if (o.color) html += `<span style="width:8px;height:8px;border-radius:50%;background:${o.color};display:inline-block;"></span>`;
+                html += `${o.label}</div>`;
+            }
+            html += '</div></div>';
+            return html;
+        }
+
+        async function setPortLabel(ip, port, protocol, label) {
+            try {
+                const res = await fetch(`/api/projects/${projectId}/consolidated/ports/update`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken},
+                    body: JSON.stringify({ip, port, protocol, field: 'label', value: label})
+                });
+                if (!res.ok) throw new Error((await res.json()).error);
+                // Update local data
+                const p = consolidatedPortsData.ports.find(x => x.ip === ip && x.port === port && x.protocol === protocol);
+                if (p) p.label = label;
+                // Re-render
+                renderConsolidatedPorts();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
         }
 
         function renderPaginationControls() {
@@ -855,10 +902,10 @@
                 return 0;
             });
 
-            const nCols = 18; // checkbox + 17 data columns
+            const nCols = 19; // checkbox + 18 data columns
             let html = '<table><thead><tr>';
             html += '<th style="width:36px"><input type="checkbox" onchange="toggleConsolidatedSelectAll(this.checked)" title="Select all"></th>';
-            html += '<th>IP</th><th>MAC</th><th>Hostname</th><th>OS</th><th>Status</th><th>Port</th><th>Proto</th><th>State</th><th>Service</th><th>Version</th><th>Product</th><th>Extra</th><th>Changes</th><th>Last Seen</th><th>Note</th><th class="sticky-right-2">NSE</th><th class="sticky-right"></th>';
+            html += '<th>IP</th><th>MAC</th><th>Hostname</th><th>OS</th><th>Status</th><th>Port</th><th>Proto</th><th>State</th><th>Service</th><th>Version</th><th>Product</th><th>Extra</th><th>Changes</th><th>Last Seen</th><th>Note</th><th>Label</th><th class="sticky-right-2">NSE</th><th class="sticky-right"></th>';
             html += '</tr></thead><tbody>';
 
             for (const ip of sortedIPs) {
@@ -902,6 +949,7 @@
                     html += '<td style="text-align:center;">' + p.change_count + '</td>';
                     html += '<td>' + formatDate(p.last_seen) + '</td>';
                     html += '<td class="editable-cell" ondblclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'note\',\'' + esc(p.note_preview || '') + '\')" title="' + esc(p.note_preview || '') + '">' + (esc(p.note_preview) || '-') + '</td>';
+                    html += '<td>' + renderLabelDropdown(p) + '</td>';
                     html += '<td class="sticky-right-2">' + nseBtn + '</td>';
                     html += '<td class="sticky-right">' + histBtn + '</td>';
                     html += '</tr>';

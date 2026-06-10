@@ -168,6 +168,12 @@ async function rejectScanAPI(scanId) {
     return data;
 }
 
+async function getSchedules(projectId) {
+    const res = await fetch(`/api/projects/${projectId}/schedules`);
+    if (!res.ok) throw new Error('Failed to load schedules: ' + res.status);
+    return res.json();
+}
+
 // Results
 async function getResults(scanId, page, limit) {
     var url = `${API}/api/scans/${scanId}/results`;
@@ -332,10 +338,9 @@ function formatDate(dateStr) {
     return new Date(dateStr).toLocaleString();
 }
 
+var _escMap = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 function esc(s) {
-    const d = document.createElement('div');
-    d.textContent = s || '';
-    return d.innerHTML;
+    return (s || '').replace(/[&<>"']/g, function(c) { return _escMap[c]; });
 }
 
 function escAttr(s) {

@@ -3,6 +3,8 @@ package db
 import (
 	"fmt"
 	"strings"
+	"sync"
+	"time"
 )
 
 func (d *DB) GetConsolidatedPorts(projectID int) ([]ConsolidatedPort, error) {
@@ -97,7 +99,7 @@ func (d *DB) GetConsolidatedPortsPaged(projectID, page, limit int, search, state
 
 func (d *DB) UpdateConsolidatedPortField(ip string, port int, protocol, field, value string) error {
 	hostFields := map[string]bool{"mac": true, "hostname": true, "os": true}
-	portFields := map[string]bool{"state": true, "service": true, "version": true, "product": true, "extra_info": true}
+	portFields := map[string]bool{"state": true, "service": true, "version": true, "product": true, "extra_info": true, "label": true}
 
 	if field == "note" {
 		return d.SetPortNote(ip, port, protocol, value)
@@ -125,6 +127,11 @@ func (d *DB) UpdateConsolidatedPortField(ip string, port int, protocol, field, v
 			INSERT INTO consolidated_edits (ip, port, protocol, field, old_value, new_value)
 			VALUES (?, 0, '', ?, ?, ?)
 		`, ip, field, oldVal, value)
+		return err
+	}
+
+	if field == "label" {
+		_, err := d.Exec("UPDATE consolidated_ports SET label = ? WHERE ip = ? AND port = ? AND protocol = ?", value, ip, port, protocol)
 		return err
 	}
 
@@ -299,27 +306,20 @@ func (d *DB) GetConsolidatedHosts(projectID int) ([]ConsolidatedHost, error) {
 		SELECT ch.ip, COALESCE(ch.mac, ''), COALESCE(ch.hostname, ''), COALESCE(ch.os, ''), COALESCE(ch.status, ''), COALESCE(ch.discovery_methods, ''),
 			   strftime('%Y-%m-%dT%H:%M:%SZ', ch.first_seen), strftime('%Y-%m-%dT%H:%M:%SZ', ch.last_seen), ch.last_scan_id
 		FROM consolidated_hosts ch
-		WHERE EXISTS (
-			SELECT 1 FROM hosts h
-			JOIN scans s ON s.id = h.scan_id
-			WHERE s.project_id = ? AND h.ip = ch.ip
-		)
+		INNER JOIN hosts h ON h.ip = ch.ip
+		INNER JOIN scans s ON s.id = h.scan_id AND s.project_id = ?
 		ORDER BY ch.ip`, projectID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	var result []ConsolidatedHost
-	seen := make(map[string]bool)
 	for rows.Next() {
 		var h ConsolidatedHost
 		if err := rows.Scan(&h.IP, &h.MAC, &h.Hostname, &h.OS, &h.Status, &h.DiscoveryMethods, &h.FirstSeen, &h.LastSeen, &h.LastScanID); err != nil {
 			return nil, err
 		}
-		if !seen[h.IP] {
-			seen[h.IP] = true
-			result = append(result, h)
-		}
+		result = append(result, h)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -394,6 +394,11 @@ func (d *DB) RevertConsolidatedPort(ip string, port int, protocol, state, servic
 	return err
 }
 
+func (d *DB) UpdatePortLabel(ip string, port int, protocol, label string) error {
+	_, err := d.Exec("UPDATE consolidated_ports SET label = ? WHERE ip = ? AND port = ? AND protocol = ?", label, ip, port, protocol)
+	return err
+}
+
 func (d *DB) GetHighRiskPortDetails(projectID int) ([]ConsolidatedPort, error) {
 	highRiskPorts := []string{"21", "22", "23", "25", "53", "110", "135", "139", "143", "443", "445", "993", "995", "1433", "1521", "3306", "3389", "5432", "5900", "6379", "8080", "8443", "27017"}
 	placeholders := ""
@@ -408,7 +413,8 @@ func (d *DB) GetHighRiskPortDetails(projectID int) ([]ConsolidatedPort, error) {
 	query := fmt.Sprintf(`
 		SELECT cp.ip, COALESCE(ch.mac, ''), COALESCE(ch.hostname, ''), COALESCE(ch.os, ''), COALESCE(ch.status, ''),
 			   cp.port, cp.protocol, cp.state, cp.service, cp.version, cp.product, cp.extra_info,
-			   cp.change_count, strftime('%%Y-%%m-%%dT%%H:%%M:%%SZ', cp.first_seen), strftime('%%Y-%%m-%%dT%%H:%%M:%%SZ', cp.last_seen), cp.last_scan_id
+			   cp.change_count, strftime('%%Y-%%m-%%dT%%H:%%M:%%SZ', cp.first_seen), strftime('%%Y-%%m-%%dT%%H:%%M:%%SZ', cp.last_seen), cp.last_scan_id,
+			   COALESCE(cp.label, '')
 		FROM consolidated_ports cp
 		LEFT JOIN consolidated_hosts ch ON ch.ip = cp.ip
 		WHERE cp.port IN (%s) AND cp.state = 'open'
@@ -425,7 +431,7 @@ func (d *DB) GetHighRiskPortDetails(projectID int) ([]ConsolidatedPort, error) {
 	var result []ConsolidatedPort
 	for rows.Next() {
 		var p ConsolidatedPort
-		if err := rows.Scan(&p.IP, &p.MAC, &p.Hostname, &p.OS, &p.HostStatus, &p.Port, &p.Protocol, &p.State, &p.Service, &p.Version, &p.Product, &p.ExtraInfo, &p.ChangeCount, &p.FirstSeen, &p.LastSeen, &p.LastScanID, &p.NotePreview); err != nil {
+		if err := rows.Scan(&p.IP, &p.MAC, &p.Hostname, &p.OS, &p.HostStatus, &p.Port, &p.Protocol, &p.State, &p.Service, &p.Version, &p.Product, &p.ExtraInfo, &p.ChangeCount, &p.FirstSeen, &p.LastSeen, &p.LastScanID, &p.Label); err != nil {
 			return nil, err
 		}
 		result = append(result, p)
@@ -606,9 +612,23 @@ var consolidatedFields = map[string]fieldMeta{
 	"first_seen":  {"cp.first_seen", "cp", "date", []string{"gt", "gte", "lt", "lte", "between", "eq", "neq"}},
 	"last_seen":   {"cp.last_seen", "cp", "date", []string{"gt", "gte", "lt", "lte", "between", "eq", "neq"}},
 	"note":        {"cn.note", "cn", "string", []string{"eq", "neq", "contains", "begins_with", "ends_with", "is_empty", "is_not_empty"}},
+	"label":       {"cp.label", "cp", "enum", []string{"eq", "neq", "contains", "in", "not_in", "is_empty", "is_not_empty"}},
 }
 
+var (
+	filterOptsCache     = make(map[int]*FilterOptionsResponse)
+	filterOptsCacheTime = make(map[int]time.Time)
+	filterOptsMu        sync.Mutex
+)
+
 func (d *DB) GetConsolidatedFilterOptions(projectID int) (*FilterOptionsResponse, error) {
+	filterOptsMu.Lock()
+	if cached, ok := filterOptsCache[projectID]; ok && time.Since(filterOptsCacheTime[projectID]) < 60*time.Second {
+		filterOptsMu.Unlock()
+		return cached, nil
+	}
+	filterOptsMu.Unlock()
+
 	res := &FilterOptionsResponse{Fields: make(map[string]FieldOption)}
 
 	// String fields — just return type, no values list
@@ -630,6 +650,7 @@ func (d *DB) GetConsolidatedFilterOptions(projectID int) (*FilterOptionsResponse
 		{"service", "SELECT DISTINCT cp.service FROM consolidated_ports cp WHERE cp.service != '' AND cp.ip IN (SELECT DISTINCT h.ip FROM hosts h JOIN scans s ON s.id=h.scan_id WHERE s.project_id=?) ORDER BY cp.service"},
 		{"version", "SELECT DISTINCT cp.version FROM consolidated_ports cp WHERE cp.version != '' AND cp.ip IN (SELECT DISTINCT h.ip FROM hosts h JOIN scans s ON s.id=h.scan_id WHERE s.project_id=?) ORDER BY cp.version"},
 		{"product", "SELECT DISTINCT cp.product FROM consolidated_ports cp WHERE cp.product != '' AND cp.ip IN (SELECT DISTINCT h.ip FROM hosts h JOIN scans s ON s.id=h.scan_id WHERE s.project_id=?) ORDER BY cp.product"},
+		{"label", "SELECT DISTINCT cp.label FROM consolidated_ports cp WHERE cp.label != '' AND cp.ip IN (SELECT DISTINCT h.ip FROM hosts h JOIN scans s ON s.id=h.scan_id WHERE s.project_id=?) ORDER BY cp.label"},
 	}
 
 	for _, ef := range enumFields {
@@ -661,6 +682,10 @@ func (d *DB) GetConsolidatedFilterOptions(projectID int) (*FilterOptionsResponse
 	d.QueryRow("SELECT MIN(cp.change_count), MAX(cp.change_count) FROM consolidated_ports cp WHERE cp.ip IN (SELECT DISTINCT h.ip FROM hosts h JOIN scans s ON s.id=h.scan_id WHERE s.project_id=?)", projectID).Scan(&ccMin, &ccMax)
 	res.Fields["change_count"] = FieldOption{Type: "number", Min: &ccMin, Max: &ccMax}
 
+	filterOptsMu.Lock()
+	filterOptsCache[projectID] = res
+	filterOptsCacheTime[projectID] = time.Now()
+	filterOptsMu.Unlock()
 	return res, nil
 }
 
@@ -718,12 +743,8 @@ func (d *DB) GetConsolidatedPortsFiltered(projectID int, req *PortsQueryRequest)
 	joins := "INNER JOIN hosts h ON h.ip = cp.ip INNER JOIN scans s ON s.id = h.scan_id AND s.project_id = ?"
 	if joinNeeded["ch"] {
 		joins += " LEFT JOIN consolidated_hosts ch ON ch.ip = cp.ip"
-	} else {
-		joins += " LEFT JOIN consolidated_hosts ch ON ch.ip = cp.ip"
 	}
 	if joinNeeded["cn"] {
-		joins += " LEFT JOIN consolidated_notes cn ON cn.ip = cp.ip AND cn.port = cp.port AND cn.protocol = cp.protocol"
-	} else {
 		joins += " LEFT JOIN consolidated_notes cn ON cn.ip = cp.ip AND cn.port = cp.port AND cn.protocol = cp.protocol"
 	}
 
@@ -744,7 +765,7 @@ func (d *DB) GetConsolidatedPortsFiltered(projectID int, req *PortsQueryRequest)
 		SELECT DISTINCT cp.ip, COALESCE(ch.mac, ''), COALESCE(ch.hostname, ''), COALESCE(ch.os, ''), COALESCE(ch.status, ''),
 			   cp.port, cp.protocol, cp.state, cp.service, cp.version, cp.product, cp.extra_info,
 			   cp.change_count, strftime('%Y-%m-%dT%H:%M:%SZ', cp.first_seen), strftime('%Y-%m-%dT%H:%M:%SZ', cp.last_seen), cp.last_scan_id,
-			   COALESCE(cn.note, '')
+			   COALESCE(cn.note, ''), COALESCE(cp.label, '')
 		FROM consolidated_ports cp
 		`+joins+` `+whereClause+`
 		GROUP BY cp.ip, cp.port, cp.protocol
@@ -757,7 +778,7 @@ func (d *DB) GetConsolidatedPortsFiltered(projectID int, req *PortsQueryRequest)
 	var result []ConsolidatedPort
 	for rows.Next() {
 		var p ConsolidatedPort
-		if err := rows.Scan(&p.IP, &p.MAC, &p.Hostname, &p.OS, &p.HostStatus, &p.Port, &p.Protocol, &p.State, &p.Service, &p.Version, &p.Product, &p.ExtraInfo, &p.ChangeCount, &p.FirstSeen, &p.LastSeen, &p.LastScanID, &p.NotePreview); err != nil {
+		if err := rows.Scan(&p.IP, &p.MAC, &p.Hostname, &p.OS, &p.HostStatus, &p.Port, &p.Protocol, &p.State, &p.Service, &p.Version, &p.Product, &p.ExtraInfo, &p.ChangeCount, &p.FirstSeen, &p.LastSeen, &p.LastScanID, &p.NotePreview, &p.Label); err != nil {
 			return nil, err
 		}
 		result = append(result, p)

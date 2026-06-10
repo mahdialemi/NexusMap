@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 func (d *DB) SaveResults(scanID int, hosts []Host, ports []Port) (map[string]int64, map[string]int64, error) {
@@ -62,6 +63,36 @@ func (d *DB) SaveResults(scanID int, hosts []Host, ports []Port) (map[string]int
 }
 
 func (d *DB) SavePortScripts(hostMap map[string]int64, portScripts []PortScript) error {
+	if len(portScripts) == 0 {
+		return nil
+	}
+
+	// Build port lookup map: hostID:port:protocol → portID
+	hostIDs := make([]interface{}, 0, len(hostMap))
+	for _, hid := range hostMap {
+		hostIDs = append(hostIDs, hid)
+	}
+	if len(hostIDs) == 0 {
+		return nil
+	}
+	ph := make([]string, len(hostIDs))
+	for i := range hostIDs {
+		ph[i] = "?"
+	}
+	portKeyToID := make(map[string]int64)
+	rows, err := d.Query("SELECT id, host_id, port, protocol FROM ports WHERE host_id IN ("+strings.Join(ph, ",")+")", hostIDs...)
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var id, hid int64
+			var port int
+			var protocol string
+			if rows.Scan(&id, &hid, &port, &protocol) == nil {
+				portKeyToID[fmt.Sprintf("%d:%d:%s", hid, port, protocol)] = id
+			}
+		}
+	}
+
 	tx, err := d.Begin()
 	if err != nil {
 		return err
@@ -80,9 +111,8 @@ func (d *DB) SavePortScripts(hostMap map[string]int64, portScripts []PortScript)
 		if !ok {
 			continue
 		}
-		var pid int64
-		row := tx.QueryRow("SELECT id FROM ports WHERE host_id = ? AND port = ? AND protocol = ? LIMIT 1", hid, ps.Port, ps.Protocol)
-		if err := row.Scan(&pid); err != nil {
+		pid, ok := portKeyToID[fmt.Sprintf("%d:%d:%s", hid, ps.Port, ps.Protocol)]
+		if !ok {
 			continue
 		}
 		if _, err := stmt.Exec(hid, pid, ps.ScriptID, ps.Output); err != nil {
@@ -324,7 +354,7 @@ func (d *DB) GetPortsForHost(hostID int) ([]Port, error) {
 
 func (d *DB) GetHostPortMapForScan(scanID int) (map[string]int64, map[string]int64) {
 	hostMap := make(map[string]int64)
-	portMap := make(map[string]int64)
+	hostIDToIP := make(map[int64]string)
 	rows, err := d.Query("SELECT id, ip FROM hosts WHERE scan_id = ?", scanID)
 	if err == nil {
 		defer rows.Close()
@@ -332,16 +362,17 @@ func (d *DB) GetHostPortMapForScan(scanID int) (map[string]int64, map[string]int
 			var id int64
 			var ip string
 			if err := rows.Scan(&id, &ip); err != nil {
-				return hostMap, portMap
+				return hostMap, nil
 			}
 			hostMap[ip] = id
+			hostIDToIP[id] = ip
 		}
 		if err := rows.Err(); err != nil {
-			return hostMap, portMap
+			return hostMap, nil
 		}
 	}
 
-	portMap = make(map[string]int64)
+	portMap := make(map[string]int64)
 	rows2, err := d.Query("SELECT id, host_id, port, protocol FROM ports WHERE host_id IN (SELECT id FROM hosts WHERE scan_id = ?)", scanID)
 	if err == nil {
 		defer rows2.Close()
@@ -352,12 +383,11 @@ func (d *DB) GetHostPortMapForScan(scanID int) (map[string]int64, map[string]int
 			if err := rows2.Scan(&id, &hostID, &port, &protocol); err != nil {
 				return hostMap, portMap
 			}
-			for ip, hid := range hostMap {
-				if hid == hostID {
-					portMap[fmt.Sprintf("%s:%d:%s", ip, port, protocol)] = id
-					break
-				}
+			ip, ok := hostIDToIP[hostID]
+			if !ok {
+				continue
 			}
+			portMap[fmt.Sprintf("%s:%d:%s", ip, port, protocol)] = id
 		}
 		if err := rows2.Err(); err != nil {
 			return hostMap, portMap
