@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"scanner-mgmt/internal/db"
-	"scanner-mgmt/internal/export"
-	"scanner-mgmt/internal/nmap"
+	"github.com/mahdialemi/nexusmap/internal/db"
+	"github.com/mahdialemi/nexusmap/internal/export"
+	"github.com/mahdialemi/nexusmap/internal/nmap"
 )
 
 type fileData struct {

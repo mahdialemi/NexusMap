@@ -12,9 +12,9 @@ import (
 	"strings"
 	"sync"
 
-	"scanner-mgmt/internal/auth"
-	"scanner-mgmt/internal/db"
-	"scanner-mgmt/internal/nmap"
+	"github.com/mahdialemi/nexusmap/internal/auth"
+	"github.com/mahdialemi/nexusmap/internal/db"
+	"github.com/mahdialemi/nexusmap/internal/nmap"
 )
 
 type Server struct {

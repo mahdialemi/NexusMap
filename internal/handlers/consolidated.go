@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"scanner-mgmt/internal/db"
-	"scanner-mgmt/internal/export"
+	"github.com/mahdialemi/nexusmap/internal/db"
+	"github.com/mahdialemi/nexusmap/internal/export"
 )
 
 func (s *Server) HandleConsolidatedHosts(w http.ResponseWriter, r *http.Request) {

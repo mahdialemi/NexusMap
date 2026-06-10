@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"scanner-mgmt/internal/db"
+	"github.com/mahdialemi/nexusmap/internal/db"
 )
 
 var (

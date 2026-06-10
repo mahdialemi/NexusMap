@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"scanner-mgmt/internal/db"
-	"scanner-mgmt/internal/nmap"
+	"github.com/mahdialemi/nexusmap/internal/db"
+	"github.com/mahdialemi/nexusmap/internal/nmap"
 )
 
 func (s *Server) HandleGetSchedules(w http.ResponseWriter, r *http.Request) {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"scanner-mgmt/internal/db"
+	"github.com/mahdialemi/nexusmap/internal/db"
 )
 
 type nmaprun struct {

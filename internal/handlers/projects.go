@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"scanner-mgmt/internal/db"
+	"github.com/mahdialemi/nexusmap/internal/db"
 )
 
 type createProjectRequest struct {

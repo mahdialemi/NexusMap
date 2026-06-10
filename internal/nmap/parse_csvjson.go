@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"scanner-mgmt/internal/db"
+	"github.com/mahdialemi/nexusmap/internal/db"
 )
 
 func ParseCSV(data string) ([]db.Host, []db.Port, []db.PortScript, []db.HostScript, error) {

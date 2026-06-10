@@ -1,4 +1,4 @@
-module scanner-mgmt
+module github.com/mahdialemi/nexusmap
 
 go 1.23.0
 
