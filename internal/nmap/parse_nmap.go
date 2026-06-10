@@ -1,11 +1,11 @@
-package nmap
+﻿package nmap
 
 import (
 	"fmt"
 	"regexp"
 	"strings"
 
-	"github.com/mahdialemi/nexusmap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/db"
 )
 
 var (

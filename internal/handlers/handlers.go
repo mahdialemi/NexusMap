@@ -1,4 +1,4 @@
-package handlers
+﻿package handlers
 
 import (
 	"bytes"
@@ -12,9 +12,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mahdialemi/nexusmap/internal/auth"
-	"github.com/mahdialemi/nexusmap/internal/db"
-	"github.com/mahdialemi/nexusmap/internal/nmap"
+	"github.com/mahdialemi/NexusMap/internal/auth"
+	"github.com/mahdialemi/NexusMap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/nmap"
 )
 
 type Server struct {

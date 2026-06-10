@@ -1,4 +1,4 @@
-package auth
+﻿package auth
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/mahdialemi/nexusmap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/db"
 
 	"golang.org/x/crypto/bcrypt"
 )

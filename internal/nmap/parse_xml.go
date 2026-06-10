@@ -1,11 +1,11 @@
-package nmap
+﻿package nmap
 
 import (
 	"encoding/xml"
 	"fmt"
 	"strings"
 
-	"github.com/mahdialemi/nexusmap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/db"
 )
 
 type nmaprun struct {

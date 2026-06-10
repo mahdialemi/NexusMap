@@ -1,4 +1,4 @@
-package nmap
+﻿package nmap
 
 import (
 	"encoding/csv"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mahdialemi/nexusmap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/db"
 )
 
 func ParseCSV(data string) ([]db.Host, []db.Port, []db.PortScript, []db.HostScript, error) {

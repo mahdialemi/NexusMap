@@ -1,4 +1,4 @@
-package handlers
+﻿package handlers
 
 import (
 	"bytes"
@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mahdialemi/nexusmap/internal/db"
-	"github.com/mahdialemi/nexusmap/internal/nmap"
+	"github.com/mahdialemi/NexusMap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/nmap"
 )
 
 func (s *Server) HandleCreateScan(w http.ResponseWriter, r *http.Request) {

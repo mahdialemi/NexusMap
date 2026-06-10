@@ -1,11 +1,11 @@
-package handlers
+﻿package handlers
 
 import (
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/mahdialemi/nexusmap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/db"
 )
 
 type createProjectRequest struct {

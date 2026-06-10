@@ -17,10 +17,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mahdialemi/nexusmap/internal/auth"
-	"github.com/mahdialemi/nexusmap/internal/db"
-	"github.com/mahdialemi/nexusmap/internal/handlers"
-	"github.com/mahdialemi/nexusmap/internal/nmap"
+	"github.com/mahdialemi/NexusMap/internal/auth"
+	"github.com/mahdialemi/NexusMap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/handlers"
+	"github.com/mahdialemi/NexusMap/internal/nmap"
 
 	_ "modernc.org/sqlite"
 )
