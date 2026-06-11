@@ -38,9 +38,12 @@ func (g *gzipResponseWriter) Write(b []byte) (int, error) {
 }
 
 func main() {
+	exe, _ := os.Executable()
+	exeDir := filepath.Dir(exe)
+
 	port := flag.Int("port", 9090, "HTTP port")
 	bind := flag.String("bind", "0.0.0.0", "Bind address (0.0.0.0, 127.0.0.1, etc.)")
-	dbPath := flag.String("db", "scanner.db", "Database path")
+	dbPath := flag.String("db", filepath.Join(exeDir, "scanner.db"), "Database path")
 	adminPassword := flag.String("admin-password", "", "Set admin password (generated randomly if empty)")
 	flag.Parse()
 
@@ -58,7 +61,7 @@ func main() {
 	} else if pwd != "" {
 		log.Printf("==========================================")
 		log.Printf("  Admin user: admin")
-		log.Printf("  Password: [REDACTED]")
+		log.Printf("  Password: %s", pwd)
 		log.Printf("  You MUST change it on first login.")
 		log.Printf("==========================================")
 	}
@@ -68,8 +71,7 @@ func main() {
 
 	authSvc := auth.New(appDB.DB)
 
-	exe, _ := os.Executable()
-	scansDir := filepath.Join(filepath.Dir(exe), "scans")
+	scansDir := filepath.Join(exeDir, "scans")
 	os.MkdirAll(scansDir, 0755)
 	nmapRunner := nmap.New(scansDir)
 
