@@ -70,6 +70,7 @@ nexusmap -port 9090 -bind 127.0.0.1 -db /path/to/scanner.db
 | `-bind` | `0.0.0.0` | Bind address (`0.0.0.0`, `127.0.0.1`, etc.) |
 | `-db` | `scanner.db` | SQLite database path |
 | `-admin-password` | *(random)* | Set initial admin password |
+| `-version` | — | Print version and exit |
 
 ---
 
@@ -188,6 +189,6 @@ nexusmap (single binary — all frontend files embedded)
 
 <div align="center">
 
-**NexusMap** v1.2 &middot; Made with vibe coding by [Mahdi Alemi](https://github.com/mahdialemi)
+**NexusMap** v1.2.0 &middot; Made with vibe coding by [Mahdi Alemi](https://github.com/mahdialemi)
 
 </div>

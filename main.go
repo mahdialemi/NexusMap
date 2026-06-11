@@ -37,6 +37,8 @@ func (g *gzipResponseWriter) Write(b []byte) (int, error) {
 	return g.Writer.Write(b)
 }
 
+var version = "v1.2.0-dev"
+
 func main() {
 	exe, _ := os.Executable()
 	exeDir := filepath.Dir(exe)
@@ -45,7 +47,13 @@ func main() {
 	bind := flag.String("bind", "0.0.0.0", "Bind address (0.0.0.0, 127.0.0.1, etc.)")
 	dbPath := flag.String("db", filepath.Join(exeDir, "scanner.db"), "Database path")
 	adminPassword := flag.String("admin-password", "", "Set admin password (generated randomly if empty)")
+	showVersion := flag.Bool("version", false, "Print version and exit")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println("NexusMap", version)
+		os.Exit(0)
+	}
 
 	appDB, err := db.New(*dbPath)
 	if err != nil {
