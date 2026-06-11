@@ -50,15 +50,6 @@ async function init() {
     });
     document.getElementById('page-size-select').addEventListener('change', function() { changePageSize(this.value); });
 
-    try {
-        var projects = await getProjects();
-        var project = projects.find(function(p) { return p.id == projectId; });
-        if (project) {
-            document.getElementById('breadcrumb-project').textContent = project.name;
-            document.getElementById('breadcrumb-project').href = '/project/' + projectId;
-        }
-    } catch (e) {}
-
     document.getElementById('breadcrumb-scan').textContent = 'Scan #' + scanId;
 
     await loadResults(1);
@@ -196,5 +187,10 @@ function goBackToProject() { window.location.href = '/project/' + projectId; }
 function backToProjects() { window.location.href = '/'; }
 function showAboutModal() { document.getElementById('about-modal').style.display = 'flex'; }
 function hideAboutModal() { document.getElementById('about-modal').style.display = 'none'; }
+function refreshResults() { loadResults(currentPage); }
+function toggleResultsExportDropdown() {
+    var d = document.getElementById('results-export-dropdown');
+    d.style.display = d.style.display === 'none' ? '' : 'none';
+}
 
 init();

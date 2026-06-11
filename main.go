@@ -237,6 +237,7 @@ func main() {
 	})
 
 	addr := fmt.Sprintf("%s:%d", *bind, *port)
+	log.Printf("Database: %s", *dbPath)
 	log.Printf("NexusMap starting on http://%s", addr)
 
 	go srv.BackfillAllScripts()
