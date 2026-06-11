@@ -21,7 +21,7 @@
 
 ### Install with Go
 ```bash
-go install github.com/mahdialemi/NexusMap/v2@latest
+go install github.com/mahdialemi/NexusMap/v2@v2.0.0
 nexusmap
 ```
 
