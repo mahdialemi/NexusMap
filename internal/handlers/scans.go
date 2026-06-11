@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mahdialemi/NexusMap/v2/internal/db"
-	"github.com/mahdialemi/NexusMap/v2/internal/nmap"
+	"github.com/mahdialemi/NexusMap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/nmap"
 )
 
 func (s *Server) HandleCreateScan(w http.ResponseWriter, r *http.Request) {

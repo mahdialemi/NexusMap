@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mahdialemi/NexusMap/v2/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/db"
 )
 
 var (

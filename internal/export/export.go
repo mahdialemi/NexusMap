@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/mahdialemi/NexusMap/v2/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/db"
 	"strings"
 
 	"github.com/xuri/excelize/v2"

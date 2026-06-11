@@ -15,7 +15,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/mahdialemi/NexusMap/v2/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/db"
 
 	"golang.org/x/crypto/bcrypt"
 )

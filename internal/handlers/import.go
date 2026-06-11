@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mahdialemi/NexusMap/v2/internal/db"
-	"github.com/mahdialemi/NexusMap/v2/internal/export"
-	"github.com/mahdialemi/NexusMap/v2/internal/nmap"
+	"github.com/mahdialemi/NexusMap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/export"
+	"github.com/mahdialemi/NexusMap/internal/nmap"
 )
 
 type fileData struct {

@@ -18,10 +18,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mahdialemi/NexusMap/v2/internal/auth"
-	"github.com/mahdialemi/NexusMap/v2/internal/db"
-	"github.com/mahdialemi/NexusMap/v2/internal/handlers"
-	"github.com/mahdialemi/NexusMap/v2/internal/nmap"
+	"github.com/mahdialemi/NexusMap/internal/auth"
+	"github.com/mahdialemi/NexusMap/internal/db"
+	"github.com/mahdialemi/NexusMap/internal/handlers"
+	"github.com/mahdialemi/NexusMap/internal/nmap"
 
 	_ "modernc.org/sqlite"
 )
@@ -57,7 +57,7 @@ func checkLatestVersion() {
 
 	if rel.TagName != "" && rel.TagName != version {
 		log.Printf("Update available: %s (you are on %s)", rel.TagName, version)
-		log.Printf("  go install github.com/mahdialemi/NexusMap/v2@%s", rel.TagName)
+		log.Printf("  go install github.com/mahdialemi/NexusMap@%s", rel.TagName)
 	}
 }
 
