@@ -19,6 +19,12 @@
 2. Run `nexusmap` (or `./nexusmap` on Linux/macOS)
 3. Open `http://127.0.0.1:9090` — use the admin password printed in the console
 
+### Install with Go
+```bash
+go install github.com/mahdialemi/NexusMap@v2.0.0
+nexusmap
+```
+
 ### Build from Source
 ```bash
 git clone https://github.com/mahdialemi/NexusMap.git
