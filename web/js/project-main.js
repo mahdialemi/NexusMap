@@ -19,6 +19,8 @@
                 const projects = await getProjects();
                 currentProject = projects.find(p => p.id == projectId);
                 if (!currentProject) { alert('Project not found'); window.location.href = '/'; return; }
+                var nameEl = document.getElementById('header-project-name');
+                if (nameEl) nameEl.textContent = '\u2022 ' + currentProject.name;
             } catch (e) {
                 console.error(e);
             }

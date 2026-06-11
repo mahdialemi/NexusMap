@@ -546,13 +546,11 @@
         }
 
         let selectedStatus = '';
+        let selectedConfirm = '';
 
         function applyScanFilters() {
             const query = document.getElementById('scan-search').value.toLowerCase();
             const profileFilter = document.getElementById('scan-profile-filter').value;
-            const unconfirmedOnly = document.getElementById('filter-unconfirmed').checked;
-            const confirmedOnly = document.getElementById('filter-confirmed').checked;
-            const rejectedOnly = document.getElementById('filter-rejected').checked;
 
             let filtered = allScans;
             if (query) {
@@ -567,13 +565,13 @@
             if (profileFilter) {
                 filtered = filtered.filter(s => s.profile === profileFilter);
             }
-            if (unconfirmedOnly) {
+            if (selectedConfirm === 'unconfirmed') {
                 filtered = filtered.filter(s => s.status === 'completed' && s.confirmed != 1 && s.confirmed != -1);
             }
-            if (confirmedOnly) {
+            if (selectedConfirm === 'confirmed') {
                 filtered = filtered.filter(s => s.confirmed == 1);
             }
-            if (rejectedOnly) {
+            if (selectedConfirm === 'rejected') {
                 filtered = filtered.filter(s => s.confirmed == -1);
             }
 
@@ -583,8 +581,23 @@
         function setStatusFilter() {
             var status = this.getAttribute('data-status') || '';
             selectedStatus = status;
-            document.querySelectorAll('#filter-chips .chip').forEach(function(c) { c.classList.remove('chip-active'); });
+            document.querySelectorAll('#filter-chips .chip[data-action="setStatusFilter"]').forEach(function(c) { c.classList.remove('chip-active'); });
             this.classList.add('chip-active');
+            selectedConfirm = '';
+            document.querySelectorAll('#filter-chips .chip[data-action="setConfirmFilter"]').forEach(function(c) { c.classList.remove('chip-active'); });
+            applyScanFilters();
+        }
+
+        function setConfirmFilter() {
+            var confirm = this.getAttribute('data-confirm') || '';
+            if (selectedConfirm === confirm) {
+                selectedConfirm = '';
+                this.classList.remove('chip-active');
+            } else {
+                selectedConfirm = confirm;
+                document.querySelectorAll('#filter-chips .chip[data-action="setConfirmFilter"]').forEach(function(c) { c.classList.remove('chip-active'); });
+                this.classList.add('chip-active');
+            }
             applyScanFilters();
         }
 
@@ -600,29 +613,14 @@
             applyScanFilters();
         }
 
-        function toggleAdvancedFilters() {
-            const panel = document.getElementById('advanced-filters');
-            const btn = document.getElementById('adv-filter-btn');
-            if (panel.style.display === 'none' || !panel.style.display) {
-                panel.style.display = 'flex';
-                btn.textContent = '- Filters';
-            } else {
-                panel.style.display = 'none';
-                btn.textContent = '+ Filters';
-            }
-        }
-
         function resetScanFilters() {
             document.getElementById('scan-search').value = '';
             document.getElementById('search-clear').style.display = 'none';
             document.getElementById('scan-profile-filter').value = '';
             selectedStatus = '';
             document.querySelectorAll('#filter-chips .chip').forEach(c => c.classList.remove('chip-active'));
-            document.querySelector('#filter-chips .chip[data-status=""]').classList.add('chip-active');
-            document.getElementById('advanced-filters').style.display = 'none';
-            document.getElementById('adv-filter-btn').textContent = '+ Filters';
-            document.getElementById('filter-unconfirmed').checked = false;
-            document.getElementById('filter-confirmed').checked = false;
-            document.getElementById('filter-rejected').checked = false;
+            document.querySelector('#filter-chips .chip[data-action="setStatusFilter"][data-status=""]').classList.add('chip-active');
+            selectedConfirm = '';
+            document.querySelectorAll('#filter-chips .chip[data-action="setConfirmFilter"]').forEach(c => c.classList.remove('chip-active'));
             renderScans(allScans);
         }
