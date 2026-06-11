@@ -441,10 +441,6 @@
 
             const sort = document.getElementById('scan-sort').value;
             scans.sort((a, b) => {
-                const aPending = a.status === 'completed' && a.confirmed !== 1 && a.confirmed !== -1;
-                const bPending = b.status === 'completed' && b.confirmed !== 1 && b.confirmed !== -1;
-                if (aPending && !bPending) return -1;
-                if (!aPending && bPending) return 1;
                 if (sort === 'oldest') return new Date(a.started_at) - new Date(b.started_at);
                 if (sort === 'target') return a.target.localeCompare(b.target);
                 if (sort === 'profile') return a.profile.localeCompare(b.profile);

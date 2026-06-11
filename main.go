@@ -38,7 +38,7 @@ func (g *gzipResponseWriter) Write(b []byte) (int, error) {
 	return g.Writer.Write(b)
 }
 
-var version = "v1.2.5-dev"
+var version = "v1.2.6-dev"
 
 func init() {
 	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" && info.Main.Version != "(devel)" {
