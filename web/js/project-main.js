@@ -142,7 +142,7 @@
             if (!pending.length) { showToast('No pending scans to confirm', 'info'); return; }
             if (!confirm('Confirm all ' + pending.length + ' pending scans?')) return;
             try {
-                const res = await fetch('/api/scans/confirm-all/' + projectId, {
+                const res = await fetch('/api/projects/' + projectId + '/scans/confirm-all', {
                     method: 'POST',
                     headers: { 'X-CSRF-Token': csrfToken }
                 });
