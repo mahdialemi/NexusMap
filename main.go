@@ -38,7 +38,7 @@ func (g *gzipResponseWriter) Write(b []byte) (int, error) {
 	return g.Writer.Write(b)
 }
 
-var version = "v2.0.0"
+var version = "v0.9.0"
 
 func checkLatestVersion() {
 	client := &http.Client{Timeout: 5 * time.Second}
