@@ -1,4 +1,4 @@
-﻿package handlers
+package handlers
 
 import (
 	"encoding/json"
@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mahdialemi/NexusMap/internal/db"
-	"github.com/mahdialemi/NexusMap/internal/export"
+	"github.com/mahdialemi/NexusMap/v2/internal/db"
+	"github.com/mahdialemi/NexusMap/v2/internal/export"
 )
 
 func (s *Server) HandleConsolidatedHosts(w http.ResponseWriter, r *http.Request) {
