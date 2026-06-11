@@ -181,8 +181,8 @@
 <body>
     <div class="header">
         <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
-            <svg width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0f172a"/><rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="none" stroke="#3b82f6" stroke-width="1.5"/><circle cx="16" cy="16" r="3" fill="#22c55e"/><circle cx="16" cy="16" r="7" fill="none" stroke="#3b82f6" stroke-width="1.2"/><circle cx="16" cy="16" r="11" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.6"/><path d="M16 2 A14 14 0 0 1 30 16" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0.8"/><line x1="16" y1="2" x2="16" y2="8" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="16" y1="24" x2="16" y2="30" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="2" y1="16" x2="8" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="24" y1="16" x2="30" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><circle cx="20" cy="12" r="1" fill="#3b82f6" opacity="0.8"/></svg>
-            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v1.2.8</span></h1>
+            <svg width="28" height="28" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
+            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v2.0.0</span></h1>
         </a>
         <div class="header-nav">
             <span id="user-info"></span>
@@ -192,29 +192,29 @@
     <div class="project-body">
         <nav class="sidebar">
             <button class="sidebar-btn" title="Projects" data-action="backToProjects">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-back"/></svg>
             </button>
             <div class="sidebar-separator"></div>
             <button class="sidebar-btn active" data-tab="users" data-action="switchTab" title="Users">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-user-plus"/></svg>
             </button>
             <button class="sidebar-btn" data-tab="database" data-action="switchTab" title="Database">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-database"/></svg>
             </button>
             <button class="sidebar-btn" data-tab="import" data-action="switchTab" title="Import">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-upload"/></svg>
             </button>
             <button class="sidebar-btn" data-tab="activity" data-action="switchTab" title="Activity Log">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-activity"/></svg>
             </button>
             <button class="sidebar-btn" data-tab="system" data-action="switchTab" title="System">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-settings"/></svg>
             </button>
             <div class="sidebar-spacer"></div>
             <div class="sidebar-separator"></div>
             <div class="notif-wrap">
                 <button class="sidebar-btn" data-action="toggleNotifications" title="Notifications">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-bell"/></svg>
                     <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
                 </button>
                 <div class="notif-dropdown" id="notif-dropdown" style="display:none;">
@@ -228,13 +228,13 @@
                 </div>
             </div>
             <button class="sidebar-btn" title="About" data-action="showAboutModal">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-info"/></svg>
             </button>
             <button class="sidebar-btn" title="Toggle Theme" data-action="toggleTheme">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-moon"/></svg>
             </button>
             <button class="sidebar-btn" title="Logout" data-action="logout">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-logout"/></svg>
             </button>
         </nav>
         <div class="main-area">
@@ -250,7 +250,7 @@
             <div class="kpi-grid" id="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-icon users">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-user-plus"/></svg>
                     </div>
                     <div>
                         <div class="kpi-value" id="kpi-users">-</div>
@@ -259,7 +259,7 @@
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon projects">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-folder"/></svg>
                     </div>
                     <div>
                         <div class="kpi-value" id="kpi-projects">-</div>
@@ -268,7 +268,7 @@
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon scans">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-clock"/></svg>
                     </div>
                     <div>
                         <div class="kpi-value" id="kpi-scans">-</div>
@@ -277,7 +277,7 @@
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon db-size">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-database"/></svg>
                     </div>
                     <div>
                         <div class="kpi-value" id="kpi-db-size">-</div>
@@ -294,7 +294,7 @@
                     <div style="display:flex;gap:10px;">
                         <input type="text" id="user-search" class="form-control" style="width:220px;" placeholder="Search users..." data-action="filterUsers">
                         <button class="btn btn-primary btn-sm" data-action="showCreateModal" title="New User">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-user-plus"/></svg>
                             New User
                         </button>
                     </div>
@@ -338,17 +338,17 @@
                 <h3 style="font-size:1rem;font-weight:600;margin-bottom:12px;">Quick Actions</h3>
                 <div class="quick-actions">
                     <div class="quick-action" data-action="vacuumDB">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
                         <div class="quick-action-label">Vacuum</div>
                         <div class="quick-action-desc">Optimize storage and reclaim space</div>
                     </div>
                     <div class="quick-action" data-action="backupDB">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
                         <div class="quick-action-label">Backup</div>
                         <div class="quick-action-desc">Download a copy of the database</div>
                     </div>
                     <div class="quick-action" data-action="resetDB">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh-ccw"/></svg>
                         <div class="quick-action-label">Reset</div>
                         <div class="quick-action-desc">Clear all data, keep admin user</div>
                     </div>
@@ -358,7 +358,7 @@
             <!-- Danger Zone -->
             <div class="danger-zone">
                 <div class="danger-zone-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-shield-slash"/></svg>
                     Danger Zone
                 </div>
                 <div class="danger-zone-desc">
@@ -366,11 +366,11 @@
                 </div>
                 <div class="danger-actions">
                     <button class="btn btn-danger btn-sm" data-action="resetDB">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh-ccw"/></svg>
                         Reset Database
                     </button>
                     <button class="btn btn-danger btn-sm" data-action="factoryReset" style="border-color:#dc2626;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-shield-slash"/></svg>
                         Factory Reset
                     </button>
                 </div>
@@ -389,7 +389,7 @@
                     <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;">Merge data from another NexusMap database. Duplicate entries will be skipped.</p>
 
                     <div id="db-import-drop-zone" class="import-zone" data-action="clickImport">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-file-import"/></svg>
                         <p>Click to select a .db file</p>
                         <p class="import-hint">or drag and drop here</p>
                         <input type="file" id="db-import-file" accept=".db" style="display:none;" data-action="onDBImportFileSelect">
@@ -397,7 +397,7 @@
 
                     <div id="db-import-file-selected" style="display:none;margin-top:16px;padding:14px;background:var(--bg-input);border-radius:10px;">
                         <div style="display:flex;align-items:center;gap:10px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--cyan);flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--cyan);flex-shrink:0;"><use href="#icon-file"/></svg>
                             <span id="db-import-file-name" style="font-size:0.85rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
                             <span id="db-import-file-size" style="font-size:0.8rem;color:var(--text-muted);flex-shrink:0;"></span>
                         </div>
@@ -410,11 +410,11 @@
 
                     <div class="import-actions" id="db-import-actions" style="display:none;">
                         <button class="btn btn-secondary btn-sm" id="btn-preview-db-import" data-action="previewDBImport">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
                             Preview
                         </button>
                         <button class="btn btn-primary btn-sm" id="btn-do-db-import" data-action="doDBImport" disabled>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-upload"/></svg>
                             Import
                         </button>
                     </div>
@@ -428,7 +428,7 @@
                 <div class="card-header">
                     <h2 class="card-title">Activity Log</h2>
                     <button class="btn btn-secondary btn-sm" data-action="loadActivityLog">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                         Refresh
                     </button>
                 </div>
@@ -459,7 +459,7 @@
                         <input type="number" id="prune-days" class="form-control" style="width:80px;" value="90" min="1">
                         <label style="font-size:0.85rem;">days</label>
                         <button class="btn btn-warning btn-sm" data-action="doPrune">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
                             Prune
                         </button>
                     </div>
@@ -480,7 +480,7 @@
             <div style="padding: 24px; text-align: center;">
                 <div style="margin-bottom: 20px;">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--cyan);">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/><path d="M12 14v3"/>
+                        <use href="#icon-shield"/>
                     </svg>
                 </div>
                 <h2 style="font-size: 1.4rem; margin-bottom: 4px;">NexusMap</h2>
@@ -519,7 +519,7 @@
         <div class="modal-content modal-small">
             <div class="modal-header">
                 <h3>New User</h3>
-                <button class="modal-close" data-action="hideCreateModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <button class="modal-close" data-action="hideCreateModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
             <div class="modal-body">
                 <form id="create-form">
@@ -532,7 +532,7 @@
                         <div style="position:relative;">
                             <input type="password" id="new-password" class="form-control" required minlength="6" placeholder="Min 6 characters" style="padding-right:40px;">
                         <button type="button" data-action="togglePassword" data-input="new-password" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
                         </button>
                         </div>
                     </div>
@@ -558,7 +558,7 @@
         <div class="modal-content modal-small">
             <div class="modal-header">
                 <h3>Edit User</h3>
-                <button class="modal-close" data-action="hideEditModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <button class="modal-close" data-action="hideEditModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="edit-user-id">
@@ -583,7 +583,7 @@
         <div class="modal-content modal-small">
             <div class="modal-header">
                 <h3>Reset Password</h3>
-                <button class="modal-close" data-action="hideResetModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <button class="modal-close" data-action="hideResetModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
             <div class="modal-body">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;" id="reset-subtitle"></p>
@@ -593,12 +593,12 @@
                     <div style="position:relative;">
                         <input type="password" id="reset-password" class="form-control" required minlength="6" placeholder="Min 6 characters" style="padding-right:40px;">
                         <button type="button" data-action="togglePassword" data-input="reset-password" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
                         </button>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(59,130,246,0.1);border-radius:8px;margin-bottom:16px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);flex-shrink:0;"><use href="#icon-info"/></svg>
                     <span style="color:var(--text);font-size:0.8rem;line-height:1.4;">User will be forced to change this password on next login.</span>
                 </div>
                 <div id="reset-error" style="padding:10px 12px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;margin-bottom:16px;display:none;"></div>
@@ -614,7 +614,7 @@
     <script src="/static/js/users.js"></script>
 
     <div class="footer">
-        NexusMap v1.2.8 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap v2.0.0 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

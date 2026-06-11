@@ -222,6 +222,65 @@ func (s *Server) HandleLiveHostExport(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) HandleLiveHostExportSizes(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	projectID := parseIntID(id)
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
+	hosts, err := s.DB.GetLiveHosts(projectID)
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+
+	sizes := map[string]int64{}
+
+	// xlsx
+	f := excelize.NewFile()
+	sheet := "Live Hosts"
+	f.SetSheetName("Sheet1", sheet)
+	headers := []string{"IP", "MAC", "Hostname", "OS", "Status", "Discovery Methods", "Last Seen"}
+	for i, h := range headers {
+		f.SetCellValue(sheet, fmt.Sprintf("%c1", 'A'+i), h)
+	}
+	for i, h := range hosts {
+		row := i + 2
+		f.SetCellValue(sheet, fmt.Sprintf("A%d", row), h.IP)
+		f.SetCellValue(sheet, fmt.Sprintf("B%d", row), h.MAC)
+		f.SetCellValue(sheet, fmt.Sprintf("C%d", row), h.Hostname)
+		f.SetCellValue(sheet, fmt.Sprintf("D%d", row), h.OS)
+		f.SetCellValue(sheet, fmt.Sprintf("E%d", row), h.Status)
+		f.SetCellValue(sheet, fmt.Sprintf("F%d", row), h.DiscoveryMethods)
+		f.SetCellValue(sheet, fmt.Sprintf("G%d", row), h.LastSeen)
+	}
+	buf, _ := f.WriteToBuffer()
+	sizes["xlsx"] = int64(buf.Len())
+	f.Close()
+
+	// json
+	jsonData, _ := json.Marshal(hosts)
+	sizes["json"] = int64(len(jsonData))
+
+	// txt
+	var txtBuf strings.Builder
+	txtBuf.WriteString(fmt.Sprintf("Live Hosts Report\n"))
+	txtBuf.WriteString(strings.Repeat("=", 80) + "\n")
+	for _, h := range hosts {
+		fmt.Fprintf(&txtBuf, "IP: %s\n", h.IP)
+		fmt.Fprintf(&txtBuf, "MAC: %s\n", h.MAC)
+		fmt.Fprintf(&txtBuf, "Hostname: %s\n", h.Hostname)
+		fmt.Fprintf(&txtBuf, "OS: %s\n", h.OS)
+		fmt.Fprintf(&txtBuf, "Status: %s\n", h.Status)
+		fmt.Fprintf(&txtBuf, "Discovery: %s\n", h.DiscoveryMethods)
+		fmt.Fprintf(&txtBuf, "Last Seen: %s\n", h.LastSeen)
+		txtBuf.WriteString(strings.Repeat("-", 40) + "\n")
+	}
+	sizes["txt"] = int64(txtBuf.Len())
+
+	jsonResponse(w, 200, sizes)
+}
+
 func (s *Server) HandleLiveHostBulkDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		jsonResponse(w, 405, map[string]string{"error": "method not allowed"})

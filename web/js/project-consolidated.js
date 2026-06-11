@@ -2,9 +2,6 @@
         let consolidatedSearchTimeout = null;
         function debounceSearchConsolidated() {
             if (consolidatedSearchTimeout) clearTimeout(consolidatedSearchTimeout);
-            const el = document.getElementById('consolidated-search');
-            const clearBtn = document.getElementById('consolidated-search-clear');
-            if (clearBtn) clearBtn.style.display = el.value ? '' : 'none';
             consolidatedSearchTimeout = setTimeout(() => loadConsolidated(1), 400);
         }
 
@@ -12,13 +9,10 @@
             hideClosedPorts = !hideClosedPorts;
             const btn = document.getElementById('hide-closed-toggle');
             if (btn) {
-                const dot = btn.querySelector('.toggle-dot');
                 if (hideClosedPorts) {
-                    btn.classList.add('btn-secondary');
-                    if (dot) { dot.style.borderColor = 'var(--accent)'; dot.style.background = 'var(--accent)'; }
+                    btn.classList.add('btn-active');
                 } else {
-                    btn.classList.remove('btn-secondary');
-                    if (dot) { dot.style.borderColor = 'var(--text-muted)'; dot.style.background = 'transparent'; }
+                    btn.classList.remove('btn-active');
                 }
             }
             loadConsolidated(1);
@@ -103,6 +97,26 @@
                         svcSelect.appendChild(opt);
                     }
                     if (services.includes(selected)) svcSelect.value = selected;
+                }
+
+                // Populate state filter dropdown from full distinct DB values (not just current page)
+                const stateSelect = document.getElementById('consolidated-filter-state');
+                if (stateSelect) {
+                    const selected = stateSelect.value;
+                    while (stateSelect.options.length > 1) stateSelect.remove(1);
+                    const states = (consolidatedFilterOptions?.state?.values || []).filter(Boolean);
+                    const order = ['open','closed','filtered'];
+                    states.sort((a,b) => {
+                        const ai = order.indexOf(a), bi = order.indexOf(b);
+                        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+                    });
+                    for (const s of states) {
+                        const opt = document.createElement('option');
+                        opt.value = s;
+                        opt.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+                        stateSelect.appendChild(opt);
+                    }
+                    if (states.includes(selected)) stateSelect.value = selected;
                 }
 
                 updateConsolidatedStats();
@@ -1152,27 +1166,93 @@
 
         function clearConsolidatedSearch() {
             document.getElementById('consolidated-search').value = '';
-            document.getElementById('consolidated-search-clear').style.display = 'none';
+            var wrap = document.getElementById('consolidated-search-wrap');
+            var toggle = document.getElementById('consolidated-search-toggle');
+            if (wrap) wrap.style.display = 'none';
+            if (toggle) toggle.style.display = '';
             loadConsolidated(1);
         }
 
-        function toggleAssetExportDropdown(e) {
-            e.stopPropagation();
-            const dd = document.getElementById('asset-export-dropdown');
-            const isOpen = dd.style.display !== 'none';
-            dd.style.display = isOpen ? 'none' : '';
-            if (!isOpen) {
-                setTimeout(() => document.addEventListener('click', closeAssetExportDropdown, { once: true }), 0);
-            }
+        function toggleConsolidatedSearch() {
+            var wrap = document.getElementById('consolidated-search-wrap');
+            var toggle = document.getElementById('consolidated-search-toggle');
+            if (!wrap || !toggle) return;
+            wrap.style.display = 'flex';
+            toggle.style.display = 'none';
+            var input = document.getElementById('consolidated-search');
+            if (input) { input.focus(); input.select(); }
         }
-        function closeAssetExportDropdown() { document.getElementById('asset-export-dropdown').style.display = 'none'; }
-        function exportAsset() {
-            var fmt = this.getAttribute('data-format');
-            closeAssetExportDropdown();
+
+        function showAssetExportModal() {
             var q = document.getElementById('consolidated-search')?.value || '';
             var state = document.getElementById('consolidated-filter-state')?.value || '';
             var service = document.getElementById('consolidated-filter-service')?.value || '';
-            var url = `/api/projects/${projectId}/consolidated/export/${fmt}?q=${encodeURIComponent(q)}`;
+            var params = '?q=' + encodeURIComponent(q);
+            if (state) params += '&state=' + encodeURIComponent(state);
+            if (service) params += '&service=' + encodeURIComponent(service);
+            if (hideClosedPorts) params += '&hide_closed=1';
+            var activeGroups = consolidatedFilterGroups.map(function(g) {
+                return { group_mode: g.group_mode || 'and', filters: (g.filters || []).filter(function(f) { return f.field; }) };
+            }).filter(function(g) { return g.filters.length > 0; });
+            if (activeGroups.length > 0) {
+                params += '&filter_mode=' + encodeURIComponent(consolidatedFilterMode || 'and');
+                params += '&filters=' + encodeURIComponent(JSON.stringify(activeGroups));
+            }
+
+            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Loading sizes...</p>';
+            var m = showModal('asset-export-modal', 'Export Assets', body, 'modal-small');
+            fetch('/api/projects/' + projectId + '/consolidated/export/sizes' + params)
+                .then(function(r) { return r.json(); })
+                .then(function(sizes) {
+                    var fmt = function(size) {
+                        if (size < 1024) return size + ' B';
+                        if (size < 1024*1024) return (size/1024).toFixed(1) + ' KB';
+                        return (size/1024/1024).toFixed(1) + ' MB';
+                    };
+                    body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                        '<div style="display:flex;flex-direction:column;gap:8px;">' +
+                            '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'xlsx\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
+                                ' Excel (.xlsx)' +
+                                ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.xlsx || 0) + '</span>' +
+                            '</button>' +
+                            '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'json\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
+                                ' JSON' +
+                                ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.json || 0) + '</span>' +
+                            '</button>' +
+                            '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'txt\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
+                                ' TXT (.txt)' +
+                                ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.txt || 0) + '</span>' +
+                            '</button>' +
+                        '</div>';
+                    m.querySelector('.modal-body').innerHTML = body;
+                })
+                .catch(function() {
+                    m.querySelector('.modal-body').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                        '<div style="display:flex;flex-direction:column;gap:8px;">' +
+                            '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'xlsx\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
+                                ' Excel (.xlsx)' +
+                            '</button>' +
+                            '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'json\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
+                                ' JSON' +
+                            '</button>' +
+                            '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'txt\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
+                                ' TXT (.txt)' +
+                            '</button>' +
+                        '</div>';
+                });
+        }
+        function doAssetExport(format) {
+            closeModal('asset-export-modal');
+            var q = document.getElementById('consolidated-search')?.value || '';
+            var state = document.getElementById('consolidated-filter-state')?.value || '';
+            var service = document.getElementById('consolidated-filter-service')?.value || '';
+            var url = `/api/projects/${projectId}/consolidated/export/${format}?q=${encodeURIComponent(q)}`;
             if (state) url += `&state=${encodeURIComponent(state)}`;
             if (service) url += `&service=${encodeURIComponent(service)}`;
             if (hideClosedPorts) url += `&hide_closed=1`;
@@ -1239,13 +1319,11 @@
 
         function applyScriptFilters() {
             const sid = document.getElementById('script-filter').value;
-            const stateVal = document.getElementById('script-filter-state').value;
             const protoVal = document.getElementById('script-filter-proto').value;
             const svcVal = document.getElementById('script-filter-service').value;
             const q = document.getElementById('script-search-tab')?.value?.toLowerCase() || '';
             scriptsFiltered = (consolidatedScriptsData.scripts || []).filter(s => {
                 if (sid && s.script_id !== sid) return false;
-                if (stateVal && s.state !== stateVal) return false;
                 if (protoVal && s.protocol !== protoVal) return false;
                 if (svcVal && (s.service || '') !== svcVal) return false;
                 if (q) {
@@ -1326,7 +1404,11 @@
         function goToConsolidatedPort(ip, port) {
             showTab('consolidated', document.querySelector('.sidebar-btn[data-tab="consolidated"]'));
             const search = document.getElementById('consolidated-search');
-            if (search) { search.value = ''; document.getElementById('consolidated-search-clear').style.display = 'none'; }
+            if (search) { search.value = ''; 
+                var wrap = document.getElementById('consolidated-search-wrap');
+                var toggle = document.getElementById('consolidated-search-toggle');
+                if (wrap) wrap.style.display = 'none'; if (toggle) toggle.style.display = ''; 
+            }
             document.getElementById('consolidated-filter-state').value = '';
             document.getElementById('consolidated-filter-service').value = '';
             consolidatedFilterGroups = [{ group_mode: 'and', filters: [
@@ -1519,35 +1601,86 @@
 
         function closeScriptModal() { closeModal('script-modal'); }
 
-        function toggleScriptExportDropdown(e) {
-            e.stopPropagation();
-            const dd = document.getElementById('script-export-dropdown');
-            if (!dd) return;
-            const isOpen = dd.style.display !== 'none';
-            dd.style.display = isOpen ? 'none' : '';
-            if (!isOpen) {
-                setTimeout(() => document.addEventListener('click', closeScriptExportDropdown, { once: true }), 0);
-            }
+        function clearScriptSearch() {
+            document.getElementById('script-search-tab').value = '';
+            var wrap = document.getElementById('script-search-wrap');
+            var toggle = document.getElementById('script-search-toggle');
+            if (wrap) wrap.style.display = 'none';
+            if (toggle) toggle.style.display = '';
+            applyScriptFilters();
         }
-        function closeScriptExportDropdown() {
-            const dd = document.getElementById('script-export-dropdown');
-            if (dd) dd.style.display = 'none';
+        function toggleScriptSearch() {
+            var wrap = document.getElementById('script-search-wrap');
+            var toggle = document.getElementById('script-search-toggle');
+            if (!wrap || !toggle) return;
+            wrap.style.display = 'flex';
+            toggle.style.display = 'none';
+            var input = document.getElementById('script-search-tab');
+            if (input) { input.focus(); input.select(); }
         }
-        function exportScript() {
-            var fmt = this.getAttribute('data-format');
-            closeScriptExportDropdown();
-            if (fmt === 'json') {
-                const data = scriptsFiltered.map(s => ({
-                    ip: s.ip, port: s.port, protocol: s.protocol,
-                    service: s.service, state: s.state,
-                    script_id: s.script_id, output: s.output
-                }));
+        function showScriptExportModal() {
+            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Loading sizes...</p>';
+            var m = showModal('script-export-modal', 'Export Scripts', body, 'modal-small');
+            fetch('/api/projects/' + projectId + '/consolidated/export/scripts/sizes')
+                .then(function(r) { return r.json(); })
+                .then(function(sizes) {
+                    var fmt = function(size) {
+                        if (size < 1024) return size + ' B';
+                        if (size < 1024*1024) return (size/1024).toFixed(1) + ' KB';
+                        return (size/1024/1024).toFixed(1) + ' MB';
+                    };
+                    body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                        '<div style="display:flex;flex-direction:column;gap:8px;">' +
+                            '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'xlsx\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
+                                ' Excel (.xlsx)' +
+                                ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.xlsx || 0) + '</span>' +
+                            '</button>' +
+                            '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'json\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
+                                ' JSON' +
+                                ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.json || 0) + '</span>' +
+                            '</button>' +
+                            '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'txt\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
+                                ' TXT (.txt)' +
+                                ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.txt || 0) + '</span>' +
+                            '</button>' +
+                        '</div>';
+                    m.querySelector('.modal-body').innerHTML = body;
+                })
+                .catch(function() {
+                    m.querySelector('.modal-body').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                        '<div style="display:flex;flex-direction:column;gap:8px;">' +
+                            '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'xlsx\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
+                                ' Excel (.xlsx)' +
+                            '</button>' +
+                            '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'json\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
+                                ' JSON' +
+                            '</button>' +
+                            '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'txt\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
+                                ' TXT (.txt)' +
+                            '</button>' +
+                        '</div>';
+                });
+        }
+        function doScriptExport(format) {
+            closeModal('script-export-modal');
+            if (format === 'json') {
+                const data = scriptsFiltered.map(function(s) {
+                    return { ip: s.ip, port: s.port, protocol: s.protocol,
+                        service: s.service, state: s.state,
+                        script_id: s.script_id, output: s.output };
+                });
                 downloadJSON(data, 'scripts-export.json');
             } else {
-                const url = `/api/projects/${projectId}/consolidated/export/scripts/${fmt}`;
+                const url = `/api/projects/${projectId}/consolidated/export/scripts/${format}`;
                 window.location.href = url;
             }
-            showToast('Exporting scripts (' + fmt + ')');
+            showToast('Exporting scripts (' + format + ')');
         }
 
         function copyScriptIPs() {

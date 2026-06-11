@@ -1,3 +1,18 @@
+// SVG sprite loader
+(function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/static/icons/sprite.svg', true);
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 400) {
+            var div = document.createElement('div');
+            div.style.display = 'none';
+            div.innerHTML = xhr.responseText;
+            document.body.insertBefore(div, document.body.firstChild);
+        }
+    };
+    xhr.send();
+})();
+
 const API = '';
 let currentUser = null;
 let csrfToken = '';

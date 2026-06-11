@@ -39,7 +39,7 @@ func (g *gzipResponseWriter) Write(b []byte) (int, error) {
 	return g.Writer.Write(b)
 }
 
-var version = "v1.2.8"
+var version = "v2.0.0"
 
 func init() {
 	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" && info.Main.Version != "(devel)" {
@@ -188,8 +188,10 @@ func main() {
 	mux.HandleFunc("/api/projects/{id}/consolidated/export/xlsx", auth.APIAuthMiddleware(authSvc, srv.HandleConsolidatedExportXLSX))
 	mux.HandleFunc("/api/projects/{id}/consolidated/export/json", auth.APIAuthMiddleware(authSvc, srv.HandleConsolidatedExportJSON))
 	mux.HandleFunc("/api/projects/{id}/consolidated/export/txt", auth.APIAuthMiddleware(authSvc, srv.HandleConsolidatedExportTXT))
+	mux.HandleFunc("/api/projects/{id}/consolidated/export/sizes", auth.APIAuthMiddleware(authSvc, srv.HandleConsolidatedExportSizes))
 	mux.HandleFunc("/api/projects/{id}/consolidated/export/scripts/xlsx", auth.APIAuthMiddleware(authSvc, srv.HandleScriptsExportXLSX))
 	mux.HandleFunc("/api/projects/{id}/consolidated/export/scripts/txt", auth.APIAuthMiddleware(authSvc, srv.HandleScriptsExportTXT))
+	mux.HandleFunc("/api/projects/{id}/consolidated/export/scripts/sizes", auth.APIAuthMiddleware(authSvc, srv.HandleScriptsExportSizes))
 	mux.HandleFunc("/api/projects/{id}/consolidated/scripts", auth.APIAuthMiddleware(authSvc, srv.HandleConsolidatedScripts))
 	mux.HandleFunc("/api/projects/{id}/consolidated/notes", auth.APIAuthMiddleware(authSvc, srv.HandleGetPortNote))
 	mux.HandleFunc("/api/projects/{id}/consolidated/notes/set", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleSetPortNote)))
@@ -209,6 +211,7 @@ func main() {
 	mux.HandleFunc("/api/projects/{id}/live/detail", auth.APIAuthMiddleware(authSvc, srv.HandleLiveHostDetail))
 	mux.HandleFunc("/api/projects/{id}/live/update-field", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleLiveHostUpdateField)))
 	mux.HandleFunc("/api/live/export/{id}", auth.APIAuthMiddleware(authSvc, srv.HandleLiveHostExport))
+	mux.HandleFunc("/api/live/export/{id}/sizes", auth.APIAuthMiddleware(authSvc, srv.HandleLiveHostExportSizes))
 	mux.HandleFunc("/api/projects/{id}/live", auth.APIAuthMiddleware(authSvc, srv.HandleLiveHosts))
 
 	mux.HandleFunc("/api/results", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleResults)))

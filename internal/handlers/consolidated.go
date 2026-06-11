@@ -204,6 +204,37 @@ func (s *Server) HandleConsolidatedExportTXT(w http.ResponseWriter, r *http.Requ
 	w.Write(data)
 }
 
+func (s *Server) HandleConsolidatedExportSizes(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	projectID := parseIntID(id)
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
+
+	ports := s.getExportPorts(projectID, r)
+	hosts, _ := s.DB.GetConsolidatedHosts(projectID)
+	scripts, _ := s.DB.GetConsolidatedScripts(projectID)
+
+	sizes := map[string]int64{}
+
+	// xlsx
+	if data, err := export.ToConsolidatedExcelWithScripts(hosts, ports, scripts); err == nil {
+		sizes["xlsx"] = int64(len(data))
+	}
+
+	// json
+	if data, err := export.ToConsolidatedJSON(hosts, ports, scripts); err == nil {
+		sizes["json"] = int64(len(data))
+	}
+
+	// txt
+	if data, err := export.ToConsolidatedTXT(ports, scripts); err == nil {
+		sizes["txt"] = int64(len(data))
+	}
+
+	jsonResponse(w, 200, sizes)
+}
+
 func (s *Server) HandleConsolidatedPortHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		jsonResponse(w, 405, map[string]string{"error": "method not allowed"})
@@ -553,6 +584,34 @@ func (s *Server) HandleScriptsExportTXT(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.txt", name))
 	w.Write(data)
+}
+
+func (s *Server) HandleScriptsExportSizes(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	projectID := parseIntID(id)
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
+
+	scripts, _ := s.DB.GetConsolidatedScripts(projectID)
+	hosts, _ := s.DB.GetConsolidatedHosts(projectID)
+	ports, _ := s.DB.GetConsolidatedPorts(projectID)
+
+	sizes := map[string]int64{}
+
+	if data, err := export.ToScriptsExcel(hosts, ports, scripts); err == nil {
+		sizes["xlsx"] = int64(len(data))
+	}
+
+	if data, err := json.Marshal(scripts); err == nil {
+		sizes["json"] = int64(len(data))
+	}
+
+	if data, err := export.ToScriptsTXT(scripts); err == nil {
+		sizes["txt"] = int64(len(data))
+	}
+
+	jsonResponse(w, 200, sizes)
 }
 
 func (s *Server) HandleGetPortNote(w http.ResponseWriter, r *http.Request) {

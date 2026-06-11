@@ -602,20 +602,34 @@
         }
 
         function onSearchInput() {
-            const val = document.getElementById('scan-search').value;
-            document.getElementById('search-clear').style.display = val ? 'block' : 'none';
             applyScanFilters();
         }
 
-        function clearSearch() {
+        function clearScanSearch() {
             document.getElementById('scan-search').value = '';
-            document.getElementById('search-clear').style.display = 'none';
+            var wrap = document.getElementById('scan-search-wrap');
+            var toggle = document.getElementById('scan-search-toggle');
+            if (wrap) wrap.style.display = 'none';
+            if (toggle) toggle.style.display = '';
             applyScanFilters();
+        }
+
+        function toggleScanSearch() {
+            var wrap = document.getElementById('scan-search-wrap');
+            var toggle = document.getElementById('scan-search-toggle');
+            if (!wrap || !toggle) return;
+            wrap.style.display = 'flex';
+            toggle.style.display = 'none';
+            var input = document.getElementById('scan-search');
+            if (input) { input.focus(); input.select(); }
         }
 
         function resetScanFilters() {
             document.getElementById('scan-search').value = '';
-            document.getElementById('search-clear').style.display = 'none';
+            var wrap = document.getElementById('scan-search-wrap');
+            var toggle = document.getElementById('scan-search-toggle');
+            if (wrap) wrap.style.display = 'none';
+            if (toggle) toggle.style.display = '';
             document.getElementById('scan-profile-filter').value = '';
             selectedStatus = '';
             document.querySelectorAll('#filter-chips .chip').forEach(c => c.classList.remove('chip-active'));

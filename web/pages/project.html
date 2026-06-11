@@ -10,11 +10,12 @@
 <body>
     <div class="header">
         <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
-            <svg width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0f172a"/><rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="none" stroke="#3b82f6" stroke-width="1.5"/><circle cx="16" cy="16" r="3" fill="#22c55e"/><circle cx="16" cy="16" r="7" fill="none" stroke="#3b82f6" stroke-width="1.2"/><circle cx="16" cy="16" r="11" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.6"/><path d="M16 2 A14 14 0 0 1 30 16" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0.8"/><line x1="16" y1="2" x2="16" y2="8" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="16" y1="24" x2="16" y2="30" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="2" y1="16" x2="8" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><line x1="24" y1="16" x2="30" y2="16" stroke="#3b82f6" stroke-width="0.8" opacity="0.5"/><circle cx="20" cy="12" r="1" fill="#3b82f6" opacity="0.8"/></svg>
-            <h1>NexusMap <span id="header-project-name" style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;"></span></h1>
+            <svg width="28" height="28" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
+            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v2.0.0</span></h1>
         </a>
         <div class="header-nav">
-            <span id="header-project-name-nav" style="color:var(--text-muted);font-size:0.9rem;"></span>
+            <span id="header-project-name-nav" class="project-badge"></span>
+            <span class="header-sep"></span>
             <span id="user-info"></span>
         </div>
     </div>
@@ -22,33 +23,33 @@
     <div class="project-body">
         <nav class="sidebar">
             <button class="sidebar-btn" title="Projects" data-action="backToProjects">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="8 5 3 12 8 19"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-chevron-left"/></svg>
             </button>
             <div class="sidebar-separator"></div>
             <button class="sidebar-btn active" data-tab="scans" data-action="showTab" title="Scans" style="position:relative;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-task"/></svg>
                 <span id="scans-badge" style="display:none;background:var(--danger,#ef4444);color:#fff;font-size:0.55rem;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;position:absolute;top:-4px;right:-4px;font-weight:700;line-height:1;border:2px solid var(--bg-card);">0</span>
             </button>
                 <button class="sidebar-btn" data-tab="new-scan" data-action="showTab" title="New Scan">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-plus"/></svg>
                 </button>
                 <button class="sidebar-btn" data-tab="live" data-action="showTab" title="Live Hosts">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1" fill="currentColor"/><path d="M16.2 7.8a5 5 0 010 8.4"/><path d="M19.1 4.9a10 10 0 010 14.2"/><path d="M7.8 16.2a5 5 0 010-8.4"/><path d="M4.9 19.1a10 10 0 010-14.2"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-signal"/></svg>
                 </button>
                 <button class="sidebar-btn" data-tab="consolidated" data-action="showTab" title="Assets">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-database"/></svg>
                 </button>
                 <button class="sidebar-btn" data-tab="scripts" data-action="showTab" title="Scripts">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-code"/></svg>
                 </button>
                 <button class="sidebar-btn" data-tab="import" data-action="showTab" title="Import">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-upload"/></svg>
                 </button>
                 <div class="sidebar-spacer"></div>
                 <div class="sidebar-separator"></div>
                 <div class="notif-wrap">
                     <button class="sidebar-btn" data-action="toggleNotifications" title="Notifications">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-bell"/></svg>
                         <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
                     </button>
                     <div class="notif-dropdown" id="notif-dropdown" style="display:none;">
@@ -62,16 +63,16 @@
                     </div>
                 </div>
                 <button class="sidebar-btn" title="About" data-action="showAboutModal">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-info"/></svg>
                 </button>
                 <button class="sidebar-btn" title="Toggle Theme" data-action="toggleTheme">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-moon"/></svg>
                 </button>
                 <button class="sidebar-btn" id="admin-link" title="Admin" data-action="goToAdmin" style="display:none;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-shield"/></svg>
                 </button>
                 <button class="sidebar-btn" title="Logout" data-action="logout">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-logout"/></svg>
                 </button>
             </nav>
             <div class="main-area">
@@ -79,54 +80,51 @@
 
         <!-- Scans Tab -->
         <div id="tab-scans">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Scans <span id="scan-count" class="title-count"></span></h2>
-                    <button class="btn btn-sm btn-primary" data-action="confirmAllScans" id="confirm-all-btn" style="display:none;" title="Confirm all pending scans">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                        Confirm All
+            <div class="asset-actions">
+                <h2 class="card-title">Scans <span id="scan-count" class="title-count"></span></h2>
+                <div class="asset-toolbar-right">
+                    <button class="btn btn-secondary btn-sm" id="scan-search-toggle" data-action="toggleScanSearch" title="Search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                    </button>
+                    <div class="search-wrapper" id="scan-search-wrap" style="display:none;">
+                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                        <input type="text" id="scan-search" class="search-input" placeholder="Search..." data-action="onSearchInput" autocomplete="off">
+                        <button class="search-close" data-action="clearScanSearch" title="Close (Esc)">&#10005;</button>
+                    </div>
+                    <select id="scan-profile-filter" class="form-control" data-action="applyScanFilters">
+                        <option value="">All Profiles</option>
+                    </select>
+                    <select id="scan-sort" class="form-control" data-action="applyScanFilters">
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                        <option value="target">By target</option>
+                        <option value="profile">By profile</option>
+                    </select>
+                    <button class="btn btn-sm btn-primary" id="confirm-all-btn" style="display:none;" data-action="confirmAllScans" title="Confirm all pending scans">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><use href="#icon-check"/></svg>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" data-action="loadScans" title="Refresh">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
                 </div>
-
-                <div class="filter-bar">
-                    <div class="filter-search-row">
-                        <div class="search-wrapper">
-                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <input type="text" id="scan-search" class="search-input" placeholder="Search target or profile..." data-action="onSearchInput" autocomplete="off">
-                            <button class="search-clear" id="search-clear" data-action="clearSearch" style="display:none;">&#10005;</button>
-                        </div>
-                        <select id="scan-profile-filter" class="form-control" data-action="applyScanFilters">
-                            <option value="">All Profiles</option>
-                        </select>
-                        <select id="scan-sort" class="form-control" data-action="applyScanFilters">
-                            <option value="newest">Newest first</option>
-                            <option value="oldest">Oldest first</option>
-                            <option value="target">By target</option>
-                            <option value="profile">By profile</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-chips" id="filter-chips">
-                        <button class="chip chip-active" data-status="" data-action="setStatusFilter" data-status="">All</button>
-                        <button class="chip" data-status="pending" data-action="setStatusFilter" data-status="pending">Pending</button>
-                        <button class="chip" data-status="running" data-action="setStatusFilter" data-status="running">Running</button>
-                        <button class="chip" data-status="completed" data-action="setStatusFilter" data-status="completed">Completed</button>
-                        <button class="chip" data-status="stopped" data-action="setStatusFilter" data-status="stopped">Stopped</button>
-                        <button class="chip" data-status="error" data-action="setStatusFilter" data-status="error">Error</button>
-                        <span class="filter-sep">|</span>
-                        <button class="chip" data-action="setConfirmFilter" data-confirm="unconfirmed">Unconfirmed only</button>
-                        <button class="chip" data-action="setConfirmFilter" data-confirm="confirmed">Confirmed only</button>
-                        <button class="chip" data-action="setConfirmFilter" data-confirm="rejected">Rejected only</button>
-                    </div>
-
+            </div>
+            <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
+                <div class="filter-chips" id="filter-chips" style="padding:6px 12px;border-bottom:1px solid var(--border);">
+                    <button class="chip chip-active" data-status="" data-action="setStatusFilter">All</button>
+                    <button class="chip" data-status="pending" data-action="setStatusFilter">Pending</button>
+                    <button class="chip" data-status="running" data-action="setStatusFilter">Running</button>
+                    <button class="chip" data-status="completed" data-action="setStatusFilter">Completed</button>
+                    <button class="chip" data-status="stopped" data-action="setStatusFilter">Stopped</button>
+                    <button class="chip" data-status="error" data-action="setStatusFilter">Error</button>
+                    <span class="filter-sep">|</span>
+                    <button class="chip" data-action="setConfirmFilter" data-confirm="unconfirmed">Unconfirmed only</button>
+                    <button class="chip" data-action="setConfirmFilter" data-confirm="confirmed">Confirmed only</button>
+                    <button class="chip" data-action="setConfirmFilter" data-confirm="rejected">Rejected only</button>
                 </div>
-
-                <div style="flex:1;min-height:0;overflow-y:auto;">
-                    <div id="scans-list" style="margin-top:12px;">
-                        <div class="empty-state">
-                            <div class="spinner"></div>
-                            <p>Loading scans...</p>
-                        </div>
+                <div id="scans-list" style="margin-top:12px;">
+                    <div class="empty-state">
+                        <div class="spinner"></div>
+                        <p>Loading scans...</p>
                     </div>
                 </div>
             </div>
@@ -154,7 +152,7 @@
                                     <div id="profile-info-name" style="font-size:0.82rem;font-weight:600;margin-top:1px;"></div>
                                 </div>
                                 <button class="pf-edit-btn" id="profile-info-edit-btn">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-edit"/></svg>
                                     Edit
                                 </button>
                             </div>
@@ -208,10 +206,10 @@
                             <div id="sched-options" style="display:none;padding:10px;margin-top:10px;margin-left:-4px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
                                 <div style="display:flex;gap:16px;margin-bottom:10px;">
                                     <label style="font-size:0.78rem;display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''" id="sched-type-time-label">
-                                        <input type="radio" name="sched-type" value="time" checked onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg> Time
+                                        <input type="radio" name="sched-type" value="time" checked onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-clock"/></svg> Time
                                     </label>
                                     <label style="font-size:0.78rem;display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''" id="sched-type-dep-label">
-                                        <input type="radio" name="sched-type" value="dependency" onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M3 16v5h5"/><path d="M16 21h5v-5"/><path d="M3 12h18"/><path d="M12 3v18"/></svg> After scan
+                                        <input type="radio" name="sched-type" value="dependency" onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg> After scan
                                     </label>
                                 </div>
                                 <div id="sched-time-options">
@@ -230,7 +228,7 @@
 
                     <div style="padding:10px 20px;">
                         <button class="btn btn-primary" id="create-btn" data-action="createScan" style="width:100%;justify-content:center;" title="Create Scan">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-play"/></svg>
                             Create Scan
                         </button>
                     </div>
@@ -241,7 +239,7 @@
                     <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;">
                         <input type="text" id="profile-search" class="form-control" placeholder="Search profiles..." style="height:36px;font-size:0.8rem;padding:6px 12px;box-sizing:border-box;" data-action="filterProfiles">
                         <button class="btn btn-secondary" data-action="showProfileManager" title="Manage Profiles" style="flex-shrink:0;height:36px;font-size:0.8rem;padding:6px 12px;white-space:nowrap;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-edit-sm"/></svg>
                             Manage Profiles
                         </button>
                     </div>
@@ -253,82 +251,56 @@
         <!-- Consolidated Tab -->
         <div id="tab-consolidated" style="display: none;">
             <div class="asset-actions">
-                <h2 class="card-title" style="margin:0;">Assets <span id="asset-stat" class="title-count"></span></h2>
-                <div style="display:flex;gap:5px;align-items:center;">
-                    <button class="btn btn-danger btn-sm" id="consolidated-bulk-delete-btn" data-action="bulkDeleteConsolidatedPorts" style="display:none;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        Delete <span id="consolidated-bulk-count"></span>
+                <h2 class="card-title">Assets <span id="asset-stat" class="title-count"></span></h2>
+                <div class="asset-toolbar-right">
+                    <button class="btn btn-secondary btn-sm" id="consolidated-bulk-delete-btn" data-action="bulkDeleteConsolidatedPorts" title="Delete selected" style="display:none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
                     </button>
-                    <select id="consolidated-limit" class="form-control" style="width:auto;" data-action="changeConsolidatedLimit">
-                        <option value="10">10 rows</option>
-                        <option value="25">25 rows</option>
-                        <option value="50" selected>50 rows</option>
-                        <option value="100">100 rows</option>
-                        <option value="200">200 rows</option>
-                        <option value="500">500 rows</option>
+                    <button class="btn btn-secondary btn-sm" id="consolidated-search-toggle" data-action="toggleConsolidatedSearch" title="Search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                    </button>
+                    <div class="search-wrapper" id="consolidated-search-wrap" style="display:none;">
+                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                        <input type="text" id="consolidated-search" class="search-input" placeholder="Search..." data-action="debounceSearchConsolidated" autocomplete="off">
+                        <button class="search-close" data-action="clearConsolidatedSearch" title="Close (Esc)">&#10005;</button>
+                    </div>
+                    <select id="consolidated-filter-state" class="form-control" data-action="filterAssets">
+                        <option value="">State</option>
+                    </select>
+                    <select id="consolidated-filter-service" class="form-control" data-action="filterAssets">
+                        <option value="">Service</option>
+                    </select>
+                    <span class="live-sep">|</span>
+                    <select id="consolidated-limit" class="form-control" data-action="changeConsolidatedLimit">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
                         <option value="100000">All</option>
                     </select>
-                    <button class="btn btn-secondary btn-sm" id="consolidated-group-btn" data-action="toggleConsolidatedGroup" title="Group by host">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                        Group
+                    <button class="btn btn-secondary btn-sm" id="hide-closed-toggle" data-action="toggleHideClosed" title="Hide closed ports">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye-off"/></svg>
                     </button>
-                        <button class="btn btn-primary btn-sm" data-action="copyConsolidatedIPs" title="Copy IPs">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                            Copy IPs
-                        </button>
-                        <button class="btn btn-secondary btn-sm" data-action="loadConsolidated" title="Refresh">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                            Refresh
-                        </button>
-                        <div class="dropdown" style="position:relative;">
-                            <button class="btn btn-success btn-sm" data-action="toggleAssetExportDropdown" title="Export">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-                                Export <span style="font-size:0.6rem;margin-left:2px;">&#9660;</span>
-                            </button>
-                            <div id="asset-export-dropdown" class="dropdown-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100;min-width:120px;overflow:hidden;">
-                                <div class="dropdown-item" data-action="exportAsset" data-format="xlsx" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-                                    Excel (.xlsx)
-                                </div>
-                                <div class="dropdown-item" data-action="exportAsset" data-format="json" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                                    JSON (.json)
-                                </div>
-                                <div class="dropdown-item" data-action="exportAsset" data-format="txt" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                                    TXT (.txt)
-                                </div>
-                            </div>
-                        </div>
+                    <button class="btn btn-secondary btn-sm" id="consolidated-group-btn" data-action="toggleConsolidatedGroup" title="Group by host">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-grid"/></svg>
+                    </button>
+                    <button class="btn btn-primary btn-sm" data-action="copyConsolidatedIPs" title="Copy IPs">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-copy"/></svg>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" data-action="toggleAdvancedFilterModal" title="Advanced Search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-filter"/></svg>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" data-action="loadConsolidated" title="Refresh">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" data-action="showAssetExportModal" title="Download">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
+                    </button>
                 </div>
             </div>
             <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
-                <div class="filter-bar">
-                    <div class="filter-search-row">
-                        <div class="search-wrapper">
-                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <input type="text" id="consolidated-search" class="search-input" placeholder="Search IP, service, OS..." data-action="debounceSearchConsolidated" autocomplete="off">
-                            <button class="search-clear" id="consolidated-search-clear" data-action="clearConsolidatedSearch" style="display:none;">&#10005;</button>
-                        </div>
-                        <select id="consolidated-filter-state" class="form-control" data-action="filterAssets">
-                            <option value="">All States</option>
-                            <option value="open">Open</option>
-                            <option value="closed">Closed</option>
-                            <option value="filtered">Filtered</option>
-                        </select>
-                        <select id="consolidated-filter-service" class="form-control" data-action="filterAssets">
-                            <option value="">All Services</option>
-                        </select>
-                        <button id="hide-closed-toggle" class="btn btn-sm" data-action="toggleHideClosed" title="Hide closed ports" style="white-space:nowrap;display:flex;align-items:center;gap:5px;">
-                            <span class="toggle-dot" style="width:10px;height:10px;border-radius:50%;border:2px solid var(--text-muted);display:inline-block;flex-shrink:0;"></span>
-                            Hide Closed
-                        </button>
-                        <button class="btn btn-secondary btn-sm" data-action="toggleAdvancedFilterModal" title="Advanced filters" style="white-space:nowrap;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="10" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-                            Advanced Search
-                        </button>
-                    </div>
-                </div>
                 <div id="consolidated-filter-badges" class="filter-badges" style="display:none;padding:6px 12px;border-bottom:1px solid var(--border);"></div>
                 <div id="cports-table" class="table-container">
                     <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
@@ -340,79 +312,57 @@
         <!-- Live Hosts Tab -->
         <div id="tab-live" style="display: none;">
             <div class="live-actions">
-                <h2 class="card-title" style="margin:0;">Live Hosts</h2>
-                <div style="display:flex;gap:5px;align-items:center;">
-                    <select id="live-limit" class="form-control" style="width:auto;" data-action="changeLiveLimit">
-                        <option value="25">25 rows</option>
-                        <option value="50" selected>50 rows</option>
-                        <option value="100">100 rows</option>
-                        <option value="200">200 rows</option>
-                        <option value="500">500 rows</option>
+                <h2 class="card-title">Live Hosts</h2>
+                <div class="live-toolbar-right">
+                    <button class="btn btn-secondary btn-sm" id="live-search-toggle" data-action="toggleLiveSearch" title="Search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                    </button>
+                    <div class="search-wrapper" id="live-search-wrap" style="display:none;">
+                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                        <input type="text" id="live-search" class="search-input" placeholder="Search..." data-action="filterLiveHosts" autocomplete="off">
+                        <button class="search-close" data-action="closeLiveSearch" title="Close (Esc)">&#10005;</button>
+                    </div>
+                    <select id="live-filter-os" class="form-control" data-action="applyLiveFilterOS">
+                        <option value="">OS</option>
+                    </select>
+                    <select id="live-filter-method" class="form-control" data-action="applyLiveFilterMethod">
+                        <option value="">Method</option>
+                    </select>
+                    <span class="live-sep">|</span>
+                    <select id="live-limit" class="form-control" data-action="changeLiveLimit">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
                     </select>
                     <button class="btn btn-secondary btn-sm" data-action="loadLiveHosts" title="Refresh">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                        Refresh
-                    </button>
-                    <button class="btn btn-secondary btn-sm" id="live-subnet-btn" data-action="toggleLiveSubnetGroup" title="Group by subnet">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                        Group
-                    </button>
-                    <button class="btn btn-secondary btn-sm" id="live-compare-btn" data-action="toggleLiveCompareMode" title="Compare hosts">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                        Compare
-                    </button>
-                    <div class="dropdown" style="position:relative;">
-                        <button class="btn btn-success btn-sm" data-action="toggleExportDropdown" title="Export">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-                            Export <span style="font-size:0.6rem;margin-left:2px;">&#9660;</span>
-                        </button>
-                        <div id="export-dropdown" class="dropdown-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100;min-width:120px;overflow:hidden;">
-                            <div class="dropdown-item" data-action="exportLive" data-format="xlsx" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-                                Excel (.xlsx)
-                            </div>
-                            <div class="dropdown-item" data-action="exportLive" data-format="json" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                                JSON (.json)
-                            </div>
-                            <div class="dropdown-item" data-action="exportLive" data-format="txt" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                                TXT (.txt)
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="live-subnet-btn" data-action="toggleLiveSubnetGroup" title="Group by subnet">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-grid"/></svg>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="live-compare-btn" data-action="toggleLiveCompareMode" title="Compare hosts">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>
+                </button>
+                <button class="btn btn-secondary btn-sm" data-action="showLiveExportModal" title="Download">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
+                </button>
+            </div>
             </div>
             <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
-                <div class="filter-bar">
-                    <div class="filter-search-row">
-                        <div class="search-wrapper">
-                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <input type="text" id="live-search" class="search-input" placeholder="Search IP, hostname, or OS..." data-action="filterLiveHosts" autocomplete="off">
-                        </div>
-                        <select id="live-filter-status" class="form-control" data-action="applyLiveFilterStatus">
-                            <option value="">All Status</option>
-                        </select>
-                        <select id="live-filter-os" class="form-control" data-action="applyLiveFilterOS">
-                            <option value="">All OS</option>
-                        </select>
-                        <select id="live-filter-method" class="form-control" data-action="applyLiveFilterMethod">
-                            <option value="">All Methods</option>
-                        </select>
-                    </div>
-                </div>
                 <div id="live-bulk-bar" style="display:none;padding:8px 16px;background:var(--card-bg);border-bottom:1px solid var(--border);align-items:center;gap:8px;">
                     <span class="bulk-count" style="font-size:0.8rem;color:var(--text-muted);"></span>
                     <button class="btn btn-danger btn-sm" data-action="bulkDeleteLiveHosts">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
                         Delete Selected
                     </button>
                     <button class="btn btn-warning btn-sm" data-action="bulkChangeLiveStatus">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-status"/></svg>
                         Change Status
                     </button>
                     <button class="btn btn-secondary btn-sm" data-action="compareSelectedHosts" id="live-compare-action-btn" style="display:none;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>
                         Compare
                     </button>
                 </div>
@@ -427,69 +377,54 @@
         <div id="tab-scripts" style="display: none;">
             <div class="asset-actions">
                 <h2 class="card-title" style="margin:0;">NSE Scripts</h2>
-                <div style="display:flex;gap:5px;align-items:center;">
-                    <div class="btn-group" style="display:flex;gap:2px;">
-                        <button class="btn btn-sm btn-primary" data-action="toggleScriptGroup" data-mode="flat">All</button>
-                            <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="script">Group by Script</button>
-                            <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="host">Group by Host</button>
+                <div class="asset-toolbar-right">
+                    <button class="btn btn-secondary btn-sm" id="script-search-toggle" data-action="toggleScriptSearch" title="Search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                    </button>
+                    <div class="search-wrapper" id="script-search-wrap" style="display:none;">
+                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                        <input type="text" id="script-search-tab" class="search-input" placeholder="Search..." data-action="applyScriptFilters" autocomplete="off">
+                        <button class="search-close" data-action="clearScriptSearch" title="Close (Esc)">&#10005;</button>
                     </div>
-                    <select id="scripts-limit" class="form-control" style="width:auto;" data-action="changeScriptsLimit">
-                        <option value="25">25 rows</option>
-                        <option value="50" selected>50 rows</option>
-                        <option value="100">100 rows</option>
-                        <option value="200">200 rows</option>
-                        <option value="500">500 rows</option>
+                    <div class="btn-group" style="display:flex;gap:2px;">
+                        <button class="btn btn-sm btn-primary" data-action="toggleScriptGroup" data-mode="flat" title="Flat view">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-list"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="script" title="Group by script">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-code"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="host" title="Group by host">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-monitor"/></svg>
+                        </button>
+                    </div>
+                    <select id="script-filter-proto" class="form-control" data-action="applyScriptFilters">
+                        <option value="">Proto</option>
+                        <option value="tcp">TCP</option>
+                        <option value="udp">UDP</option>
+                    </select>
+                    <select id="script-filter-service" class="form-control" data-action="applyScriptFilters"><option value="">Service</option></select>
+                    <select id="script-filter" class="form-control" data-action="applyScriptFilters"><option value="">All Scripts</option></select>
+                    <span class="live-sep">|</span>
+                    <select id="scripts-limit" class="form-control" data-action="changeScriptsLimit">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
                         <option value="100000">All</option>
                     </select>
                     <button class="btn btn-secondary btn-sm" data-action="copyScriptIPs" title="Copy IPs">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                        Copy IPs
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-copy"/></svg>
                     </button>
                     <button class="btn btn-secondary btn-sm" data-action="loadScriptsTab" title="Refresh">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                        Refresh
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
-                    <div class="dropdown" style="position:relative;">
-                        <button class="btn btn-success btn-sm" data-action="toggleScriptExportDropdown" title="Export">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-                            Export <span style="font-size:0.6rem;margin-left:2px;">&#9660;</span>
-                        </button>
-                        <div id="script-export-dropdown" class="dropdown-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100;min-width:120px;overflow:hidden;">
-                            <div class="dropdown-item" data-action="exportScript" data-format="xlsx" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-                                Excel (.xlsx)
-                            </div>
-                            <div class="dropdown-item" data-action="exportScript" data-format="json" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                                JSON (.json)
-                            </div>
-                            <div class="dropdown-item" data-action="exportScript" data-format="txt" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                                TXT (.txt)
-                            </div>
-                        </div>
-                    </div>
+                    <button class="btn btn-secondary btn-sm" data-action="showScriptExportModal" title="Download">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
+                    </button>
                 </div>
             </div>
             <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
-                <div class="filter-bar">
-                    <div class="filter-search-row">
-                        <input type="text" id="script-search-tab" class="form-control" style="width:160px;" placeholder="Search..." data-action="applyScriptFilters">
-                        <select id="script-filter-state" class="form-control" style="width:85px;" data-action="applyScriptFilters">
-                            <option value="">State</option>
-                            <option value="open">Open</option>
-                            <option value="closed">Closed</option>
-                            <option value="filtered">Filtered</option>
-                        </select>
-                        <select id="script-filter-proto" class="form-control" style="width:75px;" data-action="applyScriptFilters">
-                            <option value="">Proto</option>
-                            <option value="tcp">TCP</option>
-                            <option value="udp">UDP</option>
-                        </select>
-                        <select id="script-filter-service" class="form-control" style="width:120px;" data-action="applyScriptFilters"><option value="">Service</option></select>
-                        <select id="script-filter" class="form-control" style="width:140px;" data-action="applyScriptFilters"><option value="">All Scripts</option></select>
-                    </div>
-                </div>
                 <div id="scripts-table" class="table-container">
                     <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
                 </div>
@@ -501,18 +436,15 @@
         <div id="tab-import" style="display: none;">
             <div class="asset-actions">
                 <h2 class="card-title" style="margin:0;">Import Scan Results</h2>
-                <div style="display:flex;gap:5px;align-items:center;">
-                    <button class="btn btn-secondary btn-sm" id="btn-preview-import" data-action="previewImport" disabled>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        Preview
+                <div class="asset-toolbar-right">
+                    <button class="btn btn-secondary btn-sm" id="btn-preview-import" data-action="previewImport" title="Preview" disabled>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
                     </button>
-                    <button class="btn btn-primary btn-sm" id="btn-do-import" data-action="doImport" disabled>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        Import
+                    <button class="btn btn-primary btn-sm" id="btn-do-import" data-action="doImport" title="Import" disabled>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-upload"/></svg>
                     </button>
                     <button class="btn btn-secondary btn-sm" data-action="loadImportHistory" title="Refresh">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                        Refresh
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
                 </div>
             </div>
@@ -521,7 +453,7 @@
 
                 <!-- Unified Drop Zone -->
                 <div id="import-drop-zone" class="drop-zone" style="min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="margin-bottom:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="margin-bottom:8px;"><use href="#icon-upload"/></svg>
                     <p style="font-size:0.95rem;margin:0 0 4px 0;">Drop files or click to select</p>
                     <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">.xml .nmap .gnmap .csv .json .zip &middot; Up to 5 files</p>
                     <input type="file" id="import-file-input" accept=".xml,.nmap,.gnmap,.csv,.json,.zip,.txt" multiple style="display:none;" data-action="onImportFilesSelected">
@@ -618,7 +550,7 @@
         <div class="modal-content modal-full">
             <div class="modal-header">
                 <h3>Manage Profiles</h3>
-                <button class="modal-close" data-action="closeProfileManager" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <button class="modal-close" data-action="closeProfileManager" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
             <div class="modal-body" style="display:flex;gap:0;overflow:hidden;padding:0;">
                 <!-- Left: Profile List -->
@@ -634,7 +566,7 @@
 
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
-                                <svg class="pf-arrow open" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <svg class="pf-arrow open" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
                                 <span>Basic Info</span>
                             </div>
                             <div class="pf-section-body">
@@ -664,7 +596,7 @@
 
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
-                                <svg class="pf-arrow open" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <svg class="pf-arrow open" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
                                 <span>Scan</span>
                             </div>
                             <div class="pf-section-body">
@@ -728,7 +660,7 @@
 
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
-                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
                                 <span>Ping</span>
                             </div>
                             <div class="pf-section-body collapsed">
@@ -763,7 +695,7 @@
 
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
-                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
                                 <span>Target</span>
                             </div>
                             <div class="pf-section-body collapsed">
@@ -797,7 +729,7 @@
 
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
-                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
                                 <span>Source</span>
                             </div>
                             <div class="pf-section-body collapsed">
@@ -824,7 +756,7 @@
 
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
-                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
                                 <span>Other</span>
                             </div>
                             <div class="pf-section-body collapsed">
@@ -853,7 +785,7 @@
 
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
-                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
                                 <span>Timing</span>
                             </div>
                             <div class="pf-section-body collapsed">
@@ -904,7 +836,7 @@
 
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
-                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
                                 <span>NSE Scripts</span>
                             </div>
                             <div class="pf-section-body collapsed">
@@ -1024,7 +956,7 @@
     <script src="/static/js/project-main.js?v=2"></script>
 
     <div class="footer">
-        NexusMap v1.2.8 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap v2.0.0 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

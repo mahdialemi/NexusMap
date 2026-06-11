@@ -103,9 +103,12 @@
             liveFilterOS = '';
             liveFilterMethod = '';
             document.getElementById('live-search').value = '';
-            document.getElementById('live-filter-status').value = '';
-            document.getElementById('live-filter-os').value = '';
-            document.getElementById('live-filter-method').value = '';
+            var selStatus = document.getElementById('live-filter-status');
+            if (selStatus) { selStatus.value = ''; }
+            var selOS = document.getElementById('live-filter-os');
+            if (selOS) { selOS.value = ''; }
+            var selMethod = document.getElementById('live-filter-method');
+            if (selMethod) { selMethod.value = ''; }
             applyLiveFiltersAndSort();
         }
 
@@ -420,20 +423,58 @@
             modal.querySelector('#del-cancel').addEventListener('click', function() { closeModal(mid); });
         }
 
-        function toggleExportDropdown(e) {
-            e.stopPropagation();
-            const dd = document.getElementById('export-dropdown');
-            const isOpen = dd.style.display !== 'none';
-            dd.style.display = isOpen ? 'none' : '';
-            if (!isOpen) {
-                setTimeout(() => document.addEventListener('click', closeExportDropdown, { once: true }), 0);
-            }
+        function showLiveExportModal() {
+            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Loading sizes...</p>';
+            var m = showModal('live-export-modal', 'Export Live Hosts', body, 'modal-small');
+            fetch('/api/live/export/' + projectId + '/sizes')
+                .then(function(r) { return r.json(); })
+                .then(function(sizes) {
+                    var fmt = function(size) {
+                        if (size < 1024) return size + ' B';
+                        if (size < 1024*1024) return (size/1024).toFixed(1) + ' KB';
+                        return (size/1024/1024).toFixed(1) + ' MB';
+                    };
+                    body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                        '<div style="display:flex;flex-direction:column;gap:8px;">' +
+                            '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'xlsx\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
+                                ' Excel (.xlsx)' +
+                                ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.xlsx || 0) + '</span>' +
+                            '</button>' +
+                            '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'json\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
+                                ' JSON' +
+                                ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.json || 0) + '</span>' +
+                            '</button>' +
+                            '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'txt\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
+                                ' TXT (.txt)' +
+                                ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.txt || 0) + '</span>' +
+                            '</button>' +
+                        '</div>';
+                    m.querySelector('.modal-body').innerHTML = body;
+                })
+                .catch(function() {
+                    m.querySelector('.modal-body').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                        '<div style="display:flex;flex-direction:column;gap:8px;">' +
+                            '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'xlsx\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
+                                ' Excel (.xlsx)' +
+                            '</button>' +
+                            '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'json\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
+                                ' JSON' +
+                            '</button>' +
+                            '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'txt\')">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
+                                ' TXT (.txt)' +
+                            '</button>' +
+                        '</div>';
+                });
         }
-        function closeExportDropdown() { document.getElementById('export-dropdown').style.display = 'none'; }
-        function exportLive() {
-            var fmt = this.getAttribute('data-format');
-            closeExportDropdown();
-            window.location.href = `/api/live/export/${projectId}?format=${fmt}`;
+        function doLiveExport(format) {
+            closeModal('live-export-modal');
+            window.location.href = `/api/live/export/${projectId}?format=${format}`;
         }
 
         async function bulkDeleteLiveHosts() {
@@ -745,3 +786,31 @@
                 content.innerHTML = '<div class="empty-state"><p>Error: ' + esc(e.message) + '</p></div>';
             }
         }
+
+        function toggleLiveSearch() {
+            var wrap = document.getElementById('live-search-wrap');
+            var toggle = document.getElementById('live-search-toggle');
+            if (!wrap || !toggle) return;
+            wrap.style.display = 'flex';
+            toggle.style.display = 'none';
+            var input = document.getElementById('live-search');
+            if (input) { input.focus(); input.select(); }
+        }
+
+        function closeLiveSearch() {
+            var wrap = document.getElementById('live-search-wrap');
+            var toggle = document.getElementById('live-search-toggle');
+            if (!wrap || !toggle) return;
+            wrap.style.display = 'none';
+            toggle.style.display = '';
+            var input = document.getElementById('live-search');
+            if (input) input.value = '';
+            filterLiveHosts();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var wrap = document.getElementById('live-search-wrap');
+                if (wrap && wrap.style.display !== 'none') closeLiveSearch();
+            }
+        });
