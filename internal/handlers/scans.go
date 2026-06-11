@@ -623,6 +623,24 @@ func (s *Server) HandleConfirmScan(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, 200, map[string]string{"status": "confirmed"})
 }
 
+func (s *Server) HandleConfirmAllScans(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		jsonResponse(w, 405, map[string]string{"error": "method not allowed"})
+		return
+	}
+
+	pid := r.PathValue("id")
+	projectID := parseIntID(pid)
+
+	count, err := s.DB.ConfirmAllPending(projectID)
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+
+	jsonResponse(w, 200, map[string]interface{}{"confirmed": count})
+}
+
 func (s *Server) HandleRejectScan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		jsonResponse(w, 405, map[string]string{"error": "method not allowed"})

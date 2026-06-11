@@ -38,7 +38,7 @@ func (g *gzipResponseWriter) Write(b []byte) (int, error) {
 	return g.Writer.Write(b)
 }
 
-var version = "v1.2.2-dev"
+var version = "v1.2.3-dev"
 
 func init() {
 	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" && info.Main.Version != "(devel)" {
@@ -138,6 +138,7 @@ func main() {
 	mux.HandleFunc("/api/scans/{id}/run", csrf(auth.APIAuthMiddleware(authSvc, handlers.RateLimitMiddleware(srv.HandleRunScan, handlers.ApiRateLimiter))))
 	mux.HandleFunc("/api/scans/{id}/stop", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleStopScan)))
 	mux.HandleFunc("/api/scans/{id}/confirm", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleConfirmScan)))
+	mux.HandleFunc("/api/scans/confirm-all/{id}", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleConfirmAllScans)))
 	mux.HandleFunc("/api/scans/{id}/reject", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleRejectScan)))
 
 	mux.HandleFunc("/api/scans/backfill", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleBackfillScripts)))

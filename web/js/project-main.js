@@ -137,6 +137,24 @@
             }
         }
 
+        async function confirmAllScans() {
+            const pending = document.querySelectorAll('.scan-card-pending');
+            if (!pending.length) { showToast('No pending scans to confirm', 'info'); return; }
+            if (!confirm('Confirm all ' + pending.length + ' pending scans?')) return;
+            try {
+                const res = await fetch('/api/scans/confirm-all/' + projectId, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-Token': csrfToken }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed');
+                showToast('Confirmed ' + data.confirmed + ' scans', 'success');
+                await loadScans();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
         let consolidatedPortsData = [];
         let consolidatedScriptsData = [];
         let hostEditsData = {};

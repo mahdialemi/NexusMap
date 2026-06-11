@@ -471,6 +471,33 @@ func (d *DB) RejectScan(scanID int) error {
 	return tx.Commit()
 }
 
+func (d *DB) ConfirmAllPending(projectID int) (int, error) {
+	rows, err := d.Query("SELECT id FROM scans WHERE project_id = ? AND status = 'completed' AND confirmed IS NULL", projectID)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	var ids []int
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&id); err != nil {
+			return 0, err
+		}
+		ids = append(ids, id)
+	}
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+
+	for _, id := range ids {
+		if err := d.ConfirmScan(id); err != nil {
+			return 0, err
+		}
+	}
+	return len(ids), nil
+}
+
 func (d *DB) getScanProfile(scanID int) string {
 	var profile string
 	if err := d.QueryRow("SELECT profile FROM scans WHERE id = ?", scanID).Scan(&profile); err != nil {

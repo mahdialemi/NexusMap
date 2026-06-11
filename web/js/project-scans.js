@@ -530,6 +530,11 @@
                 html += '</div>';
             }
             list.innerHTML = html;
+            var pendingCount = scans.filter(function(s) { return s.status === 'completed' && s.confirmed !== 1 && s.confirmed !== -1; }).length;
+            document.getElementById('confirm-all-btn').style.display = pendingCount ? '' : 'none';
+            var badge = document.getElementById('scans-badge');
+            if (pendingCount) { badge.textContent = pendingCount; badge.style.display = 'flex'; }
+            else { badge.style.display = 'none'; }
             startScanPolling();
         }
 

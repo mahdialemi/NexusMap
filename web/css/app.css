@@ -1314,8 +1314,15 @@ tr.script-group-header .group-count { font-weight: 400; font-size: 0.75rem; colo
 .scan-card:hover { border-color: var(--accent); }
 .scan-card-pending {
     border-left: 4px solid #f59e0b;
+    animation: pendingPopIn 0.4s ease-out;
 }
 .scan-card-pending:hover { border-color: var(--border); border-left-color: #f59e0b; }
+
+@keyframes pendingPopIn {
+    0% { opacity: 0.6; transform: translateY(-20px); box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+    50% { opacity: 1; transform: translateY(2px); box-shadow: 0 0 20px 4px rgba(245,158,11,0.15); }
+    100% { opacity: 1; transform: translateY(0); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+}
 .scan-card-clickable { cursor: pointer; }
 
 .scan-card-header {
