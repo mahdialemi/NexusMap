@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	validNmapFlags = regexp.MustCompile(`^-[a-zA-Z0-9-,]+$`)
-	safeArgRe      = regexp.MustCompile(`^[a-zA-Z0-9./_\-:,\[\]{}@!~*?+$%^&()=<>]+$`)
+	validNmapFlag = regexp.MustCompile(`^(--?)[a-zA-Z0-9-]+$`)
+	safeArgRe     = regexp.MustCompile(`^[a-zA-Z0-9./_\-:,\[\]{}@!~*?+$%^&()=<>]+$`)
 )
 
 func ValidateNmapArgs(args []string) error {
@@ -23,7 +23,7 @@ func ValidateNmapArgs(args []string) error {
 			return fmt.Errorf("invalid characters in args: %s", arg)
 		}
 
-		if strings.HasPrefix(arg, "-o") {
+		if strings.HasPrefix(arg, "-o") && !strings.HasPrefix(arg, "-o-") {
 			return fmt.Errorf("output flags not allowed in custom args")
 		}
 
@@ -35,8 +35,20 @@ func ValidateNmapArgs(args []string) error {
 			return fmt.Errorf("datadir flag not allowed")
 		}
 
-		if strings.HasPrefix(arg, "-") && !validNmapFlags.MatchString(arg) {
-			return fmt.Errorf("invalid flag: %s", arg)
+		if strings.HasPrefix(arg, "-") {
+			flagName := arg
+			val := ""
+			if idx := strings.Index(arg, "="); idx > 0 {
+				flagName = arg[:idx]
+				val = strings.Trim(arg[idx+1:], `"'`)
+			}
+			if !validNmapFlag.MatchString(flagName) {
+				return fmt.Errorf("invalid flag: %s", arg)
+			}
+			if val != "" && !safeArgRe.MatchString(val) {
+				return fmt.Errorf("invalid flag value in: %s", arg)
+			}
+			continue
 		}
 
 		if strings.HasPrefix(arg, "/") || strings.HasPrefix(arg, ".") || strings.HasPrefix(arg, "~") {
