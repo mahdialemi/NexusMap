@@ -28,12 +28,15 @@ jobs:
           go-version: '1.23'
 
       - name: Build
-        run: GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-s -w" -o nexusmap-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} .
+        run: |
+          VER="${{ github.ref_name }}"
+          VER="${VER#v}"
+          go build -ldflags="-s -w" -o "nexusmap-${VER}-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" .
 
       - uses: actions/upload-artifact@v4
         with:
           name: nexusmap-${{ matrix.os }}-${{ matrix.arch }}
-          path: nexusmap-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}
+          path: nexusmap-*
 
   release:
     needs: build
