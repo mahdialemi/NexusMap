@@ -102,16 +102,21 @@
 
             <div class="live-actions">
                 <h2 class="card-title" style="margin:0;">Scan Results <span id="breadcrumb-scan" style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">Scan #1</span></h2>
-                <div style="display:flex;gap:5px;align-items:center;">
-                    <input type="text" id="global-search" class="form-control search-box" placeholder="Search...">
+                <div class="live-toolbar-right">
+                    <button class="btn btn-secondary btn-sm" id="global-search-toggle" data-action="toggleGlobalSearch" title="Search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                    </button>
+                    <div class="search-wrapper" id="global-search-wrap" style="display:none;">
+                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                        <input type="text" id="global-search" class="search-input" placeholder="Search..." data-action="debounceSearchResults" autocomplete="off">
+                        <button class="search-close" data-action="clearGlobalSearch" title="Close (Esc)">&#10005;</button>
+                    </div>
                     <button class="btn btn-secondary btn-sm" data-action="refreshResults" title="Refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
-                        Refresh
                     </button>
                     <div class="dropdown" style="position:relative;">
-                        <button class="btn btn-success btn-sm" data-action="toggleResultsExportDropdown" title="Export">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-calendar"/></svg>
-                            Export <span style="font-size:0.6rem;margin-left:2px;">&#9660;</span>
+                        <button class="btn btn-secondary btn-sm" data-action="toggleResultsExportDropdown" title="Export">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
                         </button>
                         <div id="results-export-dropdown" class="dropdown-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100;min-width:120px;overflow:hidden;">
                             <div class="dropdown-item" data-action="doExport" data-format="xlsx" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">

@@ -42,12 +42,6 @@ async function init() {
         if (ui) ui.classList.add('user-admin');
     }
 
-    var searchTimer;
-    document.getElementById('global-search').addEventListener('input', function() {
-        clearTimeout(searchTimer);
-        var val = this.value;
-        searchTimer = setTimeout(function() { globalSearch(val); }, 300);
-    });
     document.getElementById('page-size-select').addEventListener('change', function() { changePageSize(this.value); });
 
     document.getElementById('breadcrumb-scan').textContent = 'Scan #' + scanId;
@@ -160,6 +154,12 @@ function changePageSize(size) {
     loadResults(1);
 }
 
+function debounceSearchResults() {
+    clearTimeout(window._searchTimer);
+    var val = this.value;
+    window._searchTimer = setTimeout(function() { globalSearch(val); }, 300);
+}
+
 function globalSearch(query) {
     searchQuery = query.toLowerCase();
     renderTable();
@@ -182,6 +182,32 @@ function sortTable(e) {
     sortAsc = !sortAsc;
     renderTable();
 }
+
+function toggleGlobalSearch() {
+    var wrap = document.getElementById('global-search-wrap');
+    var toggle = document.getElementById('global-search-toggle');
+    if (!wrap || !toggle) return;
+    wrap.style.display = 'flex';
+    toggle.style.display = 'none';
+    var input = document.getElementById('global-search');
+    if (input) { input.focus(); input.select(); }
+}
+
+function clearGlobalSearch() {
+    document.getElementById('global-search').value = '';
+    var wrap = document.getElementById('global-search-wrap');
+    var toggle = document.getElementById('global-search-toggle');
+    if (wrap) wrap.style.display = 'none';
+    if (toggle) toggle.style.display = '';
+    globalSearch('');
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        var wrap = document.getElementById('global-search-wrap');
+        if (wrap && wrap.style.display !== 'none') clearGlobalSearch();
+    }
+});
 
 function goBackToProject() { window.location.href = '/project/' + projectId; }
 function backToProjects() { window.location.href = '/'; }
