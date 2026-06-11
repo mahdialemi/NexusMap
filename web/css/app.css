@@ -252,7 +252,8 @@ a:hover { text-decoration: underline; }
 #tab-scans .card {
     margin-bottom: 0;
     padding-bottom: 0;
-    overflow: hidden;
+    border-top: none;
+    overflow-y: auto;
 }
 
 /* Grid */
