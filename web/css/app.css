@@ -253,7 +253,13 @@ a:hover { text-decoration: underline; }
     margin-bottom: 0;
     padding-bottom: 0;
     border-top: none;
+    overflow: hidden;
+}
+#tab-scans #scans-list {
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    margin-top: 0 !important;
 }
 
 /* Grid */
