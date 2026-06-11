@@ -37,6 +37,13 @@
             await loadScans();
             loadConsolidatedScripts();
             setupAutoConfirmToggle();
+
+            // Restore last active tab
+            var savedTab = sessionStorage.getItem('project-tab-' + projectId);
+            if (savedTab && savedTab !== 'scans') {
+                var btn = document.querySelector('.sidebar-btn[data-tab="' + savedTab + '"]');
+                if (btn) showTab(savedTab, btn);
+            }
         }
 
         function setupAutoConfirmToggle() {
