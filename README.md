@@ -30,6 +30,20 @@ go build -ldflags="-s -w" -o nexusmap .
 - **Nmap 7.0+** — must be in your system PATH
 - **Go 1.23+** — only needed when building from source
 
+### CLI Options
+```
+nexusmap -port 9090 -bind 127.0.0.1 -db ./scanner.db -admin-password mypass
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-port` | `9090` | HTTP port |
+| `-bind` | `0.0.0.0` | Bind address |
+| `-db` | `./scanner.db` | SQLite database path |
+| `-admin-password` | *(random)* | Set initial admin password |
+| `-version` | — | Print version and exit |
+| `-skip-version-check` | — | Skip update check on startup |
+
 ---
 
 ## Project Structure
