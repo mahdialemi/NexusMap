@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"context"
 	"embed"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -38,11 +39,32 @@ func (g *gzipResponseWriter) Write(b []byte) (int, error) {
 	return g.Writer.Write(b)
 }
 
-var version = "v1.2.6-dev"
+var version = "v1.2.7-dev"
 
 func init() {
 	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" && info.Main.Version != "(devel)" {
 		version = info.Main.Version
+	}
+}
+
+func checkLatestVersion() {
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get("https://api.github.com/repos/mahdialemi/NexusMap/releases/latest")
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	var rel struct {
+		TagName string `json:"tag_name"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&rel); err != nil {
+		return
+	}
+
+	if rel.TagName != "" && rel.TagName != version {
+		log.Printf("Update available: %s (you are on %s)", rel.TagName, version)
+		log.Printf("  go install github.com/mahdialemi/NexusMap@%s", rel.TagName)
 	}
 }
 
@@ -55,6 +77,7 @@ func main() {
 	dbPath := flag.String("db", filepath.Join(exeDir, "scanner.db"), "Database path")
 	adminPassword := flag.String("admin-password", "", "Set admin password (generated randomly if empty)")
 	showVersion := flag.Bool("version", false, "Print version and exit")
+	skipVersionCheck := flag.Bool("skip-version-check", false, "Skip checking for newer version")
 	flag.Parse()
 
 	if *showVersion {
@@ -239,7 +262,11 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%d", *bind, *port)
 	log.Printf("Database: %s", *dbPath)
-	log.Printf("NexusMap starting on http://%s", addr)
+	log.Printf("NexusMap %s starting on http://%s", version, addr)
+
+	if !*skipVersionCheck {
+		go checkLatestVersion()
+	}
 
 	go srv.BackfillAllScripts()
 	go srv.StartScheduler()

@@ -32,7 +32,7 @@ No JavaScript framework, no CGO, no external dependencies beyond Nmap itself. Th
 ### Install with Go
 
 ```bash
-go install github.com/mahdialemi/NexusMap@v1.2.6
+go install github.com/mahdialemi/NexusMap@v1.2.7
 nexusmap
 ```
 
@@ -71,6 +71,7 @@ nexusmap -port 9090 -bind 127.0.0.1 -db /path/to/scanner.db
 | `-db` | `scanner.db` | SQLite database path |
 | `-admin-password` | *(random)* | Set initial admin password |
 | `-version` | — | Print version and exit |
+| `-skip-version-check` | — | Skip checking for newer version on startup |
 
 ---
 
@@ -189,6 +190,6 @@ nexusmap (single binary — all frontend files embedded)
 
 <div align="center">
 
-**NexusMap** v1.2.6 &middot; Made with vibe coding by [Mahdi Alemi](https://github.com/mahdialemi)
+**NexusMap** v1.2.7 &middot; Made with vibe coding by [Mahdi Alemi](https://github.com/mahdialemi)
 
 </div>
