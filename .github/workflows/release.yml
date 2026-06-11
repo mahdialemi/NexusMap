@@ -13,13 +13,13 @@ jobs:
         include:
           - os: linux
             arch: amd64
-            ext: ''
+            out: nexusmap-linux
           - os: windows
             arch: amd64
-            ext: .exe
+            out: nexusmap-windows.exe
           - os: darwin
             arch: amd64
-            ext: ''
+            out: nexusmap-darwin
     steps:
       - uses: actions/checkout@v4
 
@@ -29,14 +29,12 @@ jobs:
 
       - name: Build
         run: |
-          VER="${{ github.ref_name }}"
-          VER="${VER#v}"
-          go build -ldflags="-s -w" -o "nexusmap-${VER}-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" .
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-s -w" -o "${{ matrix.out }}" .
 
       - uses: actions/upload-artifact@v4
         with:
-          name: nexusmap-${{ matrix.os }}-${{ matrix.arch }}
-          path: nexusmap-*
+          name: build-${{ matrix.os }}-${{ matrix.arch }}
+          path: ${{ matrix.out }}
 
   release:
     needs: build
@@ -46,8 +44,16 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: nexusmap-*
+          pattern: build-*
           merge-multiple: true
+
+      - name: Rename for release
+        run: |
+          VER="${{ github.ref_name }}"
+          VER="${VER#v}"
+          mv nexusmap-linux     "nexusmap-${VER}-linux-amd64"
+          mv nexusmap-windows.exe "nexusmap-${VER}-windows-amd64.exe"
+          mv nexusmap-darwin    "nexusmap-${VER}-darwin-amd64"
 
       - uses: softprops/action-gh-release@v2
         with:
