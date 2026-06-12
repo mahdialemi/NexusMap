@@ -74,6 +74,9 @@ func parseZipFile(data []byte) (map[string]*fileData, error) {
 		if zf.FileInfo().IsDir() {
 			continue
 		}
+		if strings.Contains(zf.Name, "..") || strings.ContainsAny(zf.Name, `/\`) {
+			continue
+		}
 		ext := strings.TrimPrefix(filepath.Ext(zf.Name), ".")
 		key := ""
 		switch ext {
@@ -481,6 +484,7 @@ func (s *Server) HandleUnifiedExport(w http.ResponseWriter, r *http.Request) {
 	scanName := fmt.Sprintf("scan-%d", sid)
 	if scan != nil {
 		scanName = strings.ReplaceAll(scan.Target, "/", "_") + "-" + scan.Profile
+		scanName = sanitizeFilename(scanName)
 	}
 
 	outDir := ""
@@ -752,6 +756,7 @@ func (s *Server) HandleExport(w http.ResponseWriter, r *http.Request) {
 	scanName := fmt.Sprintf("scan-%d", sid)
 	if scan != nil {
 		scanName = strings.ReplaceAll(scan.Target, "/", "_") + "-" + scan.Profile
+		scanName = sanitizeFilename(scanName)
 	}
 
 	scripts, _ := s.DB.GetScanScriptsForExport(sid)

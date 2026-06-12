@@ -3,9 +3,9 @@ initCSRF();
 (async function() {
     try {
         var u = await me();
-        if (!u) { window.location.href = '/login'; return; }
-        if (!u.must_change_password) { window.location.href = '/'; return; }
-    } catch(e) { window.location.href = '/login'; }
+        if (!u) { window.location.replace('/login'); return; }
+        if (!u.must_change_password) { window.location.replace('/'); return; }
+    } catch(e) { window.location.replace('/login'); }
 })();
 
 function checkStrength(pw) {
@@ -62,7 +62,7 @@ document.getElementById('change-form').addEventListener('submit', async function
 
     try {
         await changePassword(oldPass, newPass, confirm);
-        window.location.href = '/';
+        window.location.replace('/');
     } catch (err) {
         errorEl.textContent = err.message;
         errorEl.style.display = 'block';

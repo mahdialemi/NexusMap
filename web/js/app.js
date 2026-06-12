@@ -2,12 +2,16 @@
 (function() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/static/icons/sprite.svg', true);
+    xhr.overrideMimeType('image/svg+xml');
     xhr.onload = function() {
         if (xhr.status >= 200 && xhr.status < 400) {
-            var div = document.createElement('div');
-            div.style.display = 'none';
-            div.innerHTML = xhr.responseText;
-            document.body.insertBefore(div, document.body.firstChild);
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(xhr.responseText, 'image/svg+xml');
+            var svg = doc.documentElement;
+            if (svg && svg.tagName === 'svg') {
+                svg.style.display = 'none';
+                document.body.insertBefore(svg, document.body.firstChild);
+            }
         }
     };
     xhr.send();
@@ -327,12 +331,21 @@ async function changePassword(oldPass, newPass, confirmPass) {
 
 // Toast notifications
 function showToast(message, type = 'success') {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
+    var container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        container.setAttribute('aria-live', 'polite');
+        container.setAttribute('aria-atomic', 'true');
+        document.body.appendChild(container);
+    }
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
+    toast.setAttribute('role', 'alert');
     const closeBtn = document.createElement('button');
     closeBtn.className = 'toast-close';
+    closeBtn.setAttribute('aria-label', 'Close');
     closeBtn.innerHTML = '&times;';
     closeBtn.addEventListener('click', () => toast.remove());
     toast.appendChild(closeBtn);
@@ -397,7 +410,7 @@ function showModal(id, title, bodyHTML, sizeClass) {
 
 function closeModal(id) {
     if (!id) {
-        if (this && this.getAttribute) id = this.getAttribute('data-modal');
+        if (typeof this !== 'undefined' && this && this.getAttribute) id = this.getAttribute('data-modal');
         else return;
     }
     var el = document.getElementById(id);

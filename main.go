@@ -286,6 +286,7 @@ func main() {
 		sig := <-stop
 		log.Printf("Received %s, shutting down gracefully...", sig)
 		nmapRunner.StopAll()
+		srv.SSE.Close()
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 		httpSrv.Shutdown(ctx)

@@ -13,26 +13,19 @@ func (s *Server) HandleScanProfiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.Role != "admin" && r.Method != "GET" {
+		jsonResponse(w, 403, map[string]string{"error": "forbidden"})
+		return
+	}
+
 	switch r.Method {
 	case "GET":
 		s.getProfiles(w, r)
 	case "POST":
-		if user.Role != "admin" {
-			jsonResponse(w, 403, map[string]string{"error": "forbidden"})
-			return
-		}
 		s.createProfile(w, r)
 	case "PUT":
-		if user.Role != "admin" {
-			jsonResponse(w, 403, map[string]string{"error": "forbidden"})
-			return
-		}
 		s.updateProfile(w, r)
 	case "DELETE":
-		if user.Role != "admin" {
-			jsonResponse(w, 403, map[string]string{"error": "forbidden"})
-			return
-		}
 		s.deleteProfile(w, r)
 	default:
 		jsonResponse(w, 405, map[string]string{"error": "method not allowed"})

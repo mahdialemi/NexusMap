@@ -129,23 +129,33 @@
 
         async function confirmScan(id) {
             if (!confirm('Confirm this scan? Its data will be merged into consolidated results.')) return;
+            var card = document.getElementById('scan-' + id);
+            var btn = card && card.querySelector('.btn-confirm');
+            if (btn) showLoading(btn);
             try {
                 await confirmScanAPI(id);
                 showToast('Scan confirmed');
                 await loadScans();
             } catch (e) {
                 showToast('Error: ' + e.message, 'error');
+            } finally {
+                if (btn) hideLoading(btn);
             }
         }
 
         async function rejectScan(id) {
             if (!confirm('Reject this scan? Its data will NOT be merged.')) return;
+            var card = document.getElementById('scan-' + id);
+            var btn = card && card.querySelector('.btn-reject');
+            if (btn) showLoading(btn);
             try {
                 await rejectScanAPI(id);
                 showToast('Scan rejected');
                 await loadScans();
             } catch (e) {
                 showToast('Error: ' + e.message, 'error');
+            } finally {
+                if (btn) hideLoading(btn);
             }
         }
 
@@ -153,6 +163,8 @@
             const pending = document.querySelectorAll('.scan-card-pending');
             if (!pending.length) { showToast('No pending scans to confirm', 'info'); return; }
             if (!confirm('Confirm all ' + pending.length + ' pending scans?')) return;
+            var btn = document.getElementById('confirm-all-btn');
+            if (btn) showLoading(btn);
             try {
                 const res = await fetch('/api/projects/' + projectId + '/scans/confirm-all', {
                     method: 'POST',
@@ -164,6 +176,8 @@
                 await loadScans();
             } catch (e) {
                 showToast('Error: ' + e.message, 'error');
+            } finally {
+                if (btn) hideLoading(btn);
             }
         }
 
@@ -231,6 +245,14 @@
             if (e.target.closest('#about-modal.modal-overlay') && e.target === e.target.closest('#about-modal')) {
                 hideAboutModal();
             }
+        });
+
+        document.getElementById('profile-manager-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeProfileManager();
+        });
+
+        document.getElementById('advanced-filter-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal('advanced-filter-modal');
         });
 
         init();

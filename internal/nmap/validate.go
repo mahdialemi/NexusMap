@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -12,6 +13,14 @@ var (
 	validNmapFlag   = regexp.MustCompile(`^(--?)[a-zA-Z0-9-]+$`)
 	nmapFlagWithVal = regexp.MustCompile(`^(--?)([a-zA-Z0-9-]+)(.+)$`)
 	safeArgRe       = regexp.MustCompile(`^[a-zA-Z0-9./_\-:,\[\]{}@!~*?+$%^&()=<>]+$`)
+
+	blockedFlags = []string{
+		"-iL", "--iL",
+		"--excludefile",
+		"--iflist",
+		"--webxml",
+		"--script-updatedb",
+	}
 )
 
 func ValidateNmapArgs(args []string) error {
@@ -36,6 +45,10 @@ func ValidateNmapArgs(args []string) error {
 			return fmt.Errorf("datadir flag not allowed")
 		}
 
+		if slices.Contains(blockedFlags, strings.SplitN(arg, "=", 2)[0]) {
+			return fmt.Errorf("flag not allowed: %s", arg)
+		}
+
 		if strings.HasPrefix(arg, "-") {
 			flagName := arg
 			val := ""
@@ -52,6 +65,9 @@ func ValidateNmapArgs(args []string) error {
 			if val != "" && !safeArgRe.MatchString(val) {
 				return fmt.Errorf("invalid flag value in: %s", arg)
 			}
+			if flagName == "--script" && (strings.Contains(val, "/") || strings.Contains(val, "\\")) {
+				return fmt.Errorf("path separators not allowed in --script value")
+			}
 			continue
 		}
 
@@ -62,9 +78,7 @@ func ValidateNmapArgs(args []string) error {
 					continue
 				}
 			}
-			if !safeArgRe.MatchString(arg) {
-				return fmt.Errorf("invalid path arg: %s", arg)
-			}
+			return fmt.Errorf("path arguments not allowed: %s", arg)
 		}
 	}
 

@@ -139,7 +139,9 @@ func parseNormalPortLine(line string) *parsedPort {
 
 	if strings.Contains(parts[0], "/") {
 		pp := strings.SplitN(parts[0], "/", 2)
-		fmt.Sscanf(pp[0], "%d", &port)
+		if _, err := fmt.Sscanf(pp[0], "%d", &port); err != nil {
+			return nil
+		}
 		protocol = pp[1]
 		state = parts[1]
 		if len(parts) >= 3 {
@@ -155,7 +157,9 @@ func parseNormalPortLine(line string) *parsedPort {
 			}
 		}
 	} else {
-		fmt.Sscanf(parts[0], "%d", &port)
+		if _, err := fmt.Sscanf(parts[0], "%d", &port); err != nil {
+			return nil
+		}
 		protocol = "tcp"
 		state = parts[1]
 		if len(parts) >= 3 {

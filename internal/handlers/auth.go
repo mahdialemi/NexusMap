@@ -97,7 +97,7 @@ func (s *Server) HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.AuthSvc.ChangePassword(user.ID, req.OldPassword, req.NewPassword, req.ConfirmPassword, sessionID); err != nil {
-		jsonResponse(w, 400, map[string]string{"error": err.Error()})
+		jsonResponse(w, 400, map[string]string{"error": "password change failed"})
 		return
 	}
 

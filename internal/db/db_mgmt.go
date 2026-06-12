@@ -99,8 +99,16 @@ func (d *DB) ResetDatabase() error {
 		}
 	}
 
-	if _, err := tx.Exec("INSERT INTO users (username, password_hash, role, created_at) VALUES ('admin', '$2a$10$5T5H3H3H3H3H3H3H3H3H3O5H3H3H3H3H3H3H3H3H3H3H3H3H3H3H3', 'admin', datetime('now'))"); err != nil {
-		// ignore error
+	rawPassword := generateRandomPassword()
+	hash, err := hashPassword(rawPassword)
+	if err != nil {
+		return fmt.Errorf("hash password: %w", err)
+	}
+	if _, err := tx.Exec(
+		"INSERT INTO users (username, password_hash, role, must_change_password, created_at) VALUES ('admin', ?, 'admin', 1, datetime('now'))",
+		hash,
+	); err != nil {
+		// ignore — user may already exist
 	}
 
 	if err := tx.Commit(); err != nil {

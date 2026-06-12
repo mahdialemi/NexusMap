@@ -676,14 +676,20 @@ func (d *DB) GetConsolidatedFilterOptions(projectID int) (*FilterOptionsResponse
 
 	// Number fields with min/max
 	var portMin, portMax int
-	d.QueryRow("SELECT MIN(cp.port), MAX(cp.port) FROM consolidated_ports cp WHERE cp.ip IN (SELECT DISTINCT h.ip FROM hosts h JOIN scans s ON s.id=h.scan_id WHERE s.project_id=?)", projectID).Scan(&portMin, &portMax)
-	res.Fields["port"] = FieldOption{Type: "number", Min: &portMin, Max: &portMax}
+	if err := d.QueryRow("SELECT MIN(cp.port), MAX(cp.port) FROM consolidated_ports cp WHERE cp.ip IN (SELECT DISTINCT h.ip FROM hosts h JOIN scans s ON s.id=h.scan_id WHERE s.project_id=?)", projectID).Scan(&portMin, &portMax); err == nil {
+		res.Fields["port"] = FieldOption{Type: "number", Min: &portMin, Max: &portMax}
+	}
 
 	var ccMin, ccMax int
-	d.QueryRow("SELECT MIN(cp.change_count), MAX(cp.change_count) FROM consolidated_ports cp WHERE cp.ip IN (SELECT DISTINCT h.ip FROM hosts h JOIN scans s ON s.id=h.scan_id WHERE s.project_id=?)", projectID).Scan(&ccMin, &ccMax)
-	res.Fields["change_count"] = FieldOption{Type: "number", Min: &ccMin, Max: &ccMax}
+	if err := d.QueryRow("SELECT MIN(cp.change_count), MAX(cp.change_count) FROM consolidated_ports cp WHERE cp.ip IN (SELECT DISTINCT h.ip FROM hosts h JOIN scans s ON s.id=h.scan_id WHERE s.project_id=?)", projectID).Scan(&ccMin, &ccMax); err == nil {
+		res.Fields["change_count"] = FieldOption{Type: "number", Min: &ccMin, Max: &ccMax}
+	}
 
 	filterOptsMu.Lock()
+	if cached, ok := filterOptsCache[projectID]; ok && time.Since(filterOptsCacheTime[projectID]) < 60*time.Second {
+		filterOptsMu.Unlock()
+		return cached, nil
+	}
 	filterOptsCache[projectID] = res
 	filterOptsCacheTime[projectID] = time.Now()
 	filterOptsMu.Unlock()

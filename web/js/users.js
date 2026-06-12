@@ -193,6 +193,17 @@ document.getElementById('create-form').addEventListener('submit', async function
     var role = document.getElementById('new-role').value;
     var errorEl = document.getElementById('create-error');
 
+    if (!username || username.length < 3) {
+        errorEl.textContent = 'Username must be at least 3 characters';
+        errorEl.style.display = 'block';
+        return;
+    }
+    if (!password || password.length < 6) {
+        errorEl.textContent = 'Password must be at least 6 characters';
+        errorEl.style.display = 'block';
+        return;
+    }
+
     try {
         await createUser(username, password, role);
         hideCreateModal();

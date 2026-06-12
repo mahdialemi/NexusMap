@@ -48,7 +48,7 @@ func getClientIP(r *http.Request) string {
 	ip := r.RemoteAddr
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
 		if parts := strings.Split(xff, ","); len(parts) > 0 {
-			cleaned := strings.TrimSpace(parts[len(parts)-1])
+			cleaned := strings.TrimSpace(parts[0])
 			if h, _, err := net.SplitHostPort(cleaned); err == nil {
 				cleaned = h
 			}
@@ -65,6 +65,18 @@ func getClientIP(r *http.Request) string {
 		ip = h
 	}
 	return ip
+}
+
+func sanitizeFilename(name string) string {
+	s := strings.Builder{}
+	for _, r := range name {
+		if r == '\r' || r == '\n' || r == '"' || r == '\\' {
+			s.WriteRune('_')
+		} else {
+			s.WriteRune(r)
+		}
+	}
+	return s.String()
 }
 
 func parseIntID(s string) int {

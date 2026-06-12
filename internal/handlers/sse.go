@@ -30,6 +30,15 @@ func (b *SSEBroker) Unsubscribe(ch chan string) {
 	close(ch)
 }
 
+func (b *SSEBroker) Close() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	for ch := range b.clients {
+		close(ch)
+	}
+	b.clients = make(map[chan string]struct{})
+}
+
 func (b *SSEBroker) Publish(data string) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()

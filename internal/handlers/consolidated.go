@@ -136,6 +136,7 @@ func (s *Server) HandleConsolidatedExportXLSX(w http.ResponseWriter, r *http.Req
 	name := fmt.Sprintf("consolidated-%d", projectID)
 	if proj != nil {
 		name = strings.ReplaceAll(proj.Name, " ", "-") + "-consolidated"
+		name = sanitizeFilename(name)
 	}
 
 	data, err := export.ToConsolidatedExcelWithScripts(hosts, ports, scripts)
@@ -164,6 +165,7 @@ func (s *Server) HandleConsolidatedExportJSON(w http.ResponseWriter, r *http.Req
 	name := fmt.Sprintf("consolidated-%d", projectID)
 	if proj != nil {
 		name = strings.ReplaceAll(proj.Name, " ", "-") + "-consolidated"
+		name = sanitizeFilename(name)
 	}
 
 	data, err := export.ToConsolidatedJSON(hosts, ports, scripts)
@@ -191,6 +193,7 @@ func (s *Server) HandleConsolidatedExportTXT(w http.ResponseWriter, r *http.Requ
 	name := fmt.Sprintf("consolidated-%d", projectID)
 	if proj != nil {
 		name = strings.ReplaceAll(proj.Name, " ", "-") + "-consolidated"
+		name = sanitizeFilename(name)
 	}
 
 	data, err := export.ToConsolidatedTXT(ports, scripts)
@@ -547,6 +550,7 @@ func (s *Server) HandleScriptsExportXLSX(w http.ResponseWriter, r *http.Request)
 	name := fmt.Sprintf("consolidated-%d", projectID)
 	if proj != nil {
 		name = strings.ReplaceAll(proj.Name, " ", "-") + "-scripts"
+		name = sanitizeFilename(name)
 	}
 
 	data, err := export.ToScriptsExcel(hosts, ports, scripts)
@@ -573,6 +577,7 @@ func (s *Server) HandleScriptsExportTXT(w http.ResponseWriter, r *http.Request) 
 	name := fmt.Sprintf("consolidated-%d", projectID)
 	if proj != nil {
 		name = strings.ReplaceAll(proj.Name, " ", "-") + "-scripts"
+		name = sanitizeFilename(name)
 	}
 
 	data, err := export.ToScriptsTXT(scripts)

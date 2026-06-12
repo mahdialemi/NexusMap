@@ -635,7 +635,7 @@ function promptTopoLabel(nodeId) {
             _topoNodes.update({ id: nodeId, label: val, _customLabel: true });
         } else if (node._customLabel) {
             const h = _topoHostsByIP[nodeId];
-            const defaultLabel = h ? nodeId.split('.').pop() : node.label;
+            const defaultLabel = h ? nodeId : node.label;
             _topoNodes.update({ id: nodeId, label: defaultLabel, _customLabel: false });
         }
         overlay.remove();
@@ -767,7 +767,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
             ip: h.ip, subnet: h.subnet, ports: h.ports, hostname: h.hostname,
             services: h.services, port_detail: h.port_detail, os_inferred: h.os_inferred,
             mac: h.mac, status: h.status, os: h.os,
-            label: h.ip.split('.').pop(),
+            label: h.ip,
             shape: 'dot', size: 22, opacity: 1.0,
             color: color,
             borderWidth: 2, borderWidthSelected: 3,
@@ -792,7 +792,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
                 ip: h.ip, subnet: h.subnet, ports: h.ports, hostname: h.hostname,
                 services: h.services, port_detail: h.port_detail, os_inferred: h.os_inferred,
                 mac: h.mac, status: h.status, os: h.os,
-                label: h.ip.split('.').pop(),
+                label: h.ip,
                 shape: 'dot', size: 22, opacity: 1.0,
                 color: color,
                 borderWidth: 2, borderWidthSelected: 3,

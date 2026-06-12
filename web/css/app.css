@@ -10,6 +10,7 @@
     --accent-hover: #d48422;
     --green: #45c486;
     --red: #e0696a;
+    --danger: var(--red);
     --yellow: #e8b84b;
     --orange: #e8924b;
     --cyan: #4fc4cf;
@@ -32,6 +33,7 @@
     --accent-hover: #a06c18;
     --green: #3a9a6a;
     --red: #cc5c5c;
+    --danger: var(--red);
     --yellow: #b8943a;
     --orange: #ca7a3a;
     --cyan: #3a9aac;
@@ -2457,4 +2459,17 @@ th.sortable:hover { color: var(--accent); }
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--border) var(--bg);
+}
+
+/* Print stylesheet */
+@media print {
+    body { background: #fff !important; color: #000 !important; }
+    .sidebar, .navbar, .btn, .modal-close, .toast-container, .footer,
+    .scan-actions, .filter-bar, .pagination, .tab-buttons, .graph-controls,
+    .network-container { display: none !important; }
+    .main-content { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+    a { color: #000 !important; text-decoration: underline !important; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 6px 8px; }
+    .page-break { page-break-before: always; }
 }

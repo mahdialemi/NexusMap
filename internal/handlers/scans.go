@@ -197,7 +197,11 @@ func (s *Server) runCommand(scanID int, cmdStr, target, username string) {
 
 	buf := &bytes.Buffer{}
 	logFile := filepath.Join(outDir, "output.log")
-	logF, _ := os.Create(logFile)
+	logF, err := os.Create(logFile)
+	if err != nil {
+		s.DB.UpdateScanStatus(scanID, "error", 0, "")
+		return
+	}
 	defer logF.Close()
 	cmd.Stdout = io.MultiWriter(buf, logF)
 	cmd.Stderr = io.MultiWriter(buf, logF)
@@ -238,7 +242,7 @@ func (s *Server) runCommand(scanID int, cmdStr, target, username string) {
 		}
 	}()
 
-	err := cmd.Wait()
+	err = cmd.Wait()
 	close(done)
 	s.NmapRunner.UntrackCmd(scanID)
 
@@ -387,6 +391,7 @@ func (s *Server) HandleDownloadXML(w http.ResponseWriter, r *http.Request) {
 	filename := "scan"
 	if scan != nil {
 		filename = strings.ReplaceAll(scan.Target, "/", "_") + "-" + scan.Profile
+		filename = sanitizeFilename(filename)
 	}
 
 	w.Header().Set("Content-Type", "application/xml")
@@ -414,6 +419,7 @@ func (s *Server) HandleDownloadNmap(w http.ResponseWriter, r *http.Request) {
 	filename := "scan"
 	if scan != nil {
 		filename = strings.ReplaceAll(scan.Target, "/", "_") + "-" + scan.Profile
+		filename = sanitizeFilename(filename)
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
@@ -441,6 +447,7 @@ func (s *Server) HandleDownloadGnmap(w http.ResponseWriter, r *http.Request) {
 	filename := "scan"
 	if scan != nil {
 		filename = strings.ReplaceAll(scan.Target, "/", "_") + "-" + scan.Profile
+		filename = sanitizeFilename(filename)
 	}
 
 	w.Header().Set("Content-Type", "text/plain")

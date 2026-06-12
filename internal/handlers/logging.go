@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync/atomic"
 	"time"
 )
 
@@ -14,41 +15,41 @@ const (
 	LogLevelError = 3
 )
 
-var currentLogLevel = LogLevelInfo
+var currentLogLevel atomic.Int32
 
 func init() {
+	level := int32(LogLevelInfo)
 	switch os.Getenv("LOG_LEVEL") {
 	case "debug":
-		currentLogLevel = LogLevelDebug
+		level = LogLevelDebug
 	case "warn":
-		currentLogLevel = LogLevelWarn
+		level = LogLevelWarn
 	case "error":
-		currentLogLevel = LogLevelError
-	default:
-		currentLogLevel = LogLevelInfo
+		level = LogLevelError
 	}
+	currentLogLevel.Store(level)
 }
 
 func LogDebug(msg string, fields ...map[string]interface{}) {
-	if currentLogLevel <= LogLevelDebug {
+	if currentLogLevel.Load() <= LogLevelDebug {
 		logLine("DEBUG", msg, fields)
 	}
 }
 
 func LogInfo(msg string, fields ...map[string]interface{}) {
-	if currentLogLevel <= LogLevelInfo {
+	if currentLogLevel.Load() <= LogLevelInfo {
 		logLine("INFO", msg, fields)
 	}
 }
 
 func LogWarn(msg string, fields ...map[string]interface{}) {
-	if currentLogLevel <= LogLevelWarn {
+	if currentLogLevel.Load() <= LogLevelWarn {
 		logLine("WARN", msg, fields)
 	}
 }
 
 func LogError(msg string, fields ...map[string]interface{}) {
-	if currentLogLevel <= LogLevelError {
+	if currentLogLevel.Load() <= LogLevelError {
 		logLine("ERROR", msg, fields)
 	}
 }

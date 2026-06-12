@@ -64,8 +64,10 @@ func ParseImportGnmap(data string) ([]db.Host, []db.Port, []db.PortScript, []db.
 					if len(entry) < 8 {
 						continue
 					}
-					var portNum int
-					fmt.Sscanf(entry[1], "%d", &portNum)
+				var portNum int
+				if _, err := fmt.Sscanf(entry[1], "%d", &portNum); err != nil {
+					continue
+				}
 					if portNum == 0 {
 						continue
 					}

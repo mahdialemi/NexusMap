@@ -63,11 +63,12 @@ func (s *Server) HandleLiveHostPing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	start := time.Now()
+	pingIP := parsed.String()
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
-		cmd = exec.Command("ping", "-n", "1", "-w", "2000", ip)
+		cmd = exec.Command("ping", "-n", "1", "-w", "2000", pingIP)
 	} else {
-		cmd = exec.Command("ping", "-c", "1", "-W", "2", ip)
+		cmd = exec.Command("ping", "-c", "1", "-W", "2", pingIP)
 	}
 	output, err := cmd.CombinedOutput()
 	elapsed := time.Since(start).Milliseconds()
@@ -159,6 +160,7 @@ func (s *Server) HandleLiveHostExport(w http.ResponseWriter, r *http.Request) {
 	name := fmt.Sprintf("live-hosts-%d", projectID)
 	if proj != nil {
 		name = strings.ReplaceAll(proj.Name, " ", "-") + "-live"
+		name = sanitizeFilename(name)
 	}
 
 	switch format {
