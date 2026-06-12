@@ -42,7 +42,6 @@ nexusmap -port 9090 -bind 127.0.0.1 -db ./scanner.db -admin-password mypass
 | `-db` | `./scanner.db` | SQLite database path |
 | `-admin-password` | *(random)* | Set initial admin password |
 | `-version` | — | Print version and exit |
-| `-skip-version-check` | — | Skip update check on startup |
 
 ---
 

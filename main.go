@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"os/exec"
 	"io"
 	"io/fs"
 	"log"
@@ -19,6 +20,7 @@ import (
 	"time"
 
 	"github.com/mahdialemi/NexusMap/internal/auth"
+	"github.com/mahdialemi/NexusMap/internal/banner"
 	"github.com/mahdialemi/NexusMap/internal/db"
 	"github.com/mahdialemi/NexusMap/internal/handlers"
 	"github.com/mahdialemi/NexusMap/internal/nmap"
@@ -66,16 +68,26 @@ func main() {
 	exeDir := filepath.Dir(exe)
 
 	port := flag.Int("port", 9090, "HTTP port")
-	bind := flag.String("bind", "0.0.0.0", "Bind address (0.0.0.0, 127.0.0.1, etc.)")
+	bind := flag.String("bind", "127.0.0.1", "Bind address (0.0.0.0, 127.0.0.1, etc.)")
 	dbPath := flag.String("db", filepath.Join(exeDir, "scanner.db"), "Database path")
 	adminPassword := flag.String("admin-password", "", "Set admin password (generated randomly if empty)")
 	showVersion := flag.Bool("version", false, "Print version and exit")
-	skipVersionCheck := flag.Bool("skip-version-check", false, "Skip checking for newer version")
 	flag.Parse()
 
 	if *showVersion {
 		fmt.Println("NexusMap", version)
 		os.Exit(0)
+	}
+
+	fmt.Print(banner.Art)
+
+	if _, err := exec.LookPath("nmap"); err != nil {
+		log.Fatal("nmap not found in PATH.\nPlease install nmap from https://nmap.org/download and ensure it's in your PATH")
+	}
+
+	out, err := exec.Command("nmap", "-V").Output()
+	if err == nil {
+		log.Printf("nmap detected: %s", strings.SplitN(string(out), "\n", 2)[0])
 	}
 
 	appDB, err := db.New(*dbPath)
@@ -260,10 +272,7 @@ func main() {
 	log.Printf("Database: %s", *dbPath)
 	log.Printf("NexusMap %s starting on http://%s", version, addr)
 
-	if !*skipVersionCheck {
-		go checkLatestVersion()
-	}
-
+	go checkLatestVersion()
 	go srv.BackfillAllScripts()
 	go srv.StartScheduler()
 
