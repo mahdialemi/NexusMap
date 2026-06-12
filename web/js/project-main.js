@@ -113,11 +113,14 @@
             document.getElementById('tab-scans').style.display = tab === 'scans' ? '' : 'none';
             document.getElementById('tab-new-scan').style.display = tab === 'new-scan' ? '' : 'none';
             document.getElementById('tab-consolidated').style.display = tab === 'consolidated' ? '' : 'none';
+            document.getElementById('tab-topology').style.display = tab === 'topology' ? '' : 'none';
+            document.querySelector('.main-area').classList.toggle('topology-active', tab === 'topology');
             document.getElementById('tab-live').style.display = tab === 'live' ? '' : 'none';
             document.getElementById('tab-import').style.display = tab === 'import' ? '' : 'none';
             document.getElementById('tab-scripts').style.display = tab === 'scripts' ? '' : 'none';
             if (tab === 'scans') loadScans();
             if (tab === 'consolidated') loadConsolidated(1);
+            if (tab === 'topology') loadTopology();
             if (tab === 'live') loadLiveHosts();
             if (tab === 'scripts') loadScriptsTab();
             if (tab === 'new-scan') loadScanProfiles();

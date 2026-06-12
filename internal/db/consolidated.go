@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 	"sync"
@@ -873,4 +874,231 @@ func buildFilterClauses(filters []FilterQuery, args *[]interface{}, joinNeeded m
 		}
 	}
 	return wheres
+}
+
+func (d *DB) GetTopology(projectID int) (*TopologyResponse, error) {
+	rows, err := d.Query(`
+		SELECT ch.ip, ch.hostname, ch.os, ch.mac, ch.status,
+			ch.label, ch.first_seen, ch.last_seen, ch.discovery_methods,
+			(SELECT COUNT(*) FROM consolidated_ports cp2 WHERE cp2.ip = ch.ip AND cp2.state = 'open') as port_count,
+			GROUP_CONCAT(DISTINCT cp.service) as services
+		FROM consolidated_hosts ch
+		LEFT JOIN consolidated_ports cp ON cp.ip = ch.ip AND cp.state = 'open'
+		INNER JOIN hosts h ON h.ip = ch.ip
+		INNER JOIN scans s ON s.id = h.scan_id AND s.project_id = ?
+		GROUP BY ch.ip
+		ORDER BY ch.ip
+	`, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	type rawHost struct {
+		node TopologyNode
+		svcs string
+	}
+	var hosts []rawHost
+	subnetSet := map[string]bool{}
+	maxPorts := 0
+
+	for rows.Next() {
+		var n TopologyNode
+		var svcs sql.NullString
+		if err := rows.Scan(&n.IP, &n.Hostname, &n.OS, &n.MAC, &n.Status, &n.Label, &n.FirstSeen, &n.LastSeen, &n.DiscoveryMethods, &n.Ports, &svcs); err != nil {
+			return nil, err
+		}
+		if svcs.Valid {
+			n.Services = splitServices(svcs.String)
+		}
+		if n.Ports > maxPorts {
+			maxPorts = n.Ports
+		}
+		if parts := strings.Split(n.IP, "."); len(parts) == 4 {
+			n.Subnet = parts[0] + "." + parts[1] + "." + parts[2] + ".0/24"
+			subnetSet[n.Subnet] = true
+		}
+		hosts = append(hosts, rawHost{node: n, svcs: svcs.String})
+	}
+
+	// fetch port details for ALL hosts in one query
+	type portKey struct{ ip string }
+	portMap := make(map[string][]TopologyPort)
+	prows, err := d.Query(`
+		SELECT cp.ip, cp.port, cp.protocol, cp.state, cp.service, cp.version, cp.product
+		FROM consolidated_ports cp
+		WHERE cp.state = 'open'
+		AND cp.ip IN (SELECT ch.ip FROM consolidated_hosts ch
+			INNER JOIN hosts h ON h.ip = ch.ip
+			INNER JOIN scans s ON s.id = h.scan_id AND s.project_id = ?)
+		ORDER BY cp.ip, cp.port
+	`, projectID)
+	if err == nil {
+		defer prows.Close()
+		for prows.Next() {
+			var ip string
+			var tp TopologyPort
+			if err := prows.Scan(&ip, &tp.Port, &tp.Protocol, &tp.State, &tp.Service, &tp.Version, &tp.Product); err == nil {
+				portMap[ip] = append(portMap[ip], tp)
+			}
+		}
+	}
+
+	// attach port details and infer OS
+	clusterThreshold := 3
+	subnetGroups := make(map[string][]TopologyNode)
+	for _, h := range hosts {
+		n := h.node
+		n.PortDetail = portMap[n.IP]
+		if n.PortDetail == nil {
+			n.PortDetail = []TopologyPort{}
+		}
+		// infer OS from ports if OS is empty
+		if n.OS == "" && len(n.PortDetail) > 0 {
+			if inferred := inferOSFromPorts(n.PortDetail); inferred != "" {
+				n.OS = inferred
+				n.OSInferred = true
+			}
+		}
+		subnetGroups[n.Subnet] = append(subnetGroups[n.Subnet], n)
+	}
+
+	var individualNodes []TopologyNode
+	var clusters []SubnetCluster
+
+	for subnet, group := range subnetGroups {
+		if len(group) >= clusterThreshold {
+			// aggregate into a cluster
+			allSvcs := map[string]int{}
+			totalPorts := 0
+			hostsCopy := make([]TopologyNode, len(group))
+			for i, h := range group {
+				hostsCopy[i] = h
+				totalPorts += h.Ports
+				for _, s := range h.Services {
+					allSvcs[s]++
+				}
+			}
+			cluster := SubnetCluster{
+				Subnet:    subnet,
+				HostCount: len(group),
+				PortCount: totalPorts,
+				Hosts:     hostsCopy,
+			}
+			// collect top services
+			for s := range allSvcs {
+				cluster.Services = append(cluster.Services, s)
+			}
+			clusters = append(clusters, cluster)
+		} else {
+			// keep as individual nodes
+			for _, h := range group {
+				if h.Ports > maxPorts {
+					maxPorts = h.Ports
+				}
+				individualNodes = append(individualNodes, h)
+			}
+		}
+	}
+
+	if individualNodes == nil {
+		individualNodes = []TopologyNode{}
+	}
+	if clusters == nil {
+		clusters = []SubnetCluster{}
+	}
+	if maxPorts < 1 {
+		maxPorts = 1
+	}
+	subnets := make([]string, 0, len(subnetSet))
+	for s := range subnetSet {
+		subnets = append(subnets, s)
+	}
+
+	return &TopologyResponse{
+		Nodes:    individualNodes,
+		Clusters: clusters,
+		MaxPorts: maxPorts,
+		Subnets:  subnets,
+	}, nil
+}
+
+func splitServices(s string) []string {
+	if s == "" {
+		return nil
+	}
+	var result []string
+	for _, part := range strings.Split(s, ",") {
+		part = strings.TrimSpace(part)
+		if part != "" {
+			result = append(result, part)
+		}
+	}
+	return result
+}
+
+func inferOSFromPorts(ports []TopologyPort) string {
+	if len(ports) == 0 {
+		return ""
+	}
+	portSet := make(map[int]bool)
+	svcLower := make(map[string]bool)
+	prodLower := make(map[string]bool)
+	for _, p := range ports {
+		portSet[p.Port] = true
+		svcLower[strings.ToLower(p.Service)] = true
+		prodLower[strings.ToLower(p.Product)] = true
+	}
+	has := func(m map[string]bool, s string) bool { return m[s] }
+
+	// Strong Windows indicators
+	if portSet[3389] {
+		return "Windows"
+	}
+	if portSet[445] && portSet[139] {
+		return "Windows"
+	}
+	if has(svcLower, "msrpc") || has(svcLower, "mssql") || has(svcLower, "winrm") || has(svcLower, "netbios-ssn") {
+		return "Windows"
+	}
+	if has(prodLower, "iis") || has(prodLower, "microsoft") {
+		return "Windows"
+	}
+
+	// Cisco
+	if has(svcLower, "cisco") || has(prodLower, "cisco") {
+		return "Cisco IOS"
+	}
+
+	// macOS
+	if has(prodLower, "apple") || has(svcLower, "apple") || has(prodLower, "darwin") {
+		return "macOS"
+	}
+
+	// BSD
+	if has(prodLower, "freebsd") || has(svcLower, "bsd") || has(prodLower, "openbsd") || has(prodLower, "netbsd") {
+		return "FreeBSD"
+	}
+
+	// Linux: SSH present (and not a strong Windows indicator)
+	if portSet[22] {
+		return "Linux"
+	}
+
+	// Web server service detection
+	if has(svcLower, "http") || has(svcLower, "https") || portSet[80] || portSet[443] {
+		if has(prodLower, "apache") || has(svcLower, "apache") {
+			return "Linux"
+		}
+		if has(prodLower, "nginx") || has(svcLower, "nginx") {
+			return "Linux"
+		}
+	}
+
+	// Solaris
+	if has(svcLower, "solaris") || has(prodLower, "solaris") || has(svcLower, "sun") {
+		return "Solaris"
+	}
+
+	return ""
 }

@@ -254,6 +254,47 @@ type ConsolidatedNote struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+type TopologyPort struct {
+	Port     int    `json:"port"`
+	Protocol string `json:"protocol"`
+	State    string `json:"state"`
+	Service  string `json:"service"`
+	Version  string `json:"version"`
+	Product  string `json:"product"`
+}
+
+type TopologyNode struct {
+	IP               string         `json:"ip"`
+	Hostname         string         `json:"hostname"`
+	OS               string         `json:"os"`
+	MAC              string         `json:"mac"`
+	Status           string         `json:"status"`
+	Ports            int            `json:"ports"`
+	Services         []string       `json:"services"`
+	Subnet           string         `json:"subnet"`
+	Label            string         `json:"label"`
+	FirstSeen        string         `json:"first_seen"`
+	LastSeen         string         `json:"last_seen"`
+	DiscoveryMethods string         `json:"discovery_methods"`
+	PortDetail       []TopologyPort `json:"port_detail"`
+	OSInferred       bool           `json:"os_inferred"`
+}
+
+type SubnetCluster struct {
+	Subnet    string         `json:"subnet"`
+	HostCount int            `json:"host_count"`
+	PortCount int            `json:"port_count"`
+	Hosts     []TopologyNode `json:"hosts"`
+	Services  []string       `json:"services"`
+}
+
+type TopologyResponse struct {
+	Nodes     []TopologyNode  `json:"nodes"`
+	Clusters  []SubnetCluster `json:"clusters"`
+	MaxPorts  int             `json:"max_ports"`
+	Subnets   []string        `json:"subnets"`
+}
+
 type LiveHost struct {
 	IP               string `json:"ip"`
 	MAC              string `json:"mac"`

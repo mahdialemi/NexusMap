@@ -665,6 +665,21 @@ func (s *Server) HandleDeletePortNote(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, 200, map[string]string{"status": "ok"})
 }
 
+func (s *Server) HandleTopology(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	projectID := parseIntID(id)
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
+
+	data, err := s.DB.GetTopology(projectID)
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	jsonResponse(w, 200, data)
+}
+
 func (s *Server) HandleConsolidatedFilterOptions(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	projectID := parseIntID(id)

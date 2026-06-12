@@ -218,6 +218,7 @@ func main() {
 	mux.HandleFunc("/api/live/export/{id}", auth.APIAuthMiddleware(authSvc, srv.HandleLiveHostExport))
 	mux.HandleFunc("/api/live/export/{id}/sizes", auth.APIAuthMiddleware(authSvc, srv.HandleLiveHostExportSizes))
 	mux.HandleFunc("/api/projects/{id}/live", auth.APIAuthMiddleware(authSvc, srv.HandleLiveHosts))
+	mux.HandleFunc("/api/projects/{id}/topology", auth.APIAuthMiddleware(authSvc, srv.HandleTopology))
 
 	mux.HandleFunc("/api/results", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleResults)))
 	mux.HandleFunc("/api/results/{id}", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleResultByID)))

@@ -9,8 +9,9 @@ import (
 )
 
 var (
-	validNmapFlag = regexp.MustCompile(`^(--?)[a-zA-Z0-9-]+$`)
-	safeArgRe     = regexp.MustCompile(`^[a-zA-Z0-9./_\-:,\[\]{}@!~*?+$%^&()=<>]+$`)
+	validNmapFlag   = regexp.MustCompile(`^(--?)[a-zA-Z0-9-]+$`)
+	nmapFlagWithVal = regexp.MustCompile(`^(--?)([a-zA-Z0-9-]+)(.+)$`)
+	safeArgRe       = regexp.MustCompile(`^[a-zA-Z0-9./_\-:,\[\]{}@!~*?+$%^&()=<>]+$`)
 )
 
 func ValidateNmapArgs(args []string) error {
@@ -41,6 +42,9 @@ func ValidateNmapArgs(args []string) error {
 			if idx := strings.Index(arg, "="); idx > 0 {
 				flagName = arg[:idx]
 				val = strings.Trim(arg[idx+1:], `"'`)
+			} else if m := nmapFlagWithVal.FindStringSubmatch(arg); m != nil {
+				flagName = m[1] + m[2]
+				val = m[3]
 			}
 			if !validNmapFlag.MatchString(flagName) {
 				return fmt.Errorf("invalid flag: %s", arg)

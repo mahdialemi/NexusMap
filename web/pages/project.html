@@ -39,6 +39,9 @@
                 <button class="sidebar-btn" data-tab="consolidated" data-action="showTab" title="Assets">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-database"/></svg>
                 </button>
+                <button class="sidebar-btn" data-tab="topology" data-action="showTab" title="Topology">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-expand"/></svg>
+                </button>
                 <button class="sidebar-btn" data-tab="scripts" data-action="showTab" title="Scripts">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-code"/></svg>
                 </button>
@@ -306,6 +309,77 @@
                     <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
                 </div>
                 <div id="cports-pagination" style="padding:10px;display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;"></div>
+            </div>
+        </div>
+
+        <!-- Topology Tab -->
+        <div id="tab-topology" style="display: none;">
+            <div id="topology-container">
+                <div class="empty-state" id="topology-empty">
+                    <div class="spinner"></div>
+                    <p>Loading topology...</p>
+                </div>
+                <div id="topology-graph"></div>
+                <div id="topology-tooltip" style="display:none;position:absolute;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.8rem;pointer-events:none;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:280px;"></div>
+                <div id="topology-stats" style="display:none;position:absolute;top:48px;left:12px;z-index:40;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.72rem;min-width:150px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+                <div id="topology-legend" style="display:none;position:absolute;bottom:12px;right:12px;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.75rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+                <div id="topology-toolbar" style="display:none;">
+                    <div class="topo-tb-left">
+                        <div class="topo-tb-search">
+                            <input type="text" id="topology-filter" placeholder="Search IP, hostname, OS, port&hellip;">
+                            <button class="btn btn-secondary" id="topology-filter-btn" title="Search">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                            </button>
+                        </div>
+                        <span id="topology-filter-count"></span>
+                        <button class="btn btn-secondary" id="topo-btn-risk" data-active="0" title="Toggle high-risk host highlighting">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-alert"/></svg>
+                            Risk
+                        </button>
+                        <button class="btn btn-secondary" id="topo-btn-path" data-active="0" title="Find shortest path between two hosts">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-route"/></svg>
+                            Path
+                        </button>
+                        <span class="topo-sep">|</span>
+                        <button class="btn btn-secondary" data-action="expandAllTopo" title="Expand all clusters">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg>
+                            Expand
+                        </button>
+                        <button class="btn btn-secondary" data-action="collapseAllTopo" title="Collapse all clusters">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-collapse"/></svg>
+                            Collapse
+                        </button>
+                        <span class="topo-sep">|</span>
+                        <select id="topo-layout-mode">
+                            <option value="force">Force</option>
+                            <option value="hierarchical">Hierarchical</option>
+                            <option value="radial">Radial</option>
+                        </select>
+                    </div>
+                    <div class="topo-tb-right">
+                        <button class="btn btn-secondary" data-action="topoZoomIn" title="Zoom in">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-zoom-in"/></svg>
+                        </button>
+                        <button class="btn btn-secondary" data-action="topoZoomOut" title="Zoom out">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-zoom-out"/></svg>
+                        </button>
+                        <button class="btn btn-secondary" data-action="topoFitView" title="Fit all nodes to view">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg>
+                        </button>
+                        <span class="topo-sep">|</span>
+                        <button class="btn btn-secondary" id="topo-btn-fullscreen" title="Fullscreen">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-fullscreen"/></svg>
+                        </button>
+                        <button class="btn btn-secondary" id="topo-btn-export" title="Export as PNG">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
+                        </button>
+                        <button class="btn btn-secondary" data-action="loadTopology" title="Refresh">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="topology-contextmenu" style="display:none;position:absolute;z-index:200;background:rgba(20,20,30,0.95);border:1px solid var(--border);border-radius:8px;padding:4px 0;min-width:140px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
+                <div id="topology-detail" style="display:none;position:absolute;bottom:12px;left:12px;z-index:60;max-width:460px;max-height:55%;overflow-y:auto;background:rgba(13,13,20,0.92);border:1px solid var(--border);border-radius:10px;padding:0;font-size:0.78rem;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.5);"></div>
             </div>
         </div>
 
@@ -947,10 +1021,12 @@
         </div>
     </div>
 
+    <script src="/static/js/lib/vis-network.min.js"></script>
     <script src="/static/js/app.js?v=22"></script>
     <script src="/static/js/project-scans.js?v=1"></script>
     <script src="/static/js/project-consolidated.js?v=1"></script>
     <script src="/static/js/project-live.js?v=1"></script>
+    <script src="/static/js/project-topology.js?v=1"></script>
     <script src="/static/js/project-import.js?v=1"></script>
     <script src="/static/js/project-profiles.js?v=1"></script>
     <script src="/static/js/project-main.js?v=2"></script>
