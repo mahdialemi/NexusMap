@@ -170,13 +170,34 @@ func (d *DB) CreateProject(name, description, status, priority, tags, client str
 	if priority == "" {
 		priority = "medium"
 	}
-	result, err := d.Exec(`INSERT INTO projects (name, description, status, priority, tags, client, owner_id, due_date, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		name, description, status, priority, tags, client, normalizeOwnerID(ownerID), dueDate, now)
+
+	// Find the lowest unused project ID
+	var nextID int64
+	err := d.QueryRow(`
+		SELECT COALESCE(MIN(t.id + 1), 1) FROM (
+			SELECT 0 AS id
+			UNION ALL
+			SELECT id FROM projects
+		) t WHERE NOT EXISTS (SELECT 1 FROM projects WHERE id = t.id + 1)
+	`).Scan(&nextID)
 	if err != nil {
 		return 0, err
 	}
-	return result.LastInsertId()
+
+	_, err = d.Exec(`INSERT INTO projects (id, name, description, status, priority, tags, client, owner_id, due_date, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		nextID, name, description, status, priority, tags, client, normalizeOwnerID(ownerID), dueDate, now)
+	if err != nil {
+		// Race condition — fall back to auto-increment
+		result, err2 := d.Exec(`INSERT INTO projects (name, description, status, priority, tags, client, owner_id, due_date, updated_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			name, description, status, priority, tags, client, normalizeOwnerID(ownerID), dueDate, now)
+		if err2 != nil {
+			return 0, err2
+		}
+		return result.LastInsertId()
+	}
+	return nextID, nil
 }
 
 func (d *DB) UpdateProject(id int, name, description, status, priority, tags, client string, ownerID *int, dueDate *string) error {

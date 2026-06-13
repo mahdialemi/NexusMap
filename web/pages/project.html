@@ -6,7 +6,6 @@
     <title>Project - NexusMap</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/static/css/app.css">
-    <meta name="csrf-token" content="{{.CSRFToken}}">
 </head>
 <body>
     <div class="header">
@@ -322,7 +321,7 @@
                 </div>
                 <div id="topology-graph"></div>
                 <div id="topology-tooltip" style="display:none;position:absolute;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.8rem;pointer-events:none;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:280px;"></div>
-                <div id="topology-stats" style="display:none;position:absolute;top:48px;left:12px;z-index:40;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.72rem;min-width:150px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+                <div id="topology-stats" style="display:none;position:absolute;top:48px;right:12px;z-index:40;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.72rem;min-width:150px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
                 <div id="topology-legend" style="display:none;position:absolute;bottom:12px;right:12px;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.75rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
                 <div id="topology-toolbar" style="display:none;">
                     <div class="topo-tb-left">
@@ -333,6 +332,12 @@
                             </button>
                         </div>
                         <span id="topology-filter-count"></span>
+                        <div class="topo-tb-search" style="width:auto;">
+                            <input type="text" id="topology-svc-filter" placeholder="Filter by service&hellip;" style="width:120px;">
+                            <button class="btn btn-secondary" id="topo-btn-svc-filter" title="Filter by service">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                            </button>
+                        </div>
                         <button class="btn btn-secondary" id="topo-btn-risk" data-active="0" title="Toggle high-risk host highlighting">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-alert"/></svg>
                             Risk
@@ -373,6 +378,9 @@
                         </button>
                         <button class="btn btn-secondary" id="topo-btn-export" title="Export as PNG">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
+                        </button>
+                        <button class="btn btn-secondary" id="topo-btn-export-svg" title="Export as SVG">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-code"/></svg>
                         </button>
                         <button class="btn btn-secondary" data-action="loadTopology" title="Refresh">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
@@ -1027,7 +1035,7 @@
     <script src="/static/js/project-scans.js?v=1"></script>
     <script src="/static/js/project-consolidated.js?v=1"></script>
     <script src="/static/js/project-live.js?v=1"></script>
-    <script src="/static/js/project-topology.js?v=2"></script>
+    <script src="/static/js/project-topology.js?v=3"></script>
     <script src="/static/js/project-import.js?v=1"></script>
     <script src="/static/js/project-profiles.js?v=1"></script>
     <script src="/static/js/project-main.js?v=2"></script>

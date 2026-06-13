@@ -22,6 +22,9 @@ func (s *Server) HandleConsolidatedHosts(w http.ResponseWriter, r *http.Request)
 		serverError(w, err)
 		return
 	}
+	if hosts == nil {
+		hosts = []db.ConsolidatedHost{}
+	}
 	jsonResponse(w, 200, hosts)
 }
 

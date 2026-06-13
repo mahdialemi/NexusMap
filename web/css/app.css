@@ -20,6 +20,8 @@
     --font: inherit;
     --radius-card: 8px;
     --radius-input: 6px;
+    --topo-text-color: #e0e0e0;
+    --topo-stroke-color: #0d0d14;
 }
 [data-theme="light"] {
     --bg: #edf1f7;
@@ -38,6 +40,8 @@
     --orange: #ca7a3a;
     --cyan: #3a9aac;
     --purple: #7a68d2;
+    --topo-text-color: #1c1e2a;
+    --topo-stroke-color: #f5f8fc;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }

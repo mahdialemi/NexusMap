@@ -14,6 +14,15 @@ function hexToRgba(hex, alpha) {
     const b = parseInt(hex.slice(5, 7), 16);
     return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
 }
+function topoNodeSize(ports) {
+    return Math.max(14, Math.min(40, 12 + Math.round(Math.sqrt(ports || 1) * 4)));
+}
+function topoFontColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue('--topo-text-color').trim() || '#e0e0e0';
+}
+function topoStrokeColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue('--topo-stroke-color').trim() || '#0d0d14';
+}
 function osLabel(os) {
     const o = (os || '').toLowerCase();
     if (o.includes('linux')) return 'Linux';
@@ -40,14 +49,67 @@ async function loadTopology() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         if ((!data.nodes || data.nodes.length === 0) && (!data.clusters || data.clusters.length === 0)) {
-            empty.innerHTML = '<p>No hosts found. Confirm some scans first.</p>';
+            empty.innerHTML = '<h3>No topology data</h3><p>Confirm scans to populate topology</p>';
             return;
         }
         empty.style.display = 'none';
         renderTopology(data, graphEl, tooltip, legend, detail);
     } catch (e) {
         empty.style.display = '';
-        empty.innerHTML = '<p>Error: ' + e.message + '</p>';
+        empty.innerHTML = '<h3>Error loading topology</h3><p>' + esc(e.message) + '</p>';
+    }
+}
+
+var _topoPortSortField = 'port';
+var _topoPortSortDir = 1;
+
+function renderPortTable(ports, detailEl, d, osStr, hasHighRisk) {
+    var sorted = ports.slice();
+    sorted.sort(function(a, b) {
+        var va, vb;
+        if (_topoPortSortField === 'port') { va = a.port; vb = b.port; }
+        else if (_topoPortSortField === 'protocol') { va = a.protocol || ''; vb = b.protocol || ''; }
+        else if (_topoPortSortField === 'state') { va = a.state || ''; vb = b.state || ''; }
+        else if (_topoPortSortField === 'service') { va = (a.service || '').toLowerCase(); vb = (b.service || '').toLowerCase(); }
+        else if (_topoPortSortField === 'version') { va = (a.version || '').toLowerCase(); vb = (b.version || '').toLowerCase(); }
+        else if (_topoPortSortField === 'product') { va = (a.product || '').toLowerCase(); vb = (b.product || '').toLowerCase(); }
+        if (typeof va === 'number') return (va - vb) * _topoPortSortDir;
+        return va < vb ? -1 * _topoPortSortDir : va > vb ? 1 * _topoPortSortDir : 0;
+    });
+    var rows = sorted.length > 0 ? sorted.map(function(p) { return '<tr>' +
+        '<td class="tp-pnum">' + p.port + '</td>' +
+        '<td>' + p.protocol + '</td>' +
+        '<td><span class="badge badge-' + (p.state === 'open' ? 'open' : 'filtered') + '">' + p.state + '</span></td>' +
+        '<td>' + esc(p.service || '\u2014') + '</td>' +
+        '<td style="font-size:0.72rem;color:var(--text-muted);">' + esc(p.version || '\u2014') + '</td>' +
+        '<td style="font-size:0.72rem;color:var(--text-muted);">' + esc(p.product || '\u2014') + '</td>' +
+        '</tr>'; }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:12px;">No open ports</td></tr>';
+    var arrow = function(f) { return f === _topoPortSortField ? (_topoPortSortDir === 1 ? ' \u25B2' : ' \u25BC') : ''; };
+    var body = detailEl.querySelector('.detail-body');
+    if (body) {
+        body.innerHTML = '<div class="info-line">' +
+            '<span>' + d.ports + ' open</span>' +
+            '<span>' + d.subnet + '</span>' +
+            (hasHighRisk ? '<span style="color:#f06262;">\u26a0 Risk</span>' : '') +
+            (d.mac ? '<span>' + esc(d.mac) + '</span>' : '') +
+            (d.os_inferred ? '<span style="font-style:italic;">* inferred</span>' : '') +
+            '</div>' +
+            '<table class="tp-table"><thead><tr>' +
+            '<th style="width:48px;cursor:pointer;" data-sort="port">Port' + arrow('port') + '</th>' +
+            '<th style="width:38px;cursor:pointer;" data-sort="protocol">Proto' + arrow('protocol') + '</th>' +
+            '<th style="width:50px;cursor:pointer;" data-sort="state">State' + arrow('state') + '</th>' +
+            '<th style="cursor:pointer;" data-sort="service">Service' + arrow('service') + '</th>' +
+            '<th style="width:80px;cursor:pointer;" data-sort="version">Version' + arrow('version') + '</th>' +
+            '<th style="width:80px;cursor:pointer;" data-sort="product">Product' + arrow('product') + '</th>' +
+            '</tr></thead><tbody>' + rows + '</tbody></table>';
+        body.querySelectorAll('[data-sort]').forEach(function(th) {
+            th.addEventListener('click', function() {
+                var f = this.dataset.sort;
+                if (f === _topoPortSortField) _topoPortSortDir *= -1;
+                else { _topoPortSortField = f; _topoPortSortDir = 1; }
+                renderPortTable(ports, detailEl, d, osStr, hasHighRisk);
+            });
+        });
     }
 }
 
@@ -58,16 +120,6 @@ function showHostDetail(d, detailEl) {
     const hasHighRisk = ports.some(p => highRisk.includes(p.port));
     const portCounts = { open: 0, filtered: 0, closed: 0 };
     ports.forEach(p => { if (p.state === 'open') portCounts.open++; else if (p.state === 'filtered') portCounts.filtered++; });
-    const portRows = ports.length > 0 ? ports.map(p => `
-        <tr>
-            <td class="tp-pnum">${p.port}</td>
-            <td>${p.protocol}</td>
-            <td><span class="badge badge-${p.state === 'open' ? 'open' : 'filtered'}">${p.state}</span></td>
-            <td>${esc(p.service || '\u2014')}</td>
-            <td style="font-size:0.72rem;color:var(--text-muted);">${esc(p.version || '\u2014')}</td>
-            <td style="font-size:0.72rem;color:var(--text-muted);">${esc(p.product || '\u2014')}</td>
-        </tr>
-    `).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:12px;">No open ports</td></tr>';
     detailEl.innerHTML = `
         <div class="detail-header">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;">
@@ -78,27 +130,9 @@ function showHostDetail(d, detailEl) {
             </div>
             <button class="detail-close" onclick="this.closest('#topology-detail').style.display='none'">\u2715</button>
         </div>
-        <div class="detail-body">
-            <div class="info-line">
-                <span>${d.ports} open</span>
-                <span>${d.subnet}</span>
-                ${hasHighRisk ? '<span style="color:#f06262;">\u26a0 Risk</span>' : ''}
-                ${d.mac ? '<span>' + esc(d.mac) + '</span>' : ''}
-                ${d.os_inferred ? '<span style="font-style:italic;">* inferred</span>' : ''}
-            </div>
-            <table class="tp-table">
-                <thead><tr>
-                    <th style="width:48px;">Port</th>
-                    <th style="width:38px;">Proto</th>
-                    <th style="width:50px;">State</th>
-                    <th>Service</th>
-                    <th style="width:80px;">Version</th>
-                    <th style="width:80px;">Product</th>
-                </tr></thead>
-                <tbody>${portRows}</tbody>
-            </table>
-        </div>
+        <div class="detail-body"></div>
     `;
+    renderPortTable(ports, detailEl, d, osStr, hasHighRisk);
     detailEl.style.display = '';
 }
 
@@ -160,6 +194,7 @@ let _topoPathMode = false;
 let _topoPathFirst = null;
 let _topoOriginalColors = {};
 let _topoStoredPositionsKey = 'nexusmap_topo_positions';
+let _topoSvcFilterActive = null;
 
 const _topoHighRiskPorts = [21, 23, 25, 53, 110, 135, 139, 143, 445, 993, 995, 1433, 1521, 3306, 3389, 5432, 5900, 6379, 8080, 8443, 27017];
 
@@ -526,6 +561,73 @@ function exportTopoPNG() {
     link.click();
 }
 
+function exportTopoSVG() {
+    if (!_topoNetwork) return;
+    var canvas = document.querySelector('#topology-graph canvas');
+    if (!canvas) return;
+    var imgData = canvas.toDataURL('image/png');
+    var w = canvas.width, h = canvas.height;
+    var svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">' +
+        '<image href="' + imgData + '" width="' + w + '" height="' + h + '"/></svg>';
+    var blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+    var link = document.createElement('a');
+    link.download = 'topology-export.svg';
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+function toggleTopoSvcFilter() {
+    var input = document.getElementById('topology-svc-filter');
+    if (!input || !_topoNodes || !_topoHostsByIP) return;
+    var val = input.value.trim().toLowerCase();
+    if (!val) {
+        clearTopoSvcFilter();
+        return;
+    }
+    var updates = [];
+    for (var ip in _topoHostsByIP) {
+        var h = _topoHostsByIP[ip];
+        if (!h) continue;
+        var svcs = h.services || [];
+        var ports = h.port_detail || [];
+        var match = false;
+        for (var si = 0; si < svcs.length; si++) {
+            if (svcs[si].toLowerCase().indexOf(val) >= 0) { match = true; break; }
+        }
+        if (!match) {
+            for (var pi = 0; pi < ports.length; pi++) {
+                if ((ports[pi].service || '').toLowerCase().indexOf(val) >= 0) { match = true; break; }
+            }
+        }
+        var node = _topoNodes.get(ip);
+        if (!node) continue;
+        if (match) {
+            updates.push({ id: ip, borderWidth: 4, color: { ...node.color, border: '#e6952e' } });
+        } else {
+            updates.push({ id: ip, opacity: 0.2 });
+        }
+    }
+    if (updates.length > 0) _topoNodes.update(updates);
+    _topoSvcFilterActive = val;
+}
+function clearTopoSvcFilter() {
+    if (!_topoSvcFilterActive || !_topoNodes) return;
+    var allNodes = _topoNodes.get();
+    var updates = [];
+    for (var ni = 0; ni < allNodes.length; ni++) {
+        var n = allNodes[ni];
+        var h = _topoHostsByIP[n.id];
+        if (!h) continue;
+        var c = osColor(h.os);
+        var orig = _topoOriginalColors[n.id] || { background: hexToRgba(c, 0.15), border: hexToRgba(c, 0.8) };
+        updates.push({ id: n.id, opacity: 1.0, borderWidth: 2, color: orig });
+    }
+    if (updates.length > 0) _topoNodes.update(updates);
+    _topoSvcFilterActive = null;
+    _topoHighlighted = false;
+}
+
 function toggleTopoFullscreen() {
     const tab = document.getElementById('tab-topology');
     if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -753,6 +855,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
 
     const nodes = new vis.DataSet();
     const edges = new vis.DataSet();
+    var fCol = topoFontColor(), sCol = topoStrokeColor();
 
     for (const h of individualNodes) {
         const c = osColor(h.os);
@@ -768,11 +871,11 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
             services: h.services, port_detail: h.port_detail, os_inferred: h.os_inferred,
             mac: h.mac, status: h.status, os: h.os,
             label: h.ip,
-            shape: 'dot', size: 22, opacity: 1.0,
+            shape: 'dot', size: topoNodeSize(h.ports), opacity: 1.0,
             color: color,
             borderWidth: 2, borderWidthSelected: 3,
-            font: { size: 9, face: 'Inter, system-ui, -apple-system, sans-serif', color: '#e0e0e0', strokeWidth: 3, strokeColor: '#0d0d14' },
-            title: h.ip + (h.hostname ? '\n' + h.hostname : '')
+            font: { size: 9, face: 'Inter, system-ui, -apple-system, sans-serif', color: fCol, strokeWidth: 3, strokeColor: sCol },
+            title: h.ip + (h.hostname ? '\n' + h.hostname : '') + (h.os_inferred ? '\n(inferred OS)' : '')
         });
     }
 
@@ -793,11 +896,11 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
                 services: h.services, port_detail: h.port_detail, os_inferred: h.os_inferred,
                 mac: h.mac, status: h.status, os: h.os,
                 label: h.ip,
-                shape: 'dot', size: 22, opacity: 1.0,
+                shape: 'dot', size: topoNodeSize(h.ports), opacity: 1.0,
                 color: color,
                 borderWidth: 2, borderWidthSelected: 3,
-                font: { size: 9, face: 'Inter, system-ui, -apple-system, sans-serif', color: '#e0e0e0', strokeWidth: 3, strokeColor: '#0d0d14' },
-                title: h.ip + (h.hostname ? '\n' + h.hostname : ''),
+                font: { size: 9, face: 'Inter, system-ui, -apple-system, sans-serif', color: fCol, strokeWidth: 3, strokeColor: sCol },
+                title: h.ip + (h.hostname ? '\n' + h.hostname : '') + (h.os_inferred ? '\n(inferred OS)' : ''),
                 hidden: true
             });
             edges.add({
@@ -809,7 +912,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
         const cc = '#e6952e';
         nodes.add({
             id: cid,
-            label: cluster.subnet + '\n' + cluster.host_count + ' hosts',
+            label: cluster.subnet + '\n' + cluster.host_count + ' hosts \u00B7 ' + cluster.port_count + ' ports',
             shape: 'hexagon', size: 40, opacity: 1.0,
             color: {
                 background: 'rgba(230,149,46,0.1)', border: 'rgba(230,149,46,0.6)',
@@ -839,7 +942,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
     const options = {
         nodes: {
             shape: 'dot',
-            font: { face: 'Inter, system-ui, -apple-system, sans-serif', size: 9, color: '#e0e0e0', strokeWidth: 3, strokeColor: '#0d0d14' },
+            font: { face: 'Inter, system-ui, -apple-system, sans-serif', size: 9, color: fCol, strokeWidth: 3, strokeColor: sCol },
             borderWidth: 2, borderWidthSelected: 3,
             color: { highlight: { border: '#e6952e' } }
         },
@@ -895,8 +998,49 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
     if (fsBtn) fsBtn.onclick = toggleTopoFullscreen;
     var exportBtn = document.getElementById('topo-btn-export');
     if (exportBtn) exportBtn.onclick = exportTopoPNG;
+    var exportSvgBtn = document.getElementById('topo-btn-export-svg');
+    if (exportSvgBtn) exportSvgBtn.onclick = exportTopoSVG;
+
+    var svcFilterInput = document.getElementById('topology-svc-filter');
+    var svcFilterBtn = document.getElementById('topo-btn-svc-filter');
+    function doSvcFilter() {
+        if (_topoPathMode) { clearTopoPathHighlight(); _topoPathFirst = null; }
+        if (_topoRiskActive) { toggleTopoRiskFilter(); }
+        clearTopoHighlight();
+        toggleTopoSvcFilter();
+    }
+    if (svcFilterInput) svcFilterInput.onkeydown = function(e) { if (e.key === 'Enter') doSvcFilter(); };
+    if (svcFilterBtn) svcFilterBtn.onclick = doSvcFilter;
+    if (svcFilterInput) svcFilterInput.oninput = function() { if (!this.value.trim()) clearTopoSvcFilter(); };
 
     network.on('click', function(params) {
+        const edgeIds = params.edges;
+        if (edgeIds && edgeIds.length > 0 && params.nodes.length === 0) {
+            var edge = _topoEdges.get(edgeIds[0]);
+            if (edge && edge.from && edge.to) {
+                var fromNode = _topoHostsByIP[edge.from];
+                var toNode = _topoHostsByIP[edge.to];
+                if (fromNode && toNode) {
+                    var subnet = fromNode.subnet || 'unknown';
+                    detailEl.innerHTML = '<div class="detail-header">' +
+                        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
+                        '<strong style="font-size:0.88rem;color:var(--accent);">Connection</strong>' +
+                        '<span class="badge badge-info" style="font-size:0.65rem;">' + esc(subnet) + '</span>' +
+                        '</div>' +
+                        '<button class="detail-close" onclick="this.closest(\'#topology-detail\').style.display=\'none\'">\u2715</button>' +
+                        '</div><div class="detail-body">' +
+                        '<div class="info-line"><span>' + esc(edge.from) + '</span> <span style="color:var(--text-muted);">\u2194</span> <span>' + esc(edge.to) + '</span></div>' +
+                        '<table class="tp-table"><thead><tr><th>Property</th><th>' + esc(edge.from) + '</th><th>' + esc(edge.to) + '</th></tr></thead><tbody>' +
+                        '<tr><td>OS</td><td>' + osLabel(fromNode.os) + '</td><td>' + osLabel(toNode.os) + '</td></tr>' +
+                        '<tr><td>Hostname</td><td>' + esc(fromNode.hostname || '\u2014') + '</td><td>' + esc(toNode.hostname || '\u2014') + '</td></tr>' +
+                        '<tr><td>Ports</td><td>' + fromNode.ports + '</td><td>' + toNode.ports + '</td></tr>' +
+                        '<tr><td>Status</td><td>' + esc(fromNode.status || '\u2014') + '</td><td>' + esc(toNode.status || '\u2014') + '</td></tr>' +
+                        '</tbody></table></div>';
+                    detailEl.style.display = '';
+                }
+            }
+            return;
+        }
         const nodeIds = params.nodes;
         if (nodeIds.length > 0) {
             const nodeId = nodeIds[0];
@@ -974,8 +1118,14 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
             tooltipEl.style.display = '';
             const canvasPos = network.canvasToDOM({ x: params.pointer.canvas.x, y: params.pointer.canvas.y });
             const rect = container.getBoundingClientRect();
-            tooltipEl.style.left = (canvasPos.x - rect.left + 14) + 'px';
-            tooltipEl.style.top = (canvasPos.y - rect.top - 10) + 'px';
+            var tLeft = canvasPos.x - rect.left + 14, tTop = canvasPos.y - rect.top - 10;
+            var tw = tooltipEl.offsetWidth || 280, th = tooltipEl.offsetHeight || 80;
+            if (tLeft + tw > rect.width - 10) tLeft = rect.width - tw - 10;
+            if (tLeft < 10) tLeft = 10;
+            if (tTop + th > rect.height - 10) tTop = rect.height - th - 10;
+            if (tTop < 10) tTop = 10;
+            tooltipEl.style.left = tLeft + 'px';
+            tooltipEl.style.top = tTop + 'px';
         } else if (!_topoPathMode) {
             highlightTopoNeighbors(params.node);
         }
@@ -1017,6 +1167,22 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
     network.on('stabilizationIterationsDone', function() {
         loadTopoLayout();
     });
+
+    // Keyboard shortcuts
+    var topoContainer = document.getElementById('tab-topology');
+    if (topoContainer) {
+        topoContainer.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                var fl = document.getElementById('topology-filter');
+                if (fl) { fl.focus(); fl.select(); }
+                return;
+            }
+            if (e.key === '+' || e.key === '=') { e.preventDefault(); topoZoomIn(); return; }
+            if (e.key === '-') { e.preventDefault(); topoZoomOut(); return; }
+            if (e.key === '0') { e.preventDefault(); topoFitView(); return; }
+        });
+    }
 }
 
 function buildLegend(data, legendEl) {

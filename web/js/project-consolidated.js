@@ -682,6 +682,10 @@
             if (!d || d.ports.length === 0) {
                 consolidatedSelected.clear();
                 updateConsolidatedBulkBtn();
+                if (!consolidatedGroupMode) {
+                    container.innerHTML = '<div class="empty-state"><h3>No assets</h3><p>Confirm scans to populate assets</p></div>';
+                    return;
+                }
             }
             if (consolidatedGroupMode) {
                 if (!consolidatedAllPorts) {

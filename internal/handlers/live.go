@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mahdialemi/NexusMap/internal/db"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -27,6 +28,9 @@ func (s *Server) HandleLiveHosts(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			serverError(w, err)
 			return
+		}
+		if hosts == nil {
+			hosts = []db.LiveHost{}
 		}
 		jsonResponse(w, 200, hosts)
 
