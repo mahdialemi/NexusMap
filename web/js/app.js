@@ -368,11 +368,11 @@ function formatDate(dateStr) {
 
 var _escMap = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 function esc(s) {
-    return (s || '').replace(/[&<>"']/g, function(c) { return _escMap[c]; });
+    return (s == null ? '' : String(s)).replace(/[&<>"']/g, function(c) { return _escMap[c]; });
 }
 
 function escAttr(s) {
-    return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    return (s == null ? '' : String(s)).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
 function stateBadge(state) {

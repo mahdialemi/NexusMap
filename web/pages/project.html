@@ -321,10 +321,10 @@
                 </div>
                 <div id="topology-graph"></div>
                 <div id="topology-tooltip" style="display:none;position:absolute;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.8rem;pointer-events:none;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:280px;"></div>
-                <div id="topology-stats" style="display:none;position:absolute;top:48px;right:12px;z-index:40;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.72rem;min-width:150px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
-                <div id="topology-legend" style="display:none;position:absolute;bottom:12px;right:12px;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.75rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+                <div id="topology-stats" style="display:none;position:absolute;top:66px;left:12px;z-index:40;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.72rem;min-width:190px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);"></div>
+                <div id="topology-legend" style="display:none;position:absolute;bottom:60px;right:12px;z-index:40;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.75rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
                 <div id="topology-toolbar" style="display:none;">
-                    <div class="topo-tb-left">
+                    <div class="topo-tb-row">
                         <div class="topo-tb-search">
                             <input type="text" id="topology-filter" placeholder="Search IP, hostname, OS, port&hellip;">
                             <button class="btn btn-secondary" id="topology-filter-btn" title="Search">
@@ -332,60 +332,75 @@
                             </button>
                         </div>
                         <span id="topology-filter-count"></span>
-                        <div class="topo-tb-search" style="width:auto;">
-                            <input type="text" id="topology-svc-filter" placeholder="Filter by service&hellip;" style="width:120px;">
-                            <button class="btn btn-secondary" id="topo-btn-svc-filter" title="Filter by service">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
-                            </button>
-                        </div>
-                        <button class="btn btn-secondary" id="topo-btn-risk" data-active="0" title="Toggle high-risk host highlighting">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-alert"/></svg>
-                            Risk
-                        </button>
-                        <button class="btn btn-secondary" id="topo-btn-path" data-active="0" title="Find shortest path between two hosts">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-route"/></svg>
-                            Path
-                        </button>
-                        <span class="topo-sep">|</span>
-                        <button class="btn btn-secondary" data-action="expandAllTopo" title="Expand all clusters">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg>
-                            Expand
-                        </button>
-                        <button class="btn btn-secondary" data-action="collapseAllTopo" title="Collapse all clusters">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-collapse"/></svg>
-                            Collapse
-                        </button>
-                        <span class="topo-sep">|</span>
-                        <select id="topo-layout-mode">
+                        <select id="topo-filter-service" class="topo-sel" style="width:100px;">
+                            <option value="">All Services</option>
+                        </select>
+                        <span class="topo-sep"></span>
+                        <select id="topo-filter-subnet" class="topo-sel">
+                            <option value="">Subnet</option>
+                        </select>
+                        <select id="topo-filter-os" class="topo-sel">
+                            <option value="">OS</option>
+                        </select>
+                        <input type="number" id="topo-filter-min-ports" class="topo-sel" placeholder="Min ports" min="0" style="width:92px;">
+                        <select id="topo-layout-mode" class="topo-sel" title="Layout mode">
                             <option value="force">Force</option>
                             <option value="hierarchical">Hierarchical</option>
                             <option value="radial">Radial</option>
                         </select>
                     </div>
-                    <div class="topo-tb-right">
-                        <button class="btn btn-secondary" data-action="topoZoomIn" title="Zoom in">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-zoom-in"/></svg>
+                </div>
+                <!-- Floating bottom toolbar -->
+                <div id="topo-actions" style="display:none;position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:45;background:rgba(18,18,28,0.88);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:4px 6px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 4px 20px rgba(0,0,0,0.4);white-space:nowrap;">
+                    <button class="act-btn" id="topo-btn-risk" data-active="0" title="Toggle high-risk host highlighting">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-alert"/></svg>
+                    </button>
+                    <button class="act-btn" id="topo-btn-path" data-active="0" title="Find shortest path">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-route"/></svg>
+                    </button>
+                    <span class="act-sep"></span>
+                    <button class="act-btn" data-action="expandAllTopo" title="Expand all clusters">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg>
+                    </button>
+                    <button class="act-btn" data-action="collapseAllTopo" title="Collapse all clusters">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-collapse"/></svg>
+                    </button>
+                    <span class="act-sep"></span>
+                    <button class="act-btn" data-action="topoZoomIn" title="Zoom in">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-zoom-in"/></svg>
+                    </button>
+                    <input type="range" id="topo-zoom-slider" min="0.1" max="3" step="0.01" value="1" title="Zoom level">
+                    <button class="act-btn" data-action="topoZoomOut" title="Zoom out">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-zoom-out"/></svg>
+                    </button>
+                    <button class="act-btn" data-action="topoFitView" title="Fit view">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg>
+                    </button>
+                    <span class="act-sep"></span>
+                    <button class="act-btn" id="topo-btn-fullscreen" title="Fullscreen">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-fullscreen"/></svg>
+                    </button>
+                    <button class="act-btn" id="topo-btn-export" title="Export">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
+                    </button>
+                    <span class="act-sep"></span>
+                    <div class="act-dropdown" id="topo-analysis-dropdown" style="display:inline-block;vertical-align:middle;">
+                        <button class="act-btn" id="topo-btn-analysis" title="Analysis panels">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>
                         </button>
-                        <button class="btn btn-secondary" data-action="topoZoomOut" title="Zoom out">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-zoom-out"/></svg>
-                        </button>
-                        <button class="btn btn-secondary" data-action="topoFitView" title="Fit all nodes to view">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg>
-                        </button>
-                        <span class="topo-sep">|</span>
-                        <button class="btn btn-secondary" id="topo-btn-fullscreen" title="Fullscreen">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-fullscreen"/></svg>
-                        </button>
-                        <button class="btn btn-secondary" id="topo-btn-export" title="Export as PNG">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
-                        </button>
-                        <button class="btn btn-secondary" id="topo-btn-export-svg" title="Export as SVG">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-code"/></svg>
-                        </button>
-                        <button class="btn btn-secondary" data-action="loadTopology" title="Refresh">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
-                        </button>
+                        <div class="act-menu" id="topo-analysis-menu" style="display:none;bottom:100%;left:0;margin-bottom:6px;">
+                            <div class="act-item" data-panel="risk-rank">&#x26A0; Risk Ranking</div>
+                            <div class="act-item" data-panel="port-heat">&#x1F4CA; Port Heat Map</div>
+                            <div class="act-item" data-panel="subnet-ana">&#x1F4E1; Subnet Analysis</div>
+                        </div>
                     </div>
+                    <span class="act-sep"></span>
+                    <button class="act-btn" data-action="loadTopology" title="Refresh">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
+                    </button>
+                </div>
+                <div id="topology-analysis-panels" style="display:none;position:absolute;top:38px;right:0;bottom:0;width:320px;z-index:35;overflow-y:auto;background:rgba(13,13,20,0.92);border-left:1px solid var(--border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);">
+                    <div id="topo-analysis-body" style="padding:12px;font-size:0.8rem;"></div>
                 </div>
                 <div id="topology-contextmenu" style="display:none;position:absolute;z-index:200;background:rgba(20,20,30,0.95);border:1px solid var(--border);border-radius:8px;padding:4px 0;min-width:140px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
                 <div id="topology-detail" style="display:none;position:absolute;bottom:12px;left:12px;z-index:60;max-width:460px;max-height:55%;overflow-y:auto;background:rgba(13,13,20,0.92);border:1px solid var(--border);border-radius:10px;padding:0;font-size:0.78rem;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.5);"></div>
