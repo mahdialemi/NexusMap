@@ -712,6 +712,8 @@ func (d *DB) GetConsolidatedPortsFiltered(projectID int, req *PortsQueryRequest)
 	args := []interface{}{projectID}
 	var allWheres []string
 	joinNeeded := make(map[string]bool)
+	joinNeeded["ch"] = true // SELECT always references consolidated_hosts
+	joinNeeded["cn"] = true // SELECT always references consolidated_notes
 
 	// search
 	if req.Search != "" {

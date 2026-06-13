@@ -226,8 +226,8 @@
             renderAllFilterGroups();
         }
 
-        function addFilterRow() {
-            var groupIdx = parseInt(this.getAttribute('data-idx')) || 0;
+        function addFilterRow(groupIdx) {
+            if (typeof groupIdx !== 'number') groupIdx = parseInt(this && this.getAttribute && this.getAttribute('data-idx')) || 0;
             if (!consolidatedFilterGroups[groupIdx]) {
                 consolidatedFilterGroups.push({ group_mode: 'and', filters: [] });
                 groupIdx = consolidatedFilterGroups.length - 1;
@@ -636,7 +636,7 @@
                         <span style="font-size:0.65rem;color:var(--text-muted);margin-right:4px;">G${gi+1} ${g.group_mode.toUpperCase()}</span>${groupHtml}</span>`;
                 }
             }
-            html += `<span class="filter-badge-clear" onclick="clearAdvancedFilters()" style="cursor:pointer;color:var(--danger);font-size:0.75rem;margin-left:6px;">Clear all</span>`;
+            html += `<span class="filter-badge-clear" onclick="clearAdvancedFilters()" style="cursor:pointer;color:var(--danger);font-size:0.75rem;margin-left:6px;display:inline-flex;align-items:center;">Clear all</span>`;
             container.innerHTML = html;
         }
 

@@ -409,7 +409,7 @@ function showModal(id, title, bodyHTML, sizeClass) {
 }
 
 function closeModal(id) {
-    if (!id) {
+    if (typeof id !== 'string') {
         if (typeof this !== 'undefined' && this && this.getAttribute) id = this.getAttribute('data-modal');
         else return;
     }
