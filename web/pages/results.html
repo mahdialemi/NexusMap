@@ -5,54 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan Results - NexusMap</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/app.css">
-    <style>
-        .pagination {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 0;
-            border-top: 1px solid var(--border);
-            margin-top: auto;
-        }
-        .pagination .page-info {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin: 0 12px;
-        }
-        .pagination .page-btn {
-            padding: 6px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-card);
-            background: var(--bg-card);
-            color: var(--text);
-            cursor: pointer;
-            font-size: 0.85rem;
-        }
-        .pagination .page-btn:hover:not(:disabled) { background: var(--bg-input); }
-        .pagination .page-btn:disabled { opacity: 0.4; cursor: default; }
-        .pagination .page-btn.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-        .pagination .page-size-select {
-            margin-left: auto;
-            font-size: 0.85rem;
-            padding: 4px 8px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-card);
-            background: var(--bg-card);
-            color: var(--text);
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/results.css">
 </head>
 <body>
     <div class="header">
-        <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
+        <a href="/" class="header-link">
             <svg width="28" height="28" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
-            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v0.9.0</span></h1>
+            <h1>NexusMap <span class="version-badge">v0.9.1</span></h1>
         </a>
         <div class="header-nav">
             <span id="user-info"></span>
@@ -101,7 +60,7 @@
             <div id="toast-container" class="toast-container"></div>
 
             <div class="asset-actions">
-                <h2 class="card-title" style="margin:0;">Scan Results <span id="breadcrumb-scan" style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">Scan #1</span></h2>
+                <h2 class="card-title card-title-m0">Scan Results <span id="breadcrumb-scan" class="version-badge">Scan #1</span></h2>
                 <div class="asset-toolbar-right">
                     <button class="btn btn-secondary btn-sm" id="global-search-toggle" data-action="toggleGlobalSearch" title="Search">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
@@ -114,17 +73,17 @@
                     <button class="btn btn-secondary btn-sm" data-action="refreshResults" title="Refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
-                    <div class="dropdown" style="position:relative;">
+                    <div class="dropdown dropdown-relative">
                         <button class="btn btn-secondary btn-sm" data-action="toggleResultsExportDropdown" title="Export">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
                         </button>
-                        <div id="results-export-dropdown" class="dropdown-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:100;min-width:120px;overflow:hidden;">
-                            <div class="dropdown-item" data-action="doExport" data-format="xlsx" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#22c55e"><use href="#icon-calendar"/></svg>
+                        <div id="results-export-dropdown" class="dropdown-menu" style="display:none;">
+                            <div class="dropdown-item dd-item" data-action="doExport" data-format="xlsx">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dd-icon-green"><use href="#icon-calendar"/></svg>
                                 Excel (.xlsx)
                             </div>
-                            <div class="dropdown-item" data-action="doExport" data-format="json" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.85rem;transition:background 0.15s;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#eab308"><use href="#icon-file"/></svg>
+                            <div class="dropdown-item dd-item" data-action="doExport" data-format="json">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dd-icon-yellow"><use href="#icon-file"/></svg>
                                 JSON (.json)
                             </div>
                         </div>
@@ -132,7 +91,7 @@
                 </div>
             </div>
 
-            <div class="card" style="display:flex;flex-direction:column;flex:1;min-height:0;border-top:none;border-top-left-radius:0;border-top-right-radius:0;">
+            <div class="card results-card">
                 <div id="results-container" class="table-container">
                     <div class="empty-state">
                         <div class="spinner"></div>
@@ -151,7 +110,7 @@
                     <span class="page-info" id="page-info">Page 1 of 1</span>
                     <button class="page-btn" id="page-next" data-action="doGoToPage" data-page="next">&rsaquo;</button>
                     <button class="page-btn" id="page-last" data-action="doGoToPage" data-page="last">&raquo;</button>
-                    <span class="page-info" id="total-info" style="margin-left:8px;">0 total</span>
+                    <span class="page-info total-info" id="total-info">0 total</span>
                 </div>
             </div>
         </div>
@@ -160,51 +119,43 @@
     <script src="/static/js/app.js"></script>
     <script src="/static/js/results.js"></script>
 
-    <div id="about-modal" class="modal-overlay" style="display: none;">
-        <div class="modal" style="max-width: 480px;">
+    <div id="about-modal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-max-480">
             <div class="modal-header">
                 <h3>About NexusMap</h3>
                 <button class="modal-close" data-action="hideAboutModal">&times;</button>
             </div>
-            <div style="padding: 24px; text-align: center;">
-                <div style="margin-bottom: 20px;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--cyan);">
+            <div class="about-body">
+                <div class="about-icon-wrap">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="about-icon-svg">
                         <use href="#icon-shield"/>
                     </svg>
                 </div>
-                <h2 style="font-size: 1.4rem; margin-bottom: 4px;">NexusMap</h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Version 0.9.0 &middot; Network Scanner &amp; Asset Management</p>
-                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
-                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">What it does</h4>
-                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
-                        NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.
-                    </p>
+                <h2 class="about-title">NexusMap</h2>
+                <p class="about-version">Version 0.9.0 &middot; Network Scanner &amp; Asset Management</p>
+                <div class="about-card">
+                    <h4>What it does</h4>
+                    <p>NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
                 </div>
-                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
-                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">How it was built</h4>
-                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7; margin-bottom: 8px;">
-                        This project was built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach where the entire codebase was generated through natural language conversation.
-                    </p>
-                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
-                        Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.
-                    </p>
+                <div class="about-card">
+                    <h4>How it was built</h4>
+                    <p>This project was built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach where the entire codebase was generated through natural language conversation.</p>
+                    <p>Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
                 </div>
-                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 20px;">
-                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Go</div><div style="font-size: 0.7rem; color: var(--text-muted);">Backend</div></div>
-                    <div style="color: var(--border);">&middot;</div>
-                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">SQLite</div><div style="font-size: 0.7rem; color: var(--text-muted);">Database</div></div>
-                    <div style="color: var(--border);">&middot;</div>
-                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Vanilla JS</div><div style="font-size: 0.7rem; color: var(--text-muted);">Frontend</div></div>
+                <div class="about-tech">
+                    <div class="about-tech-item"><div>Go</div><div>Backend</div></div>
+                    <div class="about-tech-sep">&middot;</div>
+                    <div class="about-tech-item"><div>SQLite</div><div>Database</div></div>
+                    <div class="about-tech-sep">&middot;</div>
+                    <div class="about-tech-item"><div>Vanilla JS</div><div>Frontend</div></div>
                 </div>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
-                    Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border);">Mahdi Alemi</a>
-                </p>
+                <p class="about-footer">Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></p>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        NexusMap v0.9.0 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap v0.9.1 &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

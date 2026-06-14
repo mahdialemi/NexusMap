@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project - NexusMap</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/app.css">
+    <link rel="stylesheet" href="/static/css/project.css">
 </head>
 <body>
     <div class="header">
-        <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
+        <a href="/" class="header-link">
             <svg width="28" height="28" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
-            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v0.9.0</span></h1>
+            <h1>NexusMap <span class="version-badge">v0.9.1</span></h1>
         </a>
         <div class="header-nav">
             <span id="header-project-name-nav" class="project-badge"></span>
@@ -26,9 +26,9 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-chevron-left"/></svg>
             </button>
             <div class="sidebar-separator"></div>
-            <button class="sidebar-btn active" data-tab="scans" data-action="showTab" title="Scans" style="position:relative;">
+            <button class="sidebar-btn active sidebar-btn-rel" data-tab="scans" data-action="showTab" title="Scans">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-task"/></svg>
-                <span id="scans-badge" style="display:none;background:var(--danger,#ef4444);color:#fff;font-size:0.55rem;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;position:absolute;top:-4px;right:-4px;font-weight:700;line-height:1;border:2px solid var(--bg-card);">0</span>
+                <span id="scans-badge" class="scans-badge">0</span>
             </button>
                 <button class="sidebar-btn" data-tab="new-scan" data-action="showTab" title="New Scan">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-plus"/></svg>
@@ -111,8 +111,8 @@
                     </button>
                 </div>
             </div>
-            <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
-                <div class="filter-chips" id="filter-chips" style="padding:6px 12px;border-bottom:1px solid var(--border);">
+            <div class="card scan-card">
+                <div class="filter-chips filter-chips-bar" id="filter-chips">
                     <button class="chip chip-active" data-status="" data-action="setStatusFilter">All</button>
                     <button class="chip" data-status="pending" data-action="setStatusFilter">Pending</button>
                     <button class="chip" data-status="running" data-action="setStatusFilter">Running</button>
@@ -124,7 +124,7 @@
                     <button class="chip" data-action="setConfirmFilter" data-confirm="confirmed">Confirmed only</button>
                     <button class="chip" data-action="setConfirmFilter" data-confirm="rejected">Rejected only</button>
                 </div>
-                <div id="scans-list" style="margin-top:12px;">
+                <div id="scans-list" class="scans-list-mt">
                     <div class="empty-state">
                         <div class="spinner"></div>
                         <p>Loading scans...</p>
@@ -134,49 +134,49 @@
         </div>
 
         <!-- New Scan Tab -->
-        <div id="tab-new-scan" style="display: none;">
-            <div class="card" style="padding:0;display:flex;flex-direction:row;overflow:hidden;">
+        <div id="tab-new-scan" style="display:none;">
+            <div class="card ns-card">
                 <!-- Left: Form Panel -->
-                <div id="new-scan-form" style="width:380px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);">
-                    <h2 class="card-title" style="margin-bottom:16px;padding:20px 20px 0;">New Scan</h2>
+                <div id="new-scan-form" class="ns-form">
+                    <h2 class="card-title ns-form-title">New Scan</h2>
 
-                    <div style="flex:1;overflow-y:auto;padding:0 20px;">
-                        <div style="margin-bottom:10px;">
+                    <div class="ns-scroll">
+                        <div class="ns-mb">
                             <label>Target</label>
                             <input type="text" id="target" class="form-control" placeholder="192.168.1.0/24 or scanme.nmap.org">
                         </div>
 
                         <div class="sidebar-divider"></div>
 
-                        <div id="profile-info" style="display:none;padding:8px 0;">
-                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                        <div id="profile-info" class="ns-profile-info" style="display:none;">
+                            <div class="ns-profile-row">
                                 <div>
-                                    <span style="font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Profile</span>
-                                    <div id="profile-info-name" style="font-size:0.82rem;font-weight:600;margin-top:1px;"></div>
+                                    <span class="ns-label-upper-m0">Profile</span>
+                                    <div id="profile-info-name" class="ns-profile-name"></div>
                                 </div>
                                 <button class="pf-edit-btn" id="profile-info-edit-btn">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-edit"/></svg>
                                     Edit
                                 </button>
                             </div>
-                            <div id="profile-info-desc" style="font-size:0.7rem;color:var(--text-muted);"></div>
+                            <div id="profile-info-desc" class="ns-profile-desc"></div>
                         </div>
 
                         <div class="sidebar-divider"></div>
 
-                        <div style="margin-bottom:10px;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                                <label style="margin:0;">Command</label>
-                                <span id="cmd-source" style="font-size:0.65rem;color:var(--text-muted);"></span>
+                        <div class="ns-mb">
+                            <div class="ns-cmd-header">
+                                <label class="ns-cmd-label">Command</label>
+                                <span id="cmd-source" class="ns-cmd-src"></span>
                             </div>
-                            <div class="cmd-preview" id="cmd-preview" style="margin:0;">
+                            <div class="cmd-preview ns-cmd-preview" id="cmd-preview">
                                 <code id="cmd-text">nmap -sS -sV -T4 --top-ports 1000 &lt;TARGET&gt;</code>
                             </div>
                         </div>
 
-                        <div style="margin-bottom:10px;">
-                            <div style="font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Quick Flags</div>
-                            <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                        <div class="ns-mb">
+                            <div class="ns-label-upper">Quick Flags</div>
+                            <div class="ns-flags-wrap">
                                 <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="-v" data-action="updateQuickFlags"> -v</label>
                                 <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--open" data-action="updateQuickFlags"> --open</label>
                                 <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--reason" data-action="updateQuickFlags"> --reason</label>
@@ -188,38 +188,38 @@
 
                         <div class="sidebar-divider"></div>
 
-                        <div id="recent-targets-container" style="margin-bottom:10px;display:none;">
-                            <div style="font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Recent Targets</div>
-                            <div id="recent-targets-list" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+                        <div id="recent-targets-container" class="ns-recent-wrap" style="display:none;">
+                            <div class="ns-label-upper">Recent Targets</div>
+                            <div id="recent-targets-list" class="ns-recent-list"></div>
                         </div>
 
-                        <div style="margin-bottom:10px;">
-                            <div style="font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Notes</div>
-                            <textarea id="scan-notes" class="form-control" placeholder="Optional notes..." rows="2" style="resize:vertical;font-size:0.78rem;padding:6px 8px;"></textarea>
+                        <div class="ns-mb">
+                            <div class="ns-label-upper">Notes</div>
+                            <textarea id="scan-notes" class="form-control ns-notes-ta" placeholder="Optional notes..." rows="2"></textarea>
                         </div>
 
                         <div class="sidebar-divider"></div>
 
-                        <div style="margin-bottom:10px;">
+                        <div class="ns-mb">
                             <div class="sidebar-divider" style="margin-bottom:8px;"></div>
-                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;user-select:none;">
-                                <input type="checkbox" id="sched-enabled" onchange="toggleSchedOptions()" style="width:16px;height:16px;cursor:pointer;">
+                            <label class="ns-sched-label">
+                                <input type="checkbox" id="sched-enabled" onchange="toggleSchedOptions()" class="ns-sched-cb">
                                 Schedule for later
                             </label>
-                            <div id="sched-options" style="display:none;padding:10px;margin-top:10px;margin-left:-4px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
-                                <div style="display:flex;gap:16px;margin-bottom:10px;">
-                                    <label style="font-size:0.78rem;display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''" id="sched-type-time-label">
+                            <div id="sched-options" class="ns-sched-options" style="display:none;">
+                                <div class="ns-sched-type-row">
+                                    <label class="ns-sched-type-label" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''" id="sched-type-time-label">
                                         <input type="radio" name="sched-type" value="time" checked onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-clock"/></svg> Time
                                     </label>
-                                    <label style="font-size:0.78rem;display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''" id="sched-type-dep-label">
+                                    <label class="ns-sched-type-label" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''" id="sched-type-dep-label">
                                         <input type="radio" name="sched-type" value="dependency" onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg> After scan
                                     </label>
                                 </div>
                                 <div id="sched-time-options">
-                                    <input type="datetime-local" id="sched-datetime" class="form-control" step="1" style="font-size:0.8rem;">
+                                    <input type="datetime-local" id="sched-datetime" class="form-control ns-sched-ti" step="1">
                                 </div>
                                 <div id="sched-dep-options" style="display:none;">
-                                    <select id="sched-dep-scan" class="form-control" style="font-size:0.8rem;">
+                                    <select id="sched-dep-scan" class="form-control ns-sched-ti">
                                         <option value="">Select a scan...</option>
                                     </select>
                                 </div>
@@ -229,8 +229,8 @@
 
                     <div class="sidebar-divider"></div>
 
-                    <div style="padding:10px 20px;">
-                        <button class="btn btn-primary" id="create-btn" data-action="createScan" style="width:100%;justify-content:center;" title="Create Scan">
+                    <div class="ns-btn-pad">
+                        <button class="btn btn-primary ns-create-btn" id="create-btn" data-action="createScan" title="Create Scan">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-play"/></svg>
                             Create Scan
                         </button>
@@ -238,21 +238,21 @@
                 </div>
 
                 <!-- Right: Profiles Panel -->
-                <div id="new-scan-profiles" style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
-                    <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                        <input type="text" id="profile-search" class="form-control" placeholder="Search profiles..." style="height:36px;font-size:0.8rem;padding:6px 12px;box-sizing:border-box;" data-action="filterProfiles">
-                        <button class="btn btn-secondary" data-action="showProfileManager" title="Manage Profiles" style="flex-shrink:0;height:36px;font-size:0.8rem;padding:6px 12px;white-space:nowrap;">
+                <div id="new-scan-profiles" class="ns-form-right">
+                    <div class="ns-prof-header">
+                        <input type="text" id="profile-search" class="form-control ns-prof-search" placeholder="Search profiles..." data-action="filterProfiles">
+                        <button class="btn btn-secondary ns-prof-mgr-btn" data-action="showProfileManager" title="Manage Profiles">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-edit-sm"/></svg>
                             Manage Profiles
                         </button>
                     </div>
-                    <div id="profiles-container" style="flex:1;overflow-y:auto;padding:8px 16px;"></div>
+                    <div id="profiles-container" class="ns-prof-container"></div>
                 </div>
             </div>
         </div>
 
         <!-- Consolidated Tab -->
-        <div id="tab-consolidated" style="display: none;">
+        <div id="tab-consolidated" style="display:none;">
             <div class="asset-actions">
                 <h2 class="card-title">Assets <span id="asset-stat" class="title-count"></span></h2>
                 <div class="asset-toolbar-right">
@@ -303,26 +303,26 @@
                     </button>
                 </div>
             </div>
-            <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
-                <div id="consolidated-filter-badges" class="filter-badges" style="display:none;padding:6px 12px;border-bottom:1px solid var(--border);"></div>
+            <div class="card cs-card">
+                <div id="consolidated-filter-badges" class="filter-badges cs-filter-badges" style="display:none;"></div>
                 <div id="cports-table" class="table-container">
                     <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
                 </div>
-                <div id="cports-pagination" style="padding:10px;display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;"></div>
+                <div id="cports-pagination" class="cs-pagination"></div>
             </div>
         </div>
 
         <!-- Topology Tab -->
-        <div id="tab-topology" style="display: none;">
+        <div id="tab-topology" style="display:none;">
             <div id="topology-container">
                 <div class="empty-state" id="topology-empty">
                     <div class="spinner"></div>
                     <p>Loading topology...</p>
                 </div>
                 <div id="topology-graph"></div>
-                <div id="topology-tooltip" style="display:none;position:absolute;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.8rem;pointer-events:none;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:280px;"></div>
-                <div id="topology-stats" style="display:none;position:absolute;top:66px;left:12px;z-index:40;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:0.72rem;min-width:190px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);"></div>
-                <div id="topology-legend" style="display:none;position:absolute;bottom:60px;right:12px;z-index:40;background:rgba(13,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.75rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+                <div id="topology-tooltip" class="topo-tooltip" style="display:none;"></div>
+                <div id="topology-stats" class="topo-stats" style="display:none;"></div>
+                <div id="topology-legend" class="topo-legend" style="display:none;"></div>
                 <div id="topology-toolbar" style="display:none;">
                     <div class="topo-tb-row">
                         <div class="topo-tb-search">
@@ -332,7 +332,7 @@
                             </button>
                         </div>
                         <span id="topology-filter-count"></span>
-                        <select id="topo-filter-service" class="topo-sel" style="width:100px;">
+                        <select id="topo-filter-service" class="topo-sel topo-sel-w100">
                             <option value="">All Services</option>
                         </select>
                         <span class="topo-sep"></span>
@@ -342,7 +342,7 @@
                         <select id="topo-filter-os" class="topo-sel">
                             <option value="">OS</option>
                         </select>
-                        <input type="number" id="topo-filter-min-ports" class="topo-sel" placeholder="Min ports" min="0" style="width:92px;">
+                        <input type="number" id="topo-filter-min-ports" class="topo-sel topo-sel-w92" placeholder="Min ports" min="0">
                         <select id="topo-layout-mode" class="topo-sel" title="Layout mode">
                             <option value="force">Force</option>
                             <option value="hierarchical">Hierarchical</option>
@@ -351,7 +351,7 @@
                     </div>
                 </div>
                 <!-- Floating bottom toolbar -->
-                <div id="topo-actions" style="display:none;position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:45;background:rgba(18,18,28,0.88);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:4px 6px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 4px 20px rgba(0,0,0,0.4);white-space:nowrap;">
+                <div id="topo-actions" class="topo-actions" style="display:none;">
                     <button class="act-btn" id="topo-btn-risk" data-active="0" title="Toggle high-risk host highlighting">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-alert"/></svg>
                     </button>
@@ -384,7 +384,7 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
                     </button>
                     <span class="act-sep"></span>
-                    <div class="act-dropdown" id="topo-analysis-dropdown" style="display:inline-block;vertical-align:middle;">
+                    <div class="act-dropdown" id="topo-analysis-dropdown">
                         <button class="act-btn" id="topo-btn-analysis" title="Analysis panels">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>
                         </button>
@@ -399,16 +399,16 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
                 </div>
-                <div id="topology-analysis-panels" style="display:none;position:absolute;top:38px;right:0;bottom:0;width:320px;z-index:35;overflow-y:auto;background:rgba(13,13,20,0.92);border-left:1px solid var(--border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);">
-                    <div id="topo-analysis-body" style="padding:12px;font-size:0.8rem;"></div>
+                <div id="topology-analysis-panels" class="topo-analysis-panels" style="display:none;">
+                    <div id="topo-analysis-body" class="topo-analysis-body"></div>
                 </div>
-                <div id="topology-contextmenu" style="display:none;position:absolute;z-index:200;background:rgba(20,20,30,0.95);border:1px solid var(--border);border-radius:8px;padding:4px 0;min-width:140px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
-                <div id="topology-detail" style="display:none;position:absolute;bottom:12px;left:12px;z-index:60;max-width:460px;max-height:55%;overflow-y:auto;background:rgba(13,13,20,0.92);border:1px solid var(--border);border-radius:10px;padding:0;font-size:0.78rem;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.5);"></div>
+                <div id="topology-contextmenu" class="topo-contextmenu" style="display:none;"></div>
+                <div id="topology-detail" class="topo-detail" style="display:none;"></div>
             </div>
         </div>
 
         <!-- Live Hosts Tab -->
-        <div id="tab-live" style="display: none;">
+        <div id="tab-live" style="display:none;">
             <div class="live-actions">
                 <h2 class="card-title">Live Hosts</h2>
                 <div class="live-toolbar-right">
@@ -435,22 +435,22 @@
                         <option value="500">500</option>
                     </select>
                     <button class="btn btn-secondary btn-sm" data-action="loadLiveHosts" title="Refresh">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
-                </button>
-                <button class="btn btn-secondary btn-sm" id="live-subnet-btn" data-action="toggleLiveSubnetGroup" title="Group by subnet">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-grid"/></svg>
-                </button>
-                <button class="btn btn-secondary btn-sm" id="live-compare-btn" data-action="toggleLiveCompareMode" title="Compare hosts">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>
-                </button>
-                <button class="btn btn-secondary btn-sm" data-action="showLiveExportModal" title="Download">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
-                </button>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="live-subnet-btn" data-action="toggleLiveSubnetGroup" title="Group by subnet">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-grid"/></svg>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="live-compare-btn" data-action="toggleLiveCompareMode" title="Compare hosts">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" data-action="showLiveExportModal" title="Download">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
+                    </button>
+                </div>
             </div>
-            </div>
-            <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
-                <div id="live-bulk-bar" style="display:none;padding:8px 16px;background:var(--card-bg);border-bottom:1px solid var(--border);align-items:center;gap:8px;">
-                    <span class="bulk-count" style="font-size:0.8rem;color:var(--text-muted);"></span>
+            <div class="card live-card">
+                <div id="live-bulk-bar" class="live-bulk-bar" style="display:none;">
+                    <span class="bulk-count bulk-count-style"></span>
                     <button class="btn btn-danger btn-sm" data-action="bulkDeleteLiveHosts">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
                         Delete Selected
@@ -467,24 +467,24 @@
                 <div id="live-table" class="table-container">
                     <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
                 </div>
-                <div id="live-pagination" style="padding:10px;display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;"></div>
+                <div id="live-pagination" class="live-pagination"></div>
             </div>
         </div>
 
         <!-- Scripts Tab -->
-        <div id="tab-scripts" style="display: none;">
+        <div id="tab-scripts" style="display:none;">
             <div class="asset-actions">
-                <h2 class="card-title" style="margin:0;">NSE Scripts</h2>
+                <h2 class="card-title script-title-m0">NSE Scripts</h2>
                 <div class="asset-toolbar-right">
-                    <button class="btn btn-secondary btn-sm" id="script-search-toggle" data-action="toggleScriptSearch" title="Search">
+                    <button class="btn btn-secondary btn-sm" id="script-search-toggle" style="display:none;" data-action="toggleScriptSearch" title="Search">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
                     </button>
-                    <div class="search-wrapper" id="script-search-wrap" style="display:none;">
+                    <div class="search-wrapper" id="script-search-wrap">
                         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
                         <input type="text" id="script-search-tab" class="search-input" placeholder="Search..." data-action="applyScriptFilters" autocomplete="off">
                         <button class="search-close" data-action="clearScriptSearch" title="Close (Esc)">&#10005;</button>
                     </div>
-                    <div class="btn-group" style="display:flex;gap:2px;">
+                    <div class="btn-group btn-group-gap">
                         <button class="btn btn-sm btn-primary" data-action="toggleScriptGroup" data-mode="flat" title="Flat view">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-list"/></svg>
                         </button>
@@ -522,18 +522,18 @@
                     </button>
                 </div>
             </div>
-            <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
+            <div class="card script-card">
                 <div id="scripts-table" class="table-container">
                     <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
                 </div>
-                <div id="scripts-pagination" style="padding:10px;display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;"></div>
+                <div id="scripts-pagination" class="scripts-pagination"></div>
             </div>
         </div>
 
         <!-- Import Tab -->
-        <div id="tab-import" style="display: none;">
+        <div id="tab-import" style="display:none;">
             <div class="asset-actions">
-                <h2 class="card-title" style="margin:0;">Import Scan Results</h2>
+                <h2 class="card-title script-title-m0">Import Scan Results</h2>
                 <div class="asset-toolbar-right">
                     <button class="btn btn-secondary btn-sm" id="btn-preview-import" data-action="previewImport" title="Preview" disabled>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
@@ -546,14 +546,14 @@
                     </button>
                 </div>
             </div>
-            <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;padding-top:0;">
-                <div class="import-upload" style="padding:15px 0;">
+            <div class="card import-card">
+                <div class="import-upload import-upload-pad">
 
                 <!-- Unified Drop Zone -->
-                <div id="import-drop-zone" class="drop-zone" style="min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="margin-bottom:8px;"><use href="#icon-upload"/></svg>
-                    <p style="font-size:0.95rem;margin:0 0 4px 0;">Drop files or click to select</p>
-                    <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">.xml .nmap .gnmap .csv .json .zip &middot; Up to 5 files</p>
+                <div id="import-drop-zone" class="drop-zone">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" class="drop-zone-icon"><use href="#icon-upload"/></svg>
+                    <p class="drop-zone-title">Drop files or click to select</p>
+                    <p class="drop-zone-sub">.xml .nmap .gnmap .csv .json .zip &middot; Up to 5 files</p>
                     <input type="file" id="import-file-input" accept=".xml,.nmap,.gnmap,.csv,.json,.zip,.txt" multiple style="display:none;" data-action="onImportFilesSelected">
                 </div>
 
@@ -561,58 +561,58 @@
                 <div id="import-file-list" style="display:none;margin-top:10px;"></div>
 
                 <!-- Paste Raw Output -->
-                <div style="margin-top:15px;">
-                    <div style="display:flex;gap:10px;margin-bottom:6px;align-items:center;">
-                        <span style="font-weight:600;font-size:0.85rem;">Or paste raw output:</span>
-                        <span id="import-raw-detect" style="font-size:0.75rem;color:var(--text-muted);display:none;"></span>
+                <div class="import-raw-section">
+                    <div class="import-raw-header">
+                        <span class="import-raw-title">Or paste raw output:</span>
+                        <span id="import-raw-detect" class="import-raw-detect" style="display:none;"></span>
                     </div>
-                    <textarea id="import-raw-text" class="form-control" rows="4" placeholder="Paste XML output, normal nmap output, or grepable output here..." style="resize:vertical;font-family:var(--font-mono, monospace);font-size:0.8rem;" data-action="onImportRawInput"></textarea>
+                    <textarea id="import-raw-text" class="form-control import-raw-ta" rows="4" placeholder="Paste XML output, normal nmap output, or grepable output here..." data-action="onImportRawInput"></textarea>
                 </div>
 
                 <!-- Options -->
-                <div style="margin-top:15px;display:flex;flex-wrap:wrap;gap:15px;align-items:end;">
-                    <div class="form-group" style="margin-bottom:0;flex:1;min-width:200px;">
+                <div class="import-options-flex">
+                    <div class="form-group import-option-group">
                         <label>Import Name</label>
                         <input type="text" id="import-name" class="form-control" placeholder="Auto-filled from filename">
                     </div>
-                    <div class="form-group" style="margin-bottom:0;width:200px;">
+                    <div class="form-group import-option-w200">
                         <label>Profile</label>
                         <select id="import-profile" class="form-control"></select>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;width:220px;">
+                    <div class="form-group import-option-w220">
                         <label>Merge into scan</label>
                         <select id="import-merge-scan" class="form-control">
                             <option value="">Create new scan</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label id="import-auto-confirm-label" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:0.85rem;padding:6px 12px;border-radius:20px;transition:all 0.15s;background:rgba(100,100,100,0.08);border:1px solid var(--border);color:var(--text-muted);">
-                            <span id="import-auto-confirm-text" style="font-weight:500;">Manual</span>
+                    <div class="form-group import-option-inline">
+                        <label id="import-auto-confirm-label" class="import-auto-label">
+                            <span id="import-auto-confirm-text" class="import-auto-text">Manual</span>
                         </label>
                         <input type="hidden" id="import-auto-confirm" value="false">
                     </div>
                 </div>
 
                 <!-- Progress -->
-                <div id="import-progress" style="display:none;margin-top:12px;">
+                <div id="import-progress" class="import-progress-block" style="display:none;">
                     <div class="progress-bar">
                         <div id="import-progress-fill" class="progress-fill" style="width:0%;"></div>
                     </div>
-                    <span id="import-progress-text" style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;display:block;">Processing...</span>
+                    <span id="import-progress-text" class="import-progress-text">Processing...</span>
                 </div>
 
                 <!-- Preview -->
-                <div id="import-preview" style="display:none;margin-top:15px;padding:15px;background:rgba(34,197,94,0.06);border-radius:8px;">
-                    <div style="display:flex;gap:20px;margin-bottom:5px;">
-                        <div><span style="font-size:1.5rem;font-weight:bold;" id="import-host-count">0</span><br><span style="color:#666;font-size:0.8rem;">Hosts</span></div>
-                        <div><span style="font-size:1.5rem;font-weight:bold;" id="import-port-count">0</span><br><span style="color:#666;font-size:0.8rem;">Ports</span></div>
-                        <div><span style="font-size:1.2rem;font-weight:bold;" id="import-format">-</span><br><span style="color:#666;font-size:0.8rem;">Format</span></div>
+                <div id="import-preview" class="import-preview-block" style="display:none;">
+                    <div class="import-preview-flex">
+                        <div><span class="import-preview-stat" id="import-host-count">0</span><br><span class="import-preview-stat-label">Hosts</span></div>
+                        <div><span class="import-preview-stat" id="import-port-count">0</span><br><span class="import-preview-stat-label">Ports</span></div>
+                        <div><span class="import-preview-stat-sm" id="import-format">-</span><br><span class="import-preview-stat-label">Format</span></div>
                     </div>
                     <div id="import-preview-body" style="display:none;"></div>
                 </div>
 
                 <!-- Error -->
-                <div id="import-error" style="display:none;margin-top:10px;padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;"></div>
+                <div id="import-error" class="import-error-block" style="display:none;"></div>
 
                 </div>
             </div>
@@ -622,17 +622,17 @@
                 <div class="card-header">
                     <h2 class="card-title">Import History <span id="import-history-count" class="title-count"></span></h2>
                 </div>
-                <div style="overflow-x:auto;width:100%;">
-                <table class="data-table" style="width:100%;font-size:0.85rem;box-sizing:border-box;">
+                <div class="import-history-card">
+                <table class="data-table data-table-full">
                     <thead>
                         <tr>
-                            <th style="text-align:left;white-space:nowrap;">Date</th>
-                            <th style="text-align:left;">Name</th>
-                            <th style="text-align:left;white-space:nowrap;">Profile</th>
-                            <th style="text-align:center;width:70px;">Hosts</th>
-                            <th style="text-align:center;width:70px;">Ports</th>
-                            <th style="text-align:center;width:90px;">Scan</th>
-                            <th style="text-align:center;width:50px;"></th>
+                            <th class="th-left">Date</th>
+                            <th class="th-left">Name</th>
+                            <th class="th-left">Profile</th>
+                            <th class="th-w70">Hosts</th>
+                            <th class="th-w70">Ports</th>
+                            <th class="th-w90">Scan</th>
+                            <th class="th-w50"></th>
                         </tr>
                     </thead>
                     <tbody id="import-history-body"></tbody>
@@ -650,17 +650,17 @@
                 <h3>Manage Profiles</h3>
                 <button class="modal-close" data-action="closeProfileManager" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
-            <div class="modal-body" style="display:flex;gap:0;overflow:hidden;padding:0;">
+            <div class="modal-body pm-modal-body">
                 <!-- Left: Profile List -->
-                <div id="profile-manager-list" style="width:380px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--bg);">
+                <div id="profile-manager-list" class="pm-list">
                 </div>
                 <!-- Right: Edit Form -->
-                <div id="profile-form-panel" style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;padding:24px;">
+                <div id="profile-form-panel" class="pm-form-panel">
                     <h4 id="profile-form-title">New Profile</h4>
                     <input type="hidden" id="profile-edit-id">
                     <input type="hidden" id="profile-form-cmd-hidden">
 
-                    <div style="flex:1;overflow-y:auto;">
+                    <div class="pm-form-scroll">
 
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
@@ -668,13 +668,13 @@
                                 <span>Basic Info</span>
                             </div>
                             <div class="pf-section-body">
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                <div class="pf-grid">
                                     <div>
-                                        <label style="font-size:0.75rem;">Name</label>
+                                        <label class="pf-label-sm">Name</label>
                                         <input type="text" id="profile-form-name" class="pf-input" placeholder="My Custom Scan" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">Category</label>
+                                        <label class="pf-label-sm">Category</label>
                                         <select id="profile-form-cat" class="pf-select" data-action="onPfChange">
                                             <option value="Network Discovery">Network Discovery</option>
                                             <option value="Port Scanning">Port Scanning</option>
@@ -685,8 +685,8 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div style="margin-top:8px;">
-                                    <label style="font-size:0.75rem;">Description</label>
+                                <div class="pf-mt">
+                                    <label class="pf-label-sm">Description</label>
                                     <input type="text" id="profile-form-desc" class="pf-input" placeholder="What this scan does" data-action="onPfChange">
                                 </div>
                             </div>
@@ -698,9 +698,9 @@
                                 <span>Scan</span>
                             </div>
                             <div class="pf-section-body">
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                <div class="pf-grid">
                                     <div>
-                                        <label style="font-size:0.75rem;">TCP Scan</label>
+                                        <label class="pf-label-sm">TCP Scan</label>
                                         <select id="pf-tcp-scan" class="pf-select" data-action="onPfChange">
                                             <option value="">None</option>
                                             <option value="-sA">-sA (ACK scan)</option>
@@ -714,7 +714,7 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">Non-TCP Scan</label>
+                                        <label class="pf-label-sm">Non-TCP Scan</label>
                                         <select id="pf-non-tcp" class="pf-select" data-action="onPfChange">
                                             <option value="">None</option>
                                             <option value="-sU">-sU (UDP scan)</option>
@@ -726,8 +726,8 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div style="margin-top:8px;">
-                                    <label style="font-size:0.75rem;">Timing</label>
+                                <div class="pf-mt">
+                                    <label class="pf-label-sm">Timing</label>
                                     <select id="pf-timing" class="pf-select" data-action="onPfChange">
                                         <option value="">None</option>
                                         <option value="-T0">-T0 (Paranoid)</option>
@@ -738,20 +738,20 @@
                                         <option value="-T5">-T5 (Insane)</option>
                                     </select>
                                 </div>
-                                <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
-                                    <label><input type="checkbox" id="pf-A" class="pf-checkbox" data-action="onPfChange"> -A <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Enable all advanced/aggressive options</span></label>
-                                    <label><input type="checkbox" id="pf-O" class="pf-checkbox" data-action="onPfChange"> -O <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Operating system detection</span></label>
-                                    <label><input type="checkbox" id="pf-sV" class="pf-checkbox" data-action="onPfChange"> -sV <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Version detection</span></label>
-                                    <label><input type="checkbox" id="pf-n" class="pf-checkbox" data-action="onPfChange"> -n <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Disable reverse DNS resolution</span></label>
-                                    <label><input type="checkbox" id="pf-6" class="pf-checkbox" data-action="onPfChange"> -6 <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">IPv6 support</span></label>
+                                <div class="pf-flex-wrap">
+                                    <label><input type="checkbox" id="pf-A" class="pf-checkbox" data-action="onPfChange"> -A <span class="pf-label-xs">Enable all advanced/aggressive options</span></label>
+                                    <label><input type="checkbox" id="pf-O" class="pf-checkbox" data-action="onPfChange"> -O <span class="pf-label-xs">Operating system detection</span></label>
+                                    <label><input type="checkbox" id="pf-sV" class="pf-checkbox" data-action="onPfChange"> -sV <span class="pf-label-xs">Version detection</span></label>
+                                    <label><input type="checkbox" id="pf-n" class="pf-checkbox" data-action="onPfChange"> -n <span class="pf-label-xs">Disable reverse DNS resolution</span></label>
+                                    <label><input type="checkbox" id="pf-6" class="pf-checkbox" data-action="onPfChange"> -6 <span class="pf-label-xs">IPv6 support</span></label>
                                 </div>
-                                <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
-                                    <label><input type="checkbox" id="pf-enable-sl" class="pf-checkbox" data-action="onPfChange"> Idle Scan (Zombie) <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-sI</span></label>
-                                    <input type="text" id="pf-sl-ip" class="pf-input" placeholder="zombie IP" data-action="onPfChange" style="flex:1;">
+                                <div class="pf-flex-row">
+                                    <label><input type="checkbox" id="pf-enable-sl" class="pf-checkbox" data-action="onPfChange"> Idle Scan (Zombie) <span class="pf-label-xs">-sI</span></label>
+                                    <input type="text" id="pf-sl-ip" class="pf-input pf-flex-input" placeholder="zombie IP" data-action="onPfChange">
                                 </div>
-                                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-b" class="pf-checkbox" data-action="onPfChange"> FTP bounce attack <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-b</span></label>
-                                    <input type="text" id="pf-b-ip" class="pf-input" placeholder="FTP server IP" data-action="onPfChange" style="flex:1;">
+                                <div class="pf-flex-row-mt6">
+                                    <label><input type="checkbox" id="pf-enable-b" class="pf-checkbox" data-action="onPfChange"> FTP bounce attack <span class="pf-label-xs">-b</span></label>
+                                    <input type="text" id="pf-b-ip" class="pf-input pf-flex-input" placeholder="FTP server IP" data-action="onPfChange">
                                 </div>
                             </div>
                         </div>
@@ -762,31 +762,31 @@
                                 <span>Ping</span>
                             </div>
                             <div class="pf-section-body collapsed">
-                                <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                                    <label><input type="checkbox" id="pf-Pn" class="pf-checkbox" data-action="onPfChange"> -Pn <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Don't ping before scanning</span></label>
-                                    <label><input type="checkbox" id="pf-PE" class="pf-checkbox" data-action="onPfChange"> -PE <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">ICMP ping</span></label>
-                                    <label><input type="checkbox" id="pf-PP" class="pf-checkbox" data-action="onPfChange"> -PP <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">ICMP timestamp request</span></label>
-                                    <label><input type="checkbox" id="pf-PM" class="pf-checkbox" data-action="onPfChange"> -PM <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">ICMP netmask request</span></label>
+                                <div class="pf-flex-wrap" style="margin-top:0;">
+                                    <label><input type="checkbox" id="pf-Pn" class="pf-checkbox" data-action="onPfChange"> -Pn <span class="pf-label-xs">Don't ping before scanning</span></label>
+                                    <label><input type="checkbox" id="pf-PE" class="pf-checkbox" data-action="onPfChange"> -PE <span class="pf-label-xs">ICMP ping</span></label>
+                                    <label><input type="checkbox" id="pf-PP" class="pf-checkbox" data-action="onPfChange"> -PP <span class="pf-label-xs">ICMP timestamp request</span></label>
+                                    <label><input type="checkbox" id="pf-PM" class="pf-checkbox" data-action="onPfChange"> -PM <span class="pf-label-xs">ICMP netmask request</span></label>
                                 </div>
-                                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PA" class="pf-checkbox" data-action="onPfChange"> ACK ping <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PA</span></label>
-                                    <input type="text" id="pf-PA-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
+                                <div class="pf-flex-row-mt6">
+                                    <label><input type="checkbox" id="pf-enable-PA" class="pf-checkbox" data-action="onPfChange"> ACK ping <span class="pf-label-xs">-PA</span></label>
+                                    <input type="text" id="pf-PA-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
                                 </div>
-                                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PS" class="pf-checkbox" data-action="onPfChange"> SYN ping <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PS</span></label>
-                                    <input type="text" id="pf-PS-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
+                                <div class="pf-flex-row-mt6">
+                                    <label><input type="checkbox" id="pf-enable-PS" class="pf-checkbox" data-action="onPfChange"> SYN ping <span class="pf-label-xs">-PS</span></label>
+                                    <input type="text" id="pf-PS-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
                                 </div>
-                                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PU" class="pf-checkbox" data-action="onPfChange"> UDP probes <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PU</span></label>
-                                    <input type="text" id="pf-PU-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
+                                <div class="pf-flex-row-mt6">
+                                    <label><input type="checkbox" id="pf-enable-PU" class="pf-checkbox" data-action="onPfChange"> UDP probes <span class="pf-label-xs">-PU</span></label>
+                                    <input type="text" id="pf-PU-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
                                 </div>
-                                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PO" class="pf-checkbox" data-action="onPfChange"> IPProto probes <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PO</span></label>
-                                    <input type="text" id="pf-PO-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
+                                <div class="pf-flex-row-mt6">
+                                    <label><input type="checkbox" id="pf-enable-PO" class="pf-checkbox" data-action="onPfChange"> IPProto probes <span class="pf-label-xs">-PO</span></label>
+                                    <input type="text" id="pf-PO-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
                                 </div>
-                                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-                                    <label><input type="checkbox" id="pf-enable-PY" class="pf-checkbox" data-action="onPfChange"> SCTP INIT ping <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">-PY</span></label>
-                                    <input type="text" id="pf-PY-ports" class="pf-input" placeholder="ports" data-action="onPfChange" style="flex:1;">
+                                <div class="pf-flex-row-mt6">
+                                    <label><input type="checkbox" id="pf-enable-PY" class="pf-checkbox" data-action="onPfChange"> SCTP INIT ping <span class="pf-label-xs">-PY</span></label>
+                                    <input type="text" id="pf-PY-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
                                 </div>
                             </div>
                         </div>
@@ -797,29 +797,29 @@
                                 <span>Target</span>
                             </div>
                             <div class="pf-section-body collapsed">
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                <div class="pf-grid">
                                     <div>
-                                        <label style="font-size:0.75rem;">--exclude <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Excluded hosts/networks</span></label>
+                                        <label class="pf-label-sm">--exclude <span class="pf-label-xs">Excluded hosts/networks</span></label>
                                         <input type="text" id="pf-exclude" class="pf-input" placeholder="ip,hostname,..." data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--excludefile <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Exclusion file</span></label>
+                                        <label class="pf-label-sm">--excludefile <span class="pf-label-xs">Exclusion file</span></label>
                                         <input type="text" id="pf-excludefile" class="pf-input" placeholder="file" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">-iL <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Target list file</span></label>
+                                        <label class="pf-label-sm">-iL <span class="pf-label-xs">Target list file</span></label>
                                         <input type="text" id="pf-iL" class="pf-input" placeholder="file" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">-iR <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Scan random hosts</span></label>
+                                        <label class="pf-label-sm">-iR <span class="pf-label-xs">Scan random hosts</span></label>
                                         <input type="text" id="pf-iR" class="pf-input" placeholder="e.g. 10" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">-p <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Ports to scan</span></label>
+                                        <label class="pf-label-sm">-p <span class="pf-label-xs">Ports to scan</span></label>
                                         <input type="text" id="pf-p" class="pf-input" placeholder="1-1023,3389" data-action="onPfChange">
                                     </div>
-                                    <div style="display:flex;align-items:flex-end;padding-bottom:4px;">
-                                        <label><input type="checkbox" id="pf-F" class="pf-checkbox" data-action="onPfChange"> -F <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Fast scan</span></label>
+                                    <div class="pf-spacer-target">
+                                        <label><input type="checkbox" id="pf-F" class="pf-checkbox" data-action="onPfChange"> -F <span class="pf-label-xs">Fast scan</span></label>
                                     </div>
                                 </div>
                             </div>
@@ -831,21 +831,21 @@
                                 <span>Source</span>
                             </div>
                             <div class="pf-section-body collapsed">
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                <div class="pf-grid">
                                     <div>
-                                        <label style="font-size:0.75rem;">-D <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Use decoys to hide identity</span></label>
+                                        <label class="pf-label-sm">-D <span class="pf-label-xs">Use decoys to hide identity</span></label>
                                         <input type="text" id="pf-D" class="pf-input" placeholder="&lt;decoy1&gt;,&lt;decoy2&gt;,ME,RND,RND" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">-S <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Set source IP address</span></label>
+                                        <label class="pf-label-sm">-S <span class="pf-label-xs">Set source IP address</span></label>
                                         <input type="text" id="pf-S" class="pf-input" placeholder="64.13.134.52" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--source-port <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Set source port</span></label>
+                                        <label class="pf-label-sm">--source-port <span class="pf-label-xs">Set source port</span></label>
                                         <input type="text" id="pf-source-port" class="pf-input" placeholder="53 or ..." data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">-e <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Set network interface</span></label>
+                                        <label class="pf-label-sm">-e <span class="pf-label-xs">Set network interface</span></label>
                                         <input type="text" id="pf-e" class="pf-input" placeholder="eth0" data-action="onPfChange">
                                     </div>
                                 </div>
@@ -858,25 +858,25 @@
                                 <span>Other</span>
                             </div>
                             <div class="pf-section-body collapsed">
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                <div class="pf-grid">
                                     <div>
-                                        <label style="font-size:0.75rem;">Extra options <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Extra options defined by user</span></label>
+                                        <label class="pf-label-sm">Extra options <span class="pf-label-xs">Extra options defined by user</span></label>
                                         <input type="text" id="pf-extra" class="pf-input" placeholder="extra nmap args" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--ttl <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Set IPv4 time to live</span></label>
+                                        <label class="pf-label-sm">--ttl <span class="pf-label-xs">Set IPv4 time to live</span></label>
                                         <input type="text" id="pf-ttl" class="pf-input" placeholder="100" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--max-retries <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max Retries</span></label>
+                                        <label class="pf-label-sm">--max-retries <span class="pf-label-xs">Max Retries</span></label>
                                         <input type="text" id="pf-max-retries" class="pf-input" placeholder="10" data-action="onPfChange">
                                     </div>
                                 </div>
-                                <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
-                                    <label><input type="checkbox" id="pf-f" class="pf-checkbox" data-action="onPfChange"> -f <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Fragment IP packets</span></label>
-                                    <label><input type="checkbox" id="pf-packet-trace" class="pf-checkbox" data-action="onPfChange"> --packet-trace <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Packet trace</span></label>
-                                    <label><input type="checkbox" id="pf-r" class="pf-checkbox" data-action="onPfChange"> -r <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Disable randomizing scanned ports</span></label>
-                                    <label><input type="checkbox" id="pf-traceroute" class="pf-checkbox" data-action="onPfChange"> --traceroute <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Trace routes to targets</span></label>
+                                <div class="pf-flex-wrap">
+                                    <label><input type="checkbox" id="pf-f" class="pf-checkbox" data-action="onPfChange"> -f <span class="pf-label-xs">Fragment IP packets</span></label>
+                                    <label><input type="checkbox" id="pf-packet-trace" class="pf-checkbox" data-action="onPfChange"> --packet-trace <span class="pf-label-xs">Packet trace</span></label>
+                                    <label><input type="checkbox" id="pf-r" class="pf-checkbox" data-action="onPfChange"> -r <span class="pf-label-xs">Disable randomizing scanned ports</span></label>
+                                    <label><input type="checkbox" id="pf-traceroute" class="pf-checkbox" data-action="onPfChange"> --traceroute <span class="pf-label-xs">Trace routes to targets</span></label>
                                 </div>
                             </div>
                         </div>
@@ -887,45 +887,45 @@
                                 <span>Timing</span>
                             </div>
                             <div class="pf-section-body collapsed">
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                <div class="pf-grid">
                                     <div>
-                                        <label style="font-size:0.75rem;">--host-timeout <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max time to scan a target</span></label>
+                                        <label class="pf-label-sm">--host-timeout <span class="pf-label-xs">Max time to scan a target</span></label>
                                         <input type="text" id="pf-host-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--max-rtt-timeout <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max probe timeout</span></label>
+                                        <label class="pf-label-sm">--max-rtt-timeout <span class="pf-label-xs">Max probe timeout</span></label>
                                         <input type="text" id="pf-max-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--min-rtt-timeout <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Min probe timeout</span></label>
+                                        <label class="pf-label-sm">--min-rtt-timeout <span class="pf-label-xs">Min probe timeout</span></label>
                                         <input type="text" id="pf-min-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--initial-rtt-timeout <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Initial probe timeout</span></label>
+                                        <label class="pf-label-sm">--initial-rtt-timeout <span class="pf-label-xs">Initial probe timeout</span></label>
                                         <input type="text" id="pf-initial-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--max-hostgroup <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max hosts in parallel</span></label>
+                                        <label class="pf-label-sm">--max-hostgroup <span class="pf-label-xs">Max hosts in parallel</span></label>
                                         <input type="text" id="pf-max-hostgroup" class="pf-input" placeholder="1024" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--min-hostgroup <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Min hosts in parallel</span></label>
+                                        <label class="pf-label-sm">--min-hostgroup <span class="pf-label-xs">Min hosts in parallel</span></label>
                                         <input type="text" id="pf-min-hostgroup" class="pf-input" placeholder="50" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--max-parallelism <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max outstanding probes</span></label>
+                                        <label class="pf-label-sm">--max-parallelism <span class="pf-label-xs">Max outstanding probes</span></label>
                                         <input type="text" id="pf-max-parallelism" class="pf-input" placeholder="1" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--min-parallelism <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Min outstanding probes</span></label>
+                                        <label class="pf-label-sm">--min-parallelism <span class="pf-label-xs">Min outstanding probes</span></label>
                                         <input type="text" id="pf-min-parallelism" class="pf-input" placeholder="10" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--max-scan-delay <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Max scan delay</span></label>
+                                        <label class="pf-label-sm">--max-scan-delay <span class="pf-label-xs">Max scan delay</span></label>
                                         <input type="text" id="pf-max-scan-delay" class="pf-input" placeholder="20" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.75rem;">--scan-delay <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Min delay between probes</span></label>
+                                        <label class="pf-label-sm">--scan-delay <span class="pf-label-xs">Min delay between probes</span></label>
                                         <input type="text" id="pf-scan-delay" class="pf-input" placeholder="4s; 2m" data-action="onPfChange">
                                     </div>
                                 </div>
@@ -939,32 +939,32 @@
                             </div>
                             <div class="pf-section-body collapsed">
                                 <div>
-                                    <label style="font-size:0.75rem;">Search NSE scripts <span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">--script</span></label>
+                                    <label class="pf-label-sm">Search NSE scripts <span class="pf-label-xs">--script</span></label>
                                     <input type="text" id="pf-nse-search" class="pf-input" placeholder="Search NSE scripts..." data-action="searchProfileNse">
                                 </div>
-                                <div id="pf-nse-results" style="margin-top:4px;"></div>
-                                <div id="pf-nse-chips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;"></div>
-                                <div style="margin-top:8px;">
-                                    <label style="font-size:0.75rem;">Script args</label>
-                                    <textarea id="pf-nse-args" class="pf-input" placeholder="key=value, one per line" rows="3" style="resize:vertical;font-family:var(--font-mono);font-size:0.8rem;" data-action="onPfChange"></textarea>
+                                <div id="pf-nse-results" class="pf-mt"></div>
+                                <div id="pf-nse-chips" class="pf-nse-chips"></div>
+                                <div class="pf-mt">
+                                    <label class="pf-label-sm">Script args</label>
+                                    <textarea id="pf-nse-args" class="pf-input pf-nse-args-ta" placeholder="key=value, one per line" rows="3" data-action="onPfChange"></textarea>
                                 </div>
                             </div>
                         </div>
 
                     </div>
 
-                    <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
-                        <div style="font-size:0.65rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Command Preview</div>
-                        <code id="pf-cmd-preview" style="display:block;padding:8px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-card);font-family:var(--font-mono);font-size:0.8rem;white-space:pre-wrap;word-break:break-all;">nmap &lt;TARGET&gt;</code>
+                    <div class="pm-cmd-block">
+                        <div class="pm-cmd-header">Command Preview</div>
+                        <code id="pf-cmd-preview" class="pm-cmd-code">nmap &lt;TARGET&gt;</code>
                     </div>
 
-                    <div style="display:flex;gap:8px;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);">
+                    <div class="pm-actions">
                         <div id="profile-delete-area" style="display:none;">
-                            <button class="btn btn-sm" style="background:var(--red);color:#fff;" data-action="deleteProfileFromForm">Delete</button>
+                            <button class="btn btn-sm pm-delete-btn" data-action="deleteProfileFromForm">Delete</button>
                         </div>
-                        <div style="display:flex;gap:5px;margin-left:auto;">
+                        <div class="pm-actions-right">
                             <button class="btn btn-secondary btn-sm" id="pf-reset-btn" data-action="resetProfileForm">Reset</button>
-                            <button class="btn btn-primary btn-sm" id="profile-save-btn" data-action="saveProfile" style="min-width:80px;">Create</button>
+                            <button class="btn btn-primary btn-sm pm-save-btn" id="profile-save-btn" data-action="saveProfile">Create</button>
                         </div>
                     </div>
                 </div>
@@ -973,44 +973,44 @@
     </div>
 
     <!-- About Modal -->
-    <div id="about-modal" class="modal-overlay" style="display: none;" >
-        <div class="modal" style="max-width: 480px;">
+    <div id="about-modal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-max-480">
             <div class="modal-header">
                 <h3>About NexusMap</h3>
                 <button class="modal-close" data-action="hideAboutModal">&times;</button>
             </div>
-            <div style="padding: 24px; text-align: center;">
-                <div style="margin-bottom: 20px;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--cyan);">
+            <div class="about-body">
+                <div class="about-icon-wrap">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="about-icon-svg">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/><path d="M12 14v3"/>
                     </svg>
                 </div>
-                <h2 style="font-size: 1.4rem; margin-bottom: 4px;">NexusMap</h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Version 0.9.0 &middot; Network Scanner &amp; Asset Management</p>
-                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
-                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">What it does</h4>
-                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
+                <h2 class="about-title">NexusMap</h2>
+                <p class="about-version">Version 0.9.0 &middot; Network Scanner &amp; Asset Management</p>
+                <div class="about-card">
+                    <h4>What it does</h4>
+                    <p>
                         NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.
                     </p>
                 </div>
-                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
-                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">How it was built</h4>
-                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7; margin-bottom: 8px;">
+                <div class="about-card">
+                    <h4>How it was built</h4>
+                    <p>
                         This project was built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach where the entire codebase was generated through natural language conversation.
                     </p>
-                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
+                    <p>
                         Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.
                     </p>
                 </div>
-                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 20px;">
-                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Go</div><div style="font-size: 0.7rem; color: var(--text-muted);">Backend</div></div>
-                    <div style="color: var(--border);">&middot;</div>
-                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">SQLite</div><div style="font-size: 0.7rem; color: var(--text-muted);">Database</div></div>
-                    <div style="color: var(--border);">&middot;</div>
-                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Vanilla JS</div><div style="font-size: 0.7rem; color: var(--text-muted);">Frontend</div></div>
+                <div class="about-tech">
+                    <div class="about-tech-item"><div>Go</div><div>Backend</div></div>
+                    <span class="about-tech-sep">&middot;</span>
+                    <div class="about-tech-item"><div>SQLite</div><div>Database</div></div>
+                    <span class="about-tech-sep">&middot;</span>
+                    <div class="about-tech-item"><div>Vanilla JS</div><div>Frontend</div></div>
                 </div>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
-                    Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border);">Mahdi Alemi</a>
+                <p class="about-footer">
+                    Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a>
                 </p>
             </div>
         </div>
@@ -1024,12 +1024,12 @@
             </div>
             <div class="modal-body">
                 <div id="adv-filter-rows"></div>
-                <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+                <div class="af-actions">
                     <button class="btn btn-secondary btn-sm" data-action="addFilterRow" data-idx="0">+ Add Filter</button>
                     <button class="btn btn-secondary btn-sm" data-action="addFilterGroup">+ Add Group</button>
                     <div style="flex:1;"></div>
-                    <label style="font-size:0.8rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
-                        <select id="adv-filter-mode" class="form-control" style="width:auto;font-size:0.8rem;padding:4px 8px;">
+                    <label class="af-mode-label">
+                        <select id="adv-filter-mode" class="form-control af-mode-sel">
                             <option value="and">AND</option>
                             <option value="or">OR</option>
                         </select>
@@ -1037,7 +1037,7 @@
                     </label>
                 </div>
             </div>
-            <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end;">
+            <div class="modal-footer af-footer">
                 <button class="btn btn-secondary" data-action="clearAdvancedFilters">Clear All</button>
                 <button class="btn btn-secondary" data-action="cancelAdvancedFilters">Cancel</button>
                 <button class="btn btn-primary" data-action="applyAdvancedFilters">Apply</button>
@@ -1056,7 +1056,7 @@
     <script src="/static/js/project-main.js?v=2"></script>
 
     <div class="footer">
-        NexusMap v0.9.0 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap v0.9.1 &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

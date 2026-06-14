@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projects - NexusMap</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/app.css">
+    <link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body>
         <div class="header">
-        <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
+        <a href="/" class="header-link">
             <svg width="28" height="28" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
-            <h1>NexusMap <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);vertical-align:middle;">v0.9.0</span></h1>
+            <h1>NexusMap <span class="version-badge">v0.9.1</span></h1>
         </a>
         <div class="header-nav">
             <span id="user-info"></span>
@@ -70,15 +70,15 @@
                     <h2 class="card-title">Projects</h2>
                 </div>
 
-                <div class="toolbar" style="padding:0 20px 12px;">
+                <div class="toolbar tb-padded">
                     <input type="text" id="search-projects" class="form-control search-box" placeholder="Search projects..." data-action="filterProjects">
-                    <select id="filter-status" class="form-control" data-action="filterProjects" style="width:auto;min-width:120px;">
+                    <select id="filter-status" class="form-control filter-sel" data-action="filterProjects">
                         <option value="">All Status</option>
                         <option value="active">Active</option>
                         <option value="archived">Archived</option>
                         <option value="completed">Completed</option>
                     </select>
-                    <select id="filter-priority" class="form-control" data-action="filterProjects" style="width:auto;min-width:120px;">
+                    <select id="filter-priority" class="form-control filter-sel" data-action="filterProjects">
                         <option value="">All Priority</option>
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
@@ -87,7 +87,7 @@
                     </select>
                 </div>
 
-                <div id="projects-grid" class="grid grid-3" style="padding:0 20px 20px;">
+                <div id="projects-grid" class="grid grid-3 grid-padded">
                     <div class="empty-state">
                         <div class="spinner"></div>
                         <p>Loading projects...</p>
@@ -98,29 +98,29 @@
     </div>
 
     <!-- Create Project Modal -->
-    <div id="create-modal" class="modal-overlay" style="display: none;">
-        <div class="modal" style="max-width: 520px;">
+    <div id="create-modal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-max-520">
             <div class="modal-header">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><use href="#icon-folder-plus"/></svg>
+                <div class="modal-header-flex">
+                    <div class="modal-icon-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon-svg"><use href="#icon-folder-plus"/></svg>
                     </div>
                     <div>
-                        <h3 style="margin:0;">New Project</h3>
-                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">Create a project to organize your scans</p>
+                        <h3 class="modal-h3">New Project</h3>
+                        <p class="modal-subtitle">Create a project to organize your scans</p>
                     </div>
                 </div>
             </div>
-            <form id="create-form" style="padding: 20px 20px 24px;">
+            <form id="create-form" class="modal-form-pad">
                 <div class="form-group">
                     <label>Project Name</label>
                     <input type="text" id="project-name" class="form-control" required placeholder="e.g. Network Audit Q1" autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label>Description <span style="color:var(--text-muted);">(optional)</span></label>
-                    <textarea id="project-desc" class="form-control" rows="2" placeholder="Brief description..." style="resize:vertical;min-height:50px;"></textarea>
+                    <label>Description <span class="opt-label">(optional)</span></label>
+                    <textarea id="project-desc" class="form-control modal-textarea" rows="2" placeholder="Brief description..."></textarea>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="modal-grid">
                     <div class="form-group">
                         <label>Status</label>
                         <select id="create-status" class="form-control">
@@ -139,7 +139,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Client <span style="color:var(--text-muted);">(optional)</span></label>
+                        <label>Client <span class="opt-label">(optional)</span></label>
                         <input type="text" id="create-client" class="form-control" placeholder="e.g. Acme Corp">
                     </div>
                     <div class="form-group">
@@ -147,19 +147,19 @@
                         <select id="create-owner" class="form-control"></select>
                     </div>
                     <div class="form-group">
-                        <label>Tags <span style="color:var(--text-muted);">(comma-separated)</span></label>
+                        <label>Tags <span class="opt-label">(comma-separated)</span></label>
                         <input type="text" id="create-tags" class="form-control" placeholder="e.g. external,urgent">
                     </div>
                     <div class="form-group">
-                        <label>Due Date <span style="color:var(--text-muted);">(optional)</span></label>
+                        <label>Due Date <span class="opt-label">(optional)</span></label>
                         <input type="date" id="create-due" class="form-control">
                     </div>
                 </div>
-                <div id="create-error" style="padding:10px 12px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;margin-bottom:16px;display:none;"></div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <div id="create-error" class="modal-error"></div>
+                <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" data-action="hideCreateModal">Cancel</button>
                     <button type="submit" class="btn btn-primary">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px;"><use href="#icon-folder-plus"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-svg"><use href="#icon-folder-plus"/></svg>
                         Create Project
                     </button>
                 </div>
@@ -168,31 +168,31 @@
     </div>
 
     <!-- Edit Project Modal -->
-    <div id="edit-modal" class="modal-overlay" style="display: none;">
-        <div class="modal" style="max-width: 520px;">
+    <div id="edit-modal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-max-520">
             <div class="modal-header">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><use href="#icon-edit"/></svg>
+                <div class="modal-header-flex">
+                    <div class="modal-icon-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon-svg"><use href="#icon-edit"/></svg>
                     </div>
                     <div>
-                        <h3 style="margin:0;">Edit Project</h3>
-                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">Update project details</p>
+                        <h3 class="modal-h3">Edit Project</h3>
+                        <p class="modal-subtitle">Update project details</p>
                     </div>
                 </div>
                 <button class="modal-close" data-action="hideEditProjectModal">&times;</button>
             </div>
-            <form id="edit-form" style="padding: 20px 20px 24px;">
+            <form id="edit-form" class="modal-form-pad">
                 <input type="hidden" id="edit-project-id">
                 <div class="form-group">
                     <label>Project Name</label>
                     <input type="text" id="edit-project-name" class="form-control" required autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label>Description <span style="color:var(--text-muted);">(optional)</span></label>
-                    <textarea id="edit-project-desc" class="form-control" rows="2" style="resize:vertical;min-height:50px;"></textarea>
+                    <label>Description <span class="opt-label">(optional)</span></label>
+                    <textarea id="edit-project-desc" class="form-control modal-textarea" rows="2"></textarea>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="modal-grid">
                     <div class="form-group">
                         <label>Status</label>
                         <select id="edit-status" class="form-control">
@@ -211,7 +211,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Client <span style="color:var(--text-muted);">(optional)</span></label>
+                        <label>Client <span class="opt-label">(optional)</span></label>
                         <input type="text" id="edit-client" class="form-control" placeholder="e.g. Acme Corp">
                     </div>
                     <div class="form-group">
@@ -219,16 +219,16 @@
                         <select id="edit-owner" class="form-control"></select>
                     </div>
                     <div class="form-group">
-                        <label>Tags <span style="color:var(--text-muted);">(comma-separated)</span></label>
+                        <label>Tags <span class="opt-label">(comma-separated)</span></label>
                         <input type="text" id="edit-tags" class="form-control" placeholder="e.g. external,urgent">
                     </div>
                     <div class="form-group">
-                        <label>Due Date <span style="color:var(--text-muted);">(optional)</span></label>
+                        <label>Due Date <span class="opt-label">(optional)</span></label>
                         <input type="date" id="edit-due" class="form-control">
                     </div>
                 </div>
-                <div id="edit-error" style="padding:10px 12px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;margin-bottom:16px;display:none;"></div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <div id="edit-error" class="modal-error"></div>
+                <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" data-action="hideEditProjectModal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
@@ -237,15 +237,15 @@
     </div>
 
     <!-- Delete Confirm Modal -->
-    <div id="delete-modal" class="modal-overlay" style="display: none;">
-        <div class="modal" style="max-width: 420px;">
+    <div id="delete-modal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-max-420">
             <div class="modal-header">
                 <h3>Delete Project</h3>
                 <button class="modal-close" data-action="hideDeleteModal">&times;</button>
             </div>
-            <div style="padding: 24px;">
-                <p style="margin-bottom: 20px; line-height: 1.6;">Are you sure you want to delete <strong id="delete-project-name"></strong>? This action cannot be undone and will remove all associated scans, hosts, and data.</p>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <div class="del-body">
+                <p class="del-text">Are you sure you want to delete <strong id="delete-project-name"></strong>? This action cannot be undone and will remove all associated scans, hosts, and data.</p>
+                <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" data-action="hideDeleteModal">Cancel</button>
                     <button type="button" class="btn btn-danger" id="delete-confirm-btn" data-action="confirmDeleteProject">Delete</button>
                 </div>
@@ -254,126 +254,109 @@
     </div>
 
     <!-- Global Stats Modal -->
-    <div id="global-stats-modal" class="modal-overlay" style="display: none;">
-        <div class="modal" style="max-width: 560px;">
+    <div id="global-stats-modal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-max-560">
             <div class="modal-header">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><use href="#icon-bar-chart"/></svg>
+                <div class="modal-header-flex">
+                    <div class="modal-icon-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon-svg"><use href="#icon-bar-chart"/></svg>
                     </div>
                     <div>
-                        <h3 style="margin:0;">Global Stats</h3>
-                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">Overview across all projects</p>
+                        <h3 class="modal-h3">Global Stats</h3>
+                        <p class="modal-subtitle">Overview across all projects</p>
                     </div>
                 </div>
                 <button class="modal-close" data-action="hideGlobalStats">&times;</button>
             </div>
-            <div id="global-stats-body" style="padding: 20px 24px;">
-                <div class="spinner" style="margin:20px auto;"></div>
+            <div id="global-stats-body" class="modal-body-pad">
+                <div class="spinner spinner-center"></div>
             </div>
         </div>
     </div>
 
     <!-- Tags Cloud Modal -->
-    <div id="tag-cloud-modal" class="modal-overlay" style="display: none;">
-        <div class="modal" style="max-width: 480px;">
+    <div id="tag-cloud-modal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-max-480">
             <div class="modal-header">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><use href="#icon-tag"/></svg>
+                <div class="modal-header-flex">
+                    <div class="modal-icon-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon-svg"><use href="#icon-tag"/></svg>
                     </div>
                     <div>
-                        <h3 style="margin:0;">Tags</h3>
-                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">Click a tag to filter projects</p>
+                        <h3 class="modal-h3">Tags</h3>
+                        <p class="modal-subtitle">Click a tag to filter projects</p>
                     </div>
                 </div>
                 <button class="modal-close" data-action="hideTagCloud">&times;</button>
             </div>
-            <div id="tag-cloud-body" style="padding: 20px 24px;">
-                <div class="spinner" style="margin:20px auto;"></div>
+            <div id="tag-cloud-body" class="modal-body-pad">
+                <div class="spinner spinner-center"></div>
             </div>
         </div>
     </div>
 
     <script src="/static/js/app.js"></script>
     <script src="/static/js/index.js"></script>
-    <style>
-        .tag-chip:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.15) !important;
-        }
-        .footer a { transition: color 0.2s, border-color 0.2s; }
-        .footer a:hover { color: var(--accent) !important; border-color: var(--accent) !important; }
-    </style>
 
     <!-- About Modal -->
-    <div id="about-modal" class="modal-overlay" style="display: none;">
-        <div class="modal" style="max-width: 480px;">
+    <div id="about-modal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-max-480">
             <div class="modal-header">
                 <h3>About NexusMap</h3>
                 <button class="modal-close" data-action="hideAboutModal">&times;</button>
             </div>
-            <div style="padding: 24px; text-align: center;">
-                <div style="margin-bottom: 20px;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--cyan);">
+            <div class="about-body">
+                <div class="about-icon-wrap">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="about-icon-svg">
                         <use href="#icon-shield"/>
                     </svg>
                 </div>
-                <h2 style="font-size: 1.4rem; margin-bottom: 4px;">NexusMap</h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Version 0.9.0 &middot; Network Scanner &amp; Asset Management</p>
-                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
-                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">What it does</h4>
-                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
-                        NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.
-                    </p>
+                <h2 class="about-title">NexusMap</h2>
+                <p class="about-version">Version 0.9.0 &middot; Network Scanner &amp; Asset Management</p>
+                <div class="about-card">
+                    <h4>What it does</h4>
+                    <p>NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
                 </div>
-                <div style="background: var(--bg-input); border-radius: 10px; padding: 20px; text-align: left; margin-bottom: 20px;">
-                    <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--cyan);">How it was built</h4>
-                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7; margin-bottom: 8px;">
-                        This project was built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach where the entire codebase was generated through natural language conversation.
-                    </p>
-                    <p style="font-size: 0.85rem; color: var(--text); line-height: 1.7;">
-                        Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.
-                    </p>
+                <div class="about-card">
+                    <h4>How it was built</h4>
+                    <p>This project was built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach where the entire codebase was generated through natural language conversation.</p>
+                    <p>Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
                 </div>
-                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 20px;">
-                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Go</div><div style="font-size: 0.7rem; color: var(--text-muted);">Backend</div></div>
-                    <div style="color: var(--border);">&middot;</div>
-                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">SQLite</div><div style="font-size: 0.7rem; color: var(--text-muted);">Database</div></div>
-                    <div style="color: var(--border);">&middot;</div>
-                    <div style="text-align: center;"><div style="font-size: 1.2rem; font-weight: 700; color: var(--cyan);">Vanilla JS</div><div style="font-size: 0.7rem; color: var(--text-muted);">Frontend</div></div>
+                <div class="about-tech">
+                    <div class="about-tech-item"><div>Go</div><div>Backend</div></div>
+                    <div class="about-tech-sep">&middot;</div>
+                    <div class="about-tech-item"><div>SQLite</div><div>Database</div></div>
+                    <div class="about-tech-sep">&middot;</div>
+                    <div class="about-tech-item"><div>Vanilla JS</div><div>Frontend</div></div>
                 </div>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 16px;">
-                    Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" style="color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border);">Mahdi Alemi</a>
-                </p>
+                <p class="about-footer">Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></p>
             </div>
         </div>
     </div>
 
     <!-- Dashboard Modal -->
-    <div id="dashboard-modal" class="modal-overlay" style="display: none;">
-        <div class="modal" style="max-width: 520px;">
+    <div id="dashboard-modal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-max-520">
             <div class="modal-header">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);"><use href="#icon-grid"/></svg>
+                <div class="modal-header-flex">
+                    <div class="modal-icon-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon-svg"><use href="#icon-grid"/></svg>
                     </div>
                     <div>
-                        <h3 style="margin:0;" id="dashboard-title">Project Dashboard</h3>
-                        <p style="font-size:0.8rem;color:var(--text-muted);margin:0;" id="dashboard-subtitle">Project overview</p>
+                        <h3 class="modal-m0" id="dashboard-title">Project Dashboard</h3>
+                        <p class="modal-subtitle" id="dashboard-subtitle">Project overview</p>
                     </div>
                 </div>
                 <button class="modal-close" data-action="hideProjectDashboard">&times;</button>
             </div>
-            <div id="dashboard-body" style="padding: 20px 24px;">
-                <div class="spinner" style="margin:20px auto;"></div>
+            <div id="dashboard-body" class="modal-body-pad">
+                <div class="spinner spinner-center"></div>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        NexusMap v0.9.0 &middot; Made with <span style="font-weight:600;color:var(--accent);">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap v0.9.1 &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

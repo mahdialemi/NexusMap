@@ -40,7 +40,7 @@ func (g *gzipResponseWriter) Write(b []byte) (int, error) {
 	return g.Writer.Write(b)
 }
 
-var version = "v0.9.0"
+var version = "v0.9.1"
 
 func checkLatestVersion() {
 	client := &http.Client{Timeout: 5 * time.Second}
@@ -240,8 +240,8 @@ func main() {
 	mux.HandleFunc("/api/db/backup", auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleDBManagement)))
 	mux.HandleFunc("/api/db/activity", auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleDBManagement)))
 	mux.HandleFunc("/api/db/factory-reset", csrf(auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleFactoryReset))))
-	mux.HandleFunc("/api/db/import/preview", auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleDBImport)))
-	mux.HandleFunc("/api/db/import", auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleDBImport)))
+	mux.HandleFunc("/api/db/import/preview", csrf(auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleDBImport))))
+	mux.HandleFunc("/api/db/import", csrf(auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleDBImport))))
 	mux.HandleFunc("/api/db/health", auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleHealth)))
 	mux.HandleFunc("/api/db", csrf(auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleDBManagement))))
 	mux.HandleFunc("/api/stats/global", auth.APIAuthMiddleware(authSvc, srv.HandleGlobalStats))

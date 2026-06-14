@@ -755,7 +755,7 @@
             const color = opt ? opt.color : '';
             const displayLabel = opt && opt.value ? opt.label : '';
             let html = `<div class="label-dd" style="position:relative;display:inline-block;">`;
-            html += `<button class="label-btn" onclick="event.stopPropagation();this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'" style="padding:2px 6px;border-radius:4px;font-size:0.7rem;font-weight:600;text-transform:uppercase;border:1px solid ${color || 'var(--border)'};background:${color ? color+'22' : 'transparent'};color:${color || 'var(--text-muted)'};cursor:pointer;white-space:nowrap;">${displayLabel || '-'}</button>`;
+            html += `<button class="label-btn" onclick="event.stopPropagation();var m=this.nextElementSibling;if(m.style.display==='block'){m.style.display='none'}else{var r=this.getBoundingClientRect();m.style.position='fixed';m.style.top=r.bottom+'px';m.style.left=r.left+'px';m.style.display='block';m.style.zIndex='9999'}" style="padding:2px 6px;border-radius:4px;font-size:0.7rem;font-weight:600;text-transform:uppercase;border:1px solid ${color || 'var(--border)'};background:${color ? color+'22' : 'transparent'};color:${color || 'var(--text-muted)'};cursor:pointer;white-space:nowrap;">${displayLabel || '-'}</button>`;
             html += `<div class="label-menu" style="display:none;position:absolute;top:100%;left:0;z-index:50;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;min-width:110px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">`;
             for (const o of LABEL_OPTIONS) {
                 const sel = o.value === current ? ' style="background:var(--accent);color:white;"' : '';

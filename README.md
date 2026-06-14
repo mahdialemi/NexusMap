@@ -104,6 +104,6 @@ MIT — see [LICENSE](LICENSE)
 
 <div align="center">
 
-**NexusMap** v0.9.0 &middot; Made by [Mahdi Alemi](https://github.com/mahdialemi)
+**NexusMap** v0.9.1 &middot; Made by [Mahdi Alemi](https://github.com/mahdialemi)
 
 </div>
