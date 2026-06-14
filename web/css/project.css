@@ -91,6 +91,12 @@ a:hover { text-decoration: underline; }
 .notif-mark-btn:hover { text-decoration:underline; }
 .notif-list { overflow-y:auto; max-height:380px; }
 .notif-empty { padding:30px; text-align:center; color:var(--text-muted); font-size:0.85rem; }
+.notif-item { padding:10px 16px; border-bottom:1px solid var(--border); cursor:default; transition:background 0.15s; }
+.notif-item:hover { background:var(--bg-input); }
+.notif-item-unread { background:rgba(59,130,246,0.06); border-left:3px solid var(--accent); }
+.notif-item-action { font-size:0.75rem; font-weight:600; color:var(--accent); text-transform:uppercase; letter-spacing:0.03em; }
+.notif-item-details { font-size:0.85rem; color:var(--text); margin:2px 0; line-height:1.4; }
+.notif-item-time { font-size:0.72rem; color:var(--text-muted); }
 
 /* ===== from app.css: cards ===== */
 .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
