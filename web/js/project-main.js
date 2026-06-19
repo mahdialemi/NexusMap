@@ -216,6 +216,7 @@
         function hideAboutModal() {
             document.getElementById('about-modal').style.display = 'none';
         }
+        function goToSettings() { window.location.href = '/settings'; }
         function goToAdmin() { window.location.href = '/admin'; }
 
         // Schedule helpers

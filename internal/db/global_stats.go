@@ -71,6 +71,9 @@ func (d *DB) GetGlobalStats() (*GlobalStats, error) {
 				s.ScanActivity = append(s.ScanActivity, dc)
 			}
 		}
+		if err := rowsSA.Err(); err != nil {
+			return nil, err
+		}
 	}
 	if s.ScanActivity == nil {
 		s.ScanActivity = []DayCount{}
@@ -91,6 +94,9 @@ func (d *DB) GetGlobalStats() (*GlobalStats, error) {
 				s.TopServices = append(s.TopServices, sc)
 			}
 		}
+		if err := rowsTS.Err(); err != nil {
+			return nil, err
+		}
 	}
 	if s.TopServices == nil {
 		s.TopServices = []ServiceCount{}
@@ -110,6 +116,9 @@ func (d *DB) GetGlobalStats() (*GlobalStats, error) {
 			if err := rowsTP.Scan(&pc.Port, &pc.Protocol, &pc.Service, &pc.Count); err == nil {
 				s.TopPorts = append(s.TopPorts, pc)
 			}
+		}
+		if err := rowsTP.Err(); err != nil {
+			return nil, err
 		}
 	}
 	if s.TopPorts == nil {
@@ -132,6 +141,9 @@ func (d *DB) GetGlobalStats() (*GlobalStats, error) {
 				sc.Target = pName + " / " + sc.Target
 				s.RecentScans = append(s.RecentScans, sc)
 			}
+		}
+		if err := rowsRS.Err(); err != nil {
+			return nil, err
 		}
 	}
 	if s.RecentScans == nil {
@@ -168,6 +180,9 @@ func (d *DB) GetGlobalStats() (*GlobalStats, error) {
 				s.TopOS = append(s.TopOS, oc)
 			}
 		}
+		if err := rowsOS.Err(); err != nil {
+			return nil, err
+		}
 	}
 	if s.TopOS == nil {
 		s.TopOS = []OSCount{}
@@ -179,6 +194,11 @@ func (d *DB) GetGlobalStats() (*GlobalStats, error) {
 		var cnt int
 		d.QueryRow("SELECT COUNT(*) FROM projects WHERE priority = ?", pr).Scan(&cnt)
 		s.ProjectsByPriority[pr] = cnt
+	}
+	var otherPri int
+	d.QueryRow("SELECT COUNT(*) FROM projects WHERE priority NOT IN ('critical','high','medium','low') OR priority IS NULL OR priority = ''").Scan(&otherPri)
+	if otherPri > 0 {
+		s.ProjectsByPriority["other"] = otherPri
 	}
 
 	// Scans per project
@@ -195,6 +215,9 @@ func (d *DB) GetGlobalStats() (*GlobalStats, error) {
 			if err := rowsSP.Scan(&psc.ProjectID, &psc.ProjectName, &psc.Count); err == nil {
 				s.ScansPerProject = append(s.ScansPerProject, psc)
 			}
+		}
+		if err := rowsSP.Err(); err != nil {
+			return nil, err
 		}
 	}
 	if s.ScansPerProject == nil {
@@ -213,6 +236,9 @@ func (d *DB) GetGlobalStats() (*GlobalStats, error) {
 			if err := rowsRA.Scan(&ae.ID, &ae.Action, &ae.Details, &ae.Username, &ae.CreatedAt); err == nil {
 				s.RecentActivity = append(s.RecentActivity, ae)
 			}
+		}
+		if err := rowsRA.Err(); err != nil {
+			return nil, err
 		}
 	}
 	if s.RecentActivity == nil {

@@ -101,8 +101,8 @@ func (a *Auth) ValidateSession(sessionID string) (*db.User, string, error) {
 
 	var user db.User
 	err = a.DB.QueryRow(
-		"SELECT id, username, role, created_at, must_change_password FROM users WHERE id = ?", userID,
-	).Scan(&user.ID, &user.Username, &user.Role, &user.CreatedAt, &user.MustChangePassword)
+		"SELECT id, username, role, created_at, must_change_password, COALESCE(theme,'dark'), COALESCE(lang,'en') FROM users WHERE id = ?", userID,
+	).Scan(&user.ID, &user.Username, &user.Role, &user.CreatedAt, &user.MustChangePassword, &user.Theme, &user.Lang)
 	if err != nil {
 		return nil, "", err
 	}

@@ -105,6 +105,56 @@ func (s *Server) HandleChangePassword(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, 200, map[string]string{"status": "ok"})
 }
 
+func (s *Server) HandleSettings(w http.ResponseWriter, r *http.Request) {
+	user := getRequestUser(r)
+	if user == nil {
+		jsonResponse(w, 401, map[string]string{"error": "unauthorized"})
+		return
+	}
+
+	switch r.Method {
+	case "GET":
+		jsonResponse(w, 200, map[string]string{
+			"theme": user.Theme,
+			"lang":  user.Lang,
+		})
+
+	case "PUT":
+		var req struct {
+			Theme string `json:"theme"`
+			Lang  string `json:"lang"`
+		}
+		if err := jsonDecode(r, &req); err != nil {
+			jsonResponse(w, 400, map[string]string{"error": "invalid JSON"})
+			return
+		}
+		if req.Theme != "" && req.Theme != "dark" && req.Theme != "light" {
+			jsonResponse(w, 400, map[string]string{"error": "theme must be 'dark' or 'light'"})
+			return
+		}
+		if req.Lang != "" && req.Lang != "en" && req.Lang != "fa" {
+			jsonResponse(w, 400, map[string]string{"error": "unsupported language"})
+			return
+		}
+		theme := user.Theme
+		lang := user.Lang
+		if req.Theme != "" {
+			theme = req.Theme
+		}
+		if req.Lang != "" {
+			lang = req.Lang
+		}
+		if _, err := s.DB.Exec("UPDATE users SET theme = ?, lang = ? WHERE id = ?", theme, lang, user.ID); err != nil {
+			serverError(w, err)
+			return
+		}
+		jsonResponse(w, 200, map[string]string{"theme": theme, "lang": lang})
+
+	default:
+		jsonResponse(w, 405, map[string]string{"error": "method not allowed"})
+	}
+}
+
 func jsonDecode(r *http.Request, v interface{}) error {
 	return json.NewDecoder(r.Body).Decode(v)
 }

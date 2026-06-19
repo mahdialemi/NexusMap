@@ -423,6 +423,15 @@ function stateBadge(state) {
     return `<span class="badge ${cls}">${esc(state)}</span>`;
 }
 
+// i18n: auto-init on all pages if i18n.js is loaded
+if (typeof initI18n === 'function') {
+    document.addEventListener('DOMContentLoaded', function() {
+        initI18n(function() {
+            translateDOM();
+        });
+    });
+}
+
 // Modal helpers
 function showModal(id, title, bodyHTML, sizeClass) {
     var old = document.getElementById(id);

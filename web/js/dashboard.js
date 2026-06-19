@@ -192,7 +192,10 @@ function renderDashboard(container, s) {
         html += '<div class="db-section"><div class="db-section-title">Recent Activity</div><div class="db-table-wrap">' + actRows + '</div></div>';
     }
 
-    if (!s.scan_activity || !s.scan_activity.length) {
+    var hasAny = (s.total_projects > 0 || s.total_scans > 0 || s.total_hosts > 0 ||
+        (s.recent_scans && s.recent_scans.length) || (s.recent_activity && s.recent_activity.length) ||
+        (s.top_services && s.top_services.length) || (s.top_os && s.top_os.length));
+    if (!hasAny) {
         html += '<div class="db-empty"><div class="db-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div><p>No data available yet. Create a project and run a scan to get started.</p></div>';
     }
 
@@ -282,19 +285,22 @@ function renderCharts(s) {
         }
     }
 
+    function trunc(s, n) { return s && s.length > n ? s.substring(0, n-1) + '\u2026' : s; }
+
     // Top OS
     if (s.top_os && s.top_os.length) {
-        dCharts.os = barH('c-os', s.top_os.map(function(o){return o.os;}), s.top_os.map(function(o){return o.count;}), 'Hosts');
+        dCharts.os = barH('c-os', s.top_os.map(function(o){return trunc(o.os, 20);}), s.top_os.map(function(o){return o.count;}), 'Hosts');
     }
 
     // Scans per project
     if (s.scans_per_project && s.scans_per_project.length) {
-        dCharts.scansPerProject = barH('c-scans-per-project', s.scans_per_project.map(function(p){return p.project_name || '#'+p.project_id;}), s.scans_per_project.map(function(p){return p.count;}), 'Scans');
+        dCharts.scansPerProject = barH('c-scans-per-project', s.scans_per_project.map(function(p){return trunc(p.project_name || '#'+p.project_id, 20);}), s.scans_per_project.map(function(p){return p.count;}), 'Scans');
     }
 }
 
 function goToProjects() { window.location.href = '/'; }
 function goToAdmin() { window.location.href = '/admin'; }
+function goToSettings() { window.location.href = '/settings'; }
 function showAboutModal() { document.getElementById('about-modal').style.display = 'flex'; }
 function hideAboutModal() { document.getElementById('about-modal').style.display = 'none'; }
 

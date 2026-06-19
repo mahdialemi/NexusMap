@@ -11,6 +11,8 @@ type User struct {
 	Role               string    `json:"role"`
 	CreatedAt          time.Time `json:"created_at"`
 	MustChangePassword bool      `json:"must_change_password"`
+	Theme              string    `json:"theme"`
+	Lang               string    `json:"lang"`
 }
 
 type Session struct {

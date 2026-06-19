@@ -286,6 +286,8 @@ func (d *DB) Init() error {
 		)`,
 		`ALTER TABLE scans ADD COLUMN schedule_id INTEGER REFERENCES scan_schedules(id) ON DELETE SET NULL`,
 		`ALTER TABLE projects ADD COLUMN is_pinned INTEGER DEFAULT 0`,
+		`ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'dark'`,
+		`ALTER TABLE users ADD COLUMN lang TEXT DEFAULT 'en'`,
 	}
 
 	for i, sql := range migrations {

@@ -124,6 +124,7 @@ function hideAboutModal() {
 
 function goToAdmin() { window.location.href = '/admin'; }
 function goToDashboard() { window.location.href = '/dashboard'; }
+function goToSettings() { window.location.href = '/settings'; }
 
 async function ensureProjectActionOK(res, fallbackMessage) {
     if (res.ok) return;

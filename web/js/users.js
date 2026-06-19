@@ -485,5 +485,6 @@ async function doDBImport() {
 }
 
 function backToProjects() { window.location.href = '/'; }
+function goToSettings() { window.location.href = '/settings'; }
 function showAboutModal() { document.getElementById('about-modal').style.display = 'flex'; }
 function hideAboutModal() { document.getElementById('about-modal').style.display = 'none'; }

@@ -33,10 +33,7 @@ var pdCharts = {};
     document.head.appendChild(css);
 })();
 
-var pdProjectId = null;
-
 function loadProjectDashboard() {
-    pdProjectId = projectId;
     var container = document.getElementById('project-dashboard-content');
     if (!container) return;
     container.innerHTML = '<div class="pd-empty"><div class="spinner" style="margin:0 auto 12px;"></div><p>Loading dashboard...</p></div>';
@@ -190,8 +187,10 @@ function renderPDCharts(s) {
         pdCharts.ports = barH('pdc-ports', s.top_ports.map(function(p){return p.port+'/'+p.protocol;}), s.top_ports.map(function(p){return p.count;}), 'Hosts');
     }
 
+    function trunc(s, n) { return s && s.length > n ? s.substring(0, n-1) + '\u2026' : s; }
+
     // Top OS
     if (s.top_os && s.top_os.length) {
-        pdCharts.os = barH('pdc-os', s.top_os.map(function(o){return o.os;}), s.top_os.map(function(o){return o.count;}), 'Hosts');
+        pdCharts.os = barH('pdc-os', s.top_os.map(function(o){return trunc(o.os, 20);}), s.top_os.map(function(o){return o.count;}), 'Hosts');
     }
 }

@@ -211,6 +211,8 @@ document.addEventListener('keydown', function(e) {
 
 function goBackToProject() { window.location.href = '/project/' + projectId; }
 function backToProjects() { window.location.href = '/'; }
+function goToSettings() { window.location.href = '/settings'; }
+function goToAdmin() { window.location.href = '/admin'; }
 function showAboutModal() { document.getElementById('about-modal').style.display = 'flex'; }
 function hideAboutModal() { document.getElementById('about-modal').style.display = 'none'; }
 function refreshResults() { loadResults(currentPage); }
