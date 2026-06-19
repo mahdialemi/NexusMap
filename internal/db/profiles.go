@@ -14,6 +14,9 @@ func (d *DB) GetProfiles() ([]Profile, error) {
 		}
 		profiles = append(profiles, p)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return profiles, nil
 }
 
@@ -30,6 +33,9 @@ func (d *DB) GetProfileCategories() ([]string, error) {
 			return nil, err
 		}
 		categories = append(categories, cat)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return categories, nil
 }

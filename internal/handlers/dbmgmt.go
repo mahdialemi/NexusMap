@@ -186,11 +186,10 @@ func (s *Server) doDBBackup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer os.Remove(backupPath)
-
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", backupName))
 	http.ServeFile(w, r, backupPath)
+	os.Remove(backupPath)
 }
 
 func (s *Server) HandleHealth(w http.ResponseWriter, r *http.Request) {

@@ -74,6 +74,7 @@ a:hover { text-decoration: underline; }
 .header h1 { font-size: 1.4rem; font-weight: 600; }
 .header-nav { display: flex; gap: 15px; align-items: center; }
 .header-nav span { color: var(--text-muted); font-size: 0.9rem; }
+.header-nav .user-admin { background:var(--accent); color:#000; padding:2px 10px; border-radius:12px; font-weight:700; }
 .header-link { display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; }
 .version-badge { font-size:0.7rem; font-weight:400; color:var(--text-muted); vertical-align:middle; }
 .header-nav .project-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: var(--text); white-space: nowrap; max-width: 300px; overflow: hidden; text-overflow: ellipsis; }
@@ -406,23 +407,19 @@ tr:hover td { background: rgba(59, 130, 246, 0.1); }
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* ===== from app.css: about modal ===== */
-.about-body { padding:24px; text-align:center; }
-.about-icon-wrap { margin-bottom:20px; }
-.about-icon-svg { color:var(--cyan); }
-.about-title { font-size:1.4rem; margin-bottom:4px; }
-.about-version { color:var(--text-muted); font-size:0.85rem; margin-bottom:24px; }
-.about-card { background:var(--bg-input); border-radius:10px; padding:20px; text-align:left; margin-bottom:20px; }
-.about-card h4 { font-size:0.9rem; font-weight:600; margin-bottom:12px; color:var(--cyan); }
-.about-card p { font-size:0.85rem; color:var(--text); line-height:1.7; }
-.about-card p + p { margin-top:8px; }
-.about-tech { display:flex; justify-content:center; gap:16px; margin-bottom:20px; }
-.about-tech-item { text-align:center; }
-.about-tech-item div:first-child { font-size:1.2rem; font-weight:700; color:var(--cyan); }
-.about-tech-item div:last-child { font-size:0.7rem; color:var(--text-muted); }
-.about-tech-sep { color:var(--border); }
-.about-footer { font-size:0.75rem; color:var(--text-muted); margin-top:16px; }
+/* ===== about modal ===== */
+.about-body { padding:0 24px 24px; }
+.about-hero { background:var(--bg-input); border-radius:10px; padding:22px; text-align:center; margin:0 -4px 20px; }
+.about-hero-icon { color:var(--cyan); margin-bottom:10px; }
+.about-hero-title { font-size:1.25rem; font-weight:700; margin:0 0 2px; }
+.about-hero-version { font-size:0.8rem; color:var(--text-muted); margin:0; }
+.about-desc { font-size:0.85rem; line-height:1.7; color:var(--text); margin-bottom:16px; text-align:left; }
+.about-desc-sub { margin-top:10px; color:var(--text-muted); font-size:0.82rem; }
+.about-pills { display:flex; justify-content:center; gap:8px; margin-bottom:20px; }
+.about-pill { background:var(--bg-input); border:1px solid var(--border); border-radius:20px; padding:4px 16px; font-size:0.78rem; font-weight:500; color:var(--text); }
+.about-ftr { display:flex; justify-content:space-between; align-items:center; padding-top:16px; border-top:1px solid var(--border); font-size:0.8rem; color:var(--text-muted); }
 .about-link { color:var(--text); text-decoration:none; border-bottom:1px solid var(--border); }
+.update-badge { position:absolute; top:0; right:0; width:8px; height:8px; border-radius:50%; background:#ef4444; box-shadow:0 0 0 2px var(--bg-card); pointer-events:none; }
 
 /* ===== from app.css: profile section ===== */
 .profile-section { border: 1px solid var(--border); border-radius: var(--radius-card); overflow: hidden; margin-bottom: 10px; }
@@ -538,8 +535,7 @@ tr:hover td { background: rgba(59, 130, 246, 0.1); }
 
 /* ===== from app.css: #tab-scans / #tab-live / #tab-consolidated / #tab-scripts ===== */
 #tab-scans, #tab-live, #tab-consolidated, #tab-scripts, #tab-new-scan, #tab-import { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-#tab-scans .card { margin-bottom: 0; padding-bottom: 0; border-top: none; overflow: hidden; }
-#tab-scans #scans-list { flex: 1; min-height: 0; overflow-y: auto; margin-top: 0 !important; }
+#tab-scans #scans-list { flex: 1; min-height: 0; overflow-y: auto; }
 
 /* ===== from app.css: scan items ===== */
 .scan-card { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-card); transition: border-color 0.2s; margin-bottom: 12px; }
@@ -598,9 +594,9 @@ tr:hover td { background: rgba(59, 130, 246, 0.1); }
 .scans-badge { background:var(--danger,#ef4444); color:#fff; font-size:0.55rem; width:16px; height:16px; border-radius:50%; align-items:center; justify-content:center; position:absolute; top:-4px; right:-4px; font-weight:700; line-height:1; border:2px solid var(--bg-card); }
 
 /* Scans tab */
-.scan-card, .cs-card, .live-card, .script-card, .import-card { border-top-left-radius:0; border-top-right-radius:0; padding-top:0; }
-.filter-chips-bar { padding:6px 12px; border-bottom:1px solid var(--border); }
-.scans-list-mt { margin-top:12px; }
+.cs-card, .live-card, .script-card, .import-card { border-top-left-radius:0; border-top-right-radius:0; padding-top:0; margin-top:4px; }
+#tab-scans #filter-chips { padding:4px 0; }
+.scans-list-mt { margin-top:8px; }
 
 /* New Scan tab */
 .ns-card { padding:0; display:flex; flex-direction:row; overflow:hidden; flex: 1; min-height: 0; }
@@ -839,3 +835,9 @@ tr.script-group-header .group-count { font-weight: 400; font-size: 0.75rem; colo
 .pf-flex-row-mt6 { display:flex; align-items:center; gap:6px; margin-top:6px; }
 .pf-flex-input { flex:1; }
 .pf-spacer-target { display:flex; align-items:flex-end; padding-bottom:4px; }
+
+/* Notes tab */
+.notes-pagination { padding: 8px 0; display: flex; justify-content: center; }
+.note-inline { padding: 8px; }
+.note-inline-ta { min-height: 60px; resize: vertical; font-size: 0.8rem; }
+.note-inline-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }

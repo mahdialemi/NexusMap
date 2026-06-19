@@ -1,7 +1,10 @@
 var notifOpen = false;
 var filterTimer;
-var dashboardProjectId = null;
 var selectedTags = [];
+var allProjects = [];
+var selectedIds = [];
+var selectAllMode = false;
+var ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
 var tagColors = [
     {bg:'#dbeafe',fg:'#1d4ed8',border:'#93c5fd'},
     {bg:'#dcfce7',fg:'#15803d',border:'#86efac'},
@@ -32,14 +35,25 @@ async function indexInit() {
     }
     await populateOwners();
     await loadProjects();
+    setInterval(async function() {
+        if (document.visibilityState === 'visible') {
+            try {
+                var res = await fetch('/api/projects');
+                if (!res.ok) throw new Error('Failed to refresh project count');
+                var fresh = await res.json();
+                var countEl = document.getElementById('project-count');
+                if (countEl) countEl.textContent = '(' + fresh.length + ')';
+            } catch(e) {}
+        }
+    }, 30000);
 }
 
 async function loadProjects() {
     try {
-        var projects = await getProjects();
-        renderProjects(projects);
+        allProjects = await getProjects();
+        sortProjects();
     } catch (e) {
-        document.getElementById('projects-grid').innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><p>Error loading projects</p></div>';
+        document.getElementById('projects-list').innerHTML = '<div class="empty-state"><p>Error loading projects</p></div>';
     }
 }
 
@@ -70,6 +84,7 @@ async function populateOwners() {
         var opts = users.map(function(u){ return '<option value="'+u.id+'">'+esc(u.username)+'</option>'; }).join('');
         document.getElementById('create-owner').innerHTML = '<option value="">Select owner</option>' + opts;
         document.getElementById('edit-owner').innerHTML = '<option value="">Select owner</option>' + opts;
+        document.getElementById('filter-owner').innerHTML = '<option value="">All Owners</option>' + opts;
     } catch(e) {}
 }
 
@@ -109,55 +124,14 @@ function hideAboutModal() {
 
 function goToAdmin() { window.location.href = '/admin'; }
 
-async function showProjectDashboard(e) {
-    e.stopPropagation();
-    dashboardProjectId = parseInt(this.getAttribute('data-id'));
-    document.getElementById('dashboard-modal').style.display = 'flex';
-    document.getElementById('dashboard-body').innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
+async function ensureProjectActionOK(res, fallbackMessage) {
+    if (res.ok) return;
+    var message = fallbackMessage;
     try {
-        var res = await fetch('/api/projects/'+dashboardProjectId);
-        var p = await res.json();
-        if (!res.ok) throw new Error('Failed to load project');
-        document.getElementById('dashboard-title').textContent = esc(p.name) + ' - Dashboard';
-        document.getElementById('dashboard-subtitle').textContent = p.description ? esc(p.description) : 'Project overview';
-
-        var statusColors = { active: '#22c55e', archived: '#64748b', completed: '#3b82f6' };
-        var sc = statusColors[p.status] || '#64748b';
-        var priorityColors = { critical: '#ef4444', high: '#f97316', medium: '#eab308', low: '#64748b' };
-        var pc = priorityColors[p.priority] || '#eab308';
-
-        var tags = p.tags ? p.tags.split(',').filter(Boolean) : [];
-        var tagHtml = tags.map(function(t){ return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.7rem;background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);margin-right:4px;">#'+esc(t.trim())+'</span>'; }).join('');
-
-        document.getElementById('dashboard-body').innerHTML =
-            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">' +
-                '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:600;background:'+sc+'22;color:'+sc+';">'+esc(p.status||'active')+'</span>' +
-                '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:600;background:'+pc+'22;color:'+pc+';">'+esc(p.priority||'medium')+'</span>' +
-                tagHtml +
-            '</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
-                '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Client</div><div style="font-weight:600;margin-top:2px;">'+(p.client ? esc(p.client) : '\u2014')+'</div></div>' +
-                '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Owner</div><div style="font-weight:600;margin-top:2px;">'+(p.owner_name ? esc(p.owner_name) : '\u2014')+'</div></div>' +
-                '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Due Date</div><div style="font-weight:600;margin-top:2px;">'+(p.due_date ? p.due_date.split('T')[0] : '\u2014')+'</div></div>' +
-                '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Scans</div><div style="font-weight:600;margin-top:2px;">'+(p.scan_count||0)+'</div></div>' +
-                '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Last Scan</div><div style="font-weight:600;margin-top:2px;">'+(p.last_scan_at ? formatDate(p.last_scan_at) : '\u2014')+'</div></div>' +
-                '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Updated</div><div style="font-weight:600;margin-top:2px;">'+(p.updated_at ? formatDate(p.updated_at) : '\u2014')+'</div></div>' +
-                '<div class="stat-card" style="text-align:left;padding:12px;"><div style="font-size:0.7rem;color:var(--text-muted);">Created</div><div style="font-weight:600;margin-top:2px;">'+formatDate(p.created_at)+'</div></div>' +
-            '</div>' +
-            '<div style="margin-top:16px;display:flex;gap:8px;">' +
-                '<button class="btn btn-primary btn-sm" style="flex:1;" data-action="openProjectFromDashboard"> Open Project</button>' +
-            '</div>';
-    } catch(e) {
-        document.getElementById('dashboard-body').innerHTML = '<div class="empty-state"><p>Error loading project details</p></div>';
-    }
-}
-
-function hideProjectDashboard() {
-    document.getElementById('dashboard-modal').style.display = 'none';
-}
-
-function openProjectFromDashboard(e) {
-    if (dashboardProjectId) window.location.href = '/project/' + dashboardProjectId;
+        var data = await res.json();
+        if (data && data.error) message = data.error;
+    } catch (e) {}
+    throw new Error(message);
 }
 
 function showEditProjectModal(e) {
@@ -214,90 +188,375 @@ function filterProjects() {
         var search = document.getElementById('search-projects').value.trim();
         var status = document.getElementById('filter-status').value;
         var priority = document.getElementById('filter-priority').value;
+        var owner = document.getElementById('filter-owner').value;
         var q = [];
         if (status) q.push('status='+encodeURIComponent(status));
         if (priority) q.push('priority='+encodeURIComponent(priority));
+        if (owner) q.push('owner_id='+encodeURIComponent(owner));
         if (search) q.push('search='+encodeURIComponent(search));
         var url = '/api/projects' + (q.length ? '?'+q.join('&') : '');
         try {
             var res = await fetch(url);
-            var data = await res.json();
-            renderProjects(data);
+            if (!res.ok) throw new Error('Failed to load projects');
+            allProjects = await res.json();
+            sortProjects();
         } catch(e) {}
     }, 300);
 }
 
-async function renderProjects(projects) {
-    var grid = document.getElementById('projects-grid');
+function clearProjectSearch() {
+    document.getElementById('search-projects').value = '';
+    filterProjects();
+}
+
+function sortProjects() {
+    renderProjects(allProjects);
+}
+
+function groupProjects() {
+    sortProjects();
+}
+
+function renderProjects(projects) {
+    var list = document.getElementById('projects-list');
+    var countEl = document.getElementById('project-count');
     if (!projects || projects.length === 0) {
-        grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><h3>No projects found</h3><p>Try adjusting your filters</p></div>';
+        if (countEl) countEl.textContent = '';
+        var hasFilters = document.getElementById('filter-status').value || document.getElementById('filter-priority').value || document.getElementById('filter-owner').value || document.getElementById('search-projects').value;
+        if (hasFilters) {
+            list.innerHTML = '<div class="empty-state"><h3>No projects found</h3><p>Try adjusting your filters</p></div>';
+        } else {
+            list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-folder-plus"/></svg></div><h3>No projects yet</h3><p>Create your first project to start scanning</p><div class="empty-state-cta"><button class="btn btn-primary" data-action="showCreateModal"> Create Project</button></div></div>';
+        }
+        updateBulkBar();
         return;
     }
-    grid.innerHTML = projects.map(function(p) {
-        var statusColor = p.status === 'active' ? '#22c55e' : p.status === 'archived' ? '#64748b' : '#3b82f6';
-        var priorityColor = p.priority === 'critical' ? '#ef4444' : p.priority === 'high' ? '#f97316' : p.priority === 'medium' ? '#eab308' : '#64748b';
-        var tags = p.tags ? p.tags.split(',').filter(Boolean) : [];
-        return '<div class="profile-card" data-action="goToProject" data-id="'+p.id+'">' +
-            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
-                '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600;background:'+statusColor+'22;color:'+statusColor+';">'+esc(p.status||'active')+'</span>' +
-                '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600;background:'+priorityColor+'22;color:'+priorityColor+';">'+esc(p.priority||'medium')+'</span>' +
-                tags.map(function(t){ return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.7rem;background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);">#'+esc(t.trim())+'</span>'; }).join('') +
+    if (countEl) countEl.textContent = '(' + projects.length + ')';
+    var now = new Date();
+    var todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    var today = new Date(todayStr + 'T00:00:00');
+    var threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+    var thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+    var groupBy = document.getElementById('group-projects').value;
+    var sorted = projects.slice();
+    sorted.sort(function(a, b) {
+        if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
+        var sort = document.getElementById('sort-projects').value;
+        var priorityRank = { critical: 0, high: 1, medium: 2, low: 3 };
+        switch(sort) {
+            case 'oldest': return new Date(a.created_at) - new Date(b.created_at);
+            case 'name': return (a.name||'').localeCompare(b.name||'');
+            case 'name_desc': return (b.name||'').localeCompare(a.name||'');
+            case 'priority': return (priorityRank[a.priority] || 2) - (priorityRank[b.priority] || 2);
+            case 'scans': return (b.scan_count||0) - (a.scan_count||0);
+            case 'due': return (a.due_date||'') < (b.due_date||'') ? -1 : (a.due_date||'') > (b.due_date||'') ? 1 : 0;
+            default: return new Date(b.created_at) - new Date(a.created_at);
+        }
+    });
+    var groups = {};
+    if (groupBy) {
+        for (var i = 0; i < sorted.length; i++) {
+            var key = '';
+            if (groupBy === 'status') key = sorted[i].status || 'active';
+            else if (groupBy === 'priority') key = sorted[i].priority || 'medium';
+            else if (groupBy === 'owner') key = sorted[i].owner_name || 'Unassigned';
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(sorted[i]);
+        }
+    } else {
+        groups['_all'] = sorted;
+    }
+    var groupOrder = groupBy === 'priority' ? ['critical','high','medium','low'] : null;
+    var groupLabels = { active: 'Active', archived: 'Archived', completed: 'Completed', critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' };
+    if (groupBy === 'status') {
+        groupOrder = ['active', 'archived', 'completed'];
+    }
+    var html = '';
+    var keys = Object.keys(groups);
+    if (groupOrder) {
+        var orderedKeys = [];
+        for (var gi = 0; gi < groupOrder.length; gi++) {
+            if (groups[groupOrder[gi]]) orderedKeys.push(groupOrder[gi]);
+        }
+        for (var gi = 0; gi < keys.length; gi++) {
+            if (orderedKeys.indexOf(keys[gi]) === -1) orderedKeys.push(keys[gi]);
+        }
+        keys = orderedKeys;
+    }
+    for (var gi = 0; gi < keys.length; gi++) {
+        var gKey = keys[gi];
+        var gProjects = groups[gKey];
+        if (groupBy) {
+            var label = groupLabels[gKey] || gKey;
+            html += '<div class="pli-group-header">' + esc(label) + ' <span class="pli-group-count">' + gProjects.length + '</span></div>';
+        }
+        for (var pi = 0; pi < gProjects.length; pi++) {
+            var p = gProjects[pi];
+            html += renderProjectItem(p, today, threeDaysMs, thirtyDaysMs);
+        }
+    }
+    list.innerHTML = html;
+    updateBulkBar();
+}
+
+function renderProjectItem(p, today, threeDaysMs, thirtyDaysMs) {
+    var statusColor = p.status === 'active' ? '#22c55e' : p.status === 'archived' ? '#64748b' : '#3b82f6';
+    var priorityColor = p.priority === 'critical' ? '#ef4444' : p.priority === 'high' ? '#f97316' : p.priority === 'medium' ? '#eab308' : '#64748b';
+    var tags = p.tags ? p.tags.split(',').filter(Boolean) : [];
+    var tagHtml = tags.map(function(t){ return '<span class="pli-chip" data-tag="'+esc(t.trim())+'">#'+esc(t.trim())+'</span>'; }).join('');
+    var dueHtml = '';
+    if (p.due_date) {
+        var dueStr = p.due_date.split('T')[0];
+        var dueDate = new Date(dueStr + 'T00:00:00');
+        var diff = dueDate - today;
+        if (diff < 0) {
+            dueHtml = '<span>Due: '+dueStr+' <span class="due-badge due-badge-overdue">Overdue</span></span>';
+        } else if (diff < threeDaysMs) {
+            dueHtml = '<span>Due: '+dueStr+' <span class="due-badge due-badge-soon">Due soon</span></span>';
+        } else {
+            dueHtml = '<span>Due: '+dueStr+'</span>';
+        }
+    }
+    // Health dot
+    var healthColor = '#ef4444';
+    if (p.scan_count > 0 && p.last_scan_at) {
+        var lastScanDate = new Date(p.last_scan_at);
+        var age = today - lastScanDate;
+        if (p.confirmed_count > 0 && age < thirtyDaysMs) {
+            healthColor = '#22c55e';
+        } else if (age < ninetyDaysMs) {
+            healthColor = '#eab308';
+        }
+    } else if (p.scan_count > 0) {
+        healthColor = '#eab308';
+    }
+    var healthDot = '<span class="pli-health-dot" style="background:'+healthColor+';" title="'+(healthColor==='#22c55e'?'Healthy':healthColor==='#eab308'?'Needs attention':'No scans')+'"></span>';
+    // Last scan info
+    var lastScanHtml = '';
+    if (p.last_scan_at) {
+        var lsDate = formatDate(p.last_scan_at);
+        var lsStatus = p.last_scan_status || '';
+        lastScanHtml = '<span>Last scan: '+lsDate+(lsStatus ? ' ('+esc(lsStatus)+')' : '')+'</span>';
+    }
+    // Progress
+    var progressHtml = '';
+    if (p.scan_count > 0) {
+        var pct = Math.round((p.confirmed_count||0)/p.scan_count*100);
+        progressHtml = '<div class="pli-progress"><div class="scan-progress scan-progress-sm"><div class="scan-progress-bar" style="width:'+pct+'%"></div></div><span class="pli-progress-label">'+(p.confirmed_count||0)+'/'+p.scan_count+' confirmed</span></div>';
+    }
+    // Pin button
+    var pinClass = p.is_pinned ? 'pinned' : '';
+    var pinIcon = p.is_pinned ? '\u2605' : '\u2606';
+    var pinBtn = currentUser.role === 'admin' ? '<button class="pli-pin-btn '+pinClass+'" data-action="handleTogglePin" data-id="'+p.id+'" title="'+(p.is_pinned?'Unpin':'Pin')+'">'+pinIcon+'</button>' : '';
+    // Action buttons
+    var archiveBtn = '';
+    var duplicateBtn = '';
+    var editBtn = '';
+    var deleteBtn = '';
+    if (currentUser.role === 'admin') {
+        var archiveLabel = p.status === 'archived' ? 'Activate' : 'Archive';
+        var newStatus = p.status === 'archived' ? 'active' : 'archived';
+        archiveBtn = '<button class="btn btn-ghost btn-sm" data-action="handleQuickArchive" data-id="'+p.id+'" data-status="'+newStatus+'" title="'+archiveLabel+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><line x1="10" y1="12" x2="14" y2="12"/></svg></button>';
+        duplicateBtn = '<button class="btn btn-ghost btn-sm" data-action="handleDuplicateProject" data-id="'+p.id+'" data-name="'+esc(p.name)+'" title="Duplicate"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
+        editBtn = '<button class="btn btn-ghost btn-sm" data-action="showEditProjectModal" data-id="'+p.id+'" data-name="'+esc(p.name)+'" data-desc="'+esc(p.description||'')+'" data-status="'+esc(p.status||'active')+'" data-priority="'+esc(p.priority||'medium')+'" data-tags="'+esc(p.tags||'')+'" data-client="'+esc(p.client||'')+'" data-owner-id="'+(p.owner_id!=null?p.owner_id:'')+'" data-due="'+(p.due_date?p.due_date.split('T')[0]:'')+'" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+        deleteBtn = '<button class="btn btn-ghost btn-sm btn-delete" data-action="handleDeleteProject" data-id="'+p.id+'" data-name="'+esc(p.name)+'" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+    }
+    var selected = selectedIds.indexOf(p.id) !== -1;
+    var checked = selected ? ' checked' : '';
+    return '<div class="project-list-item" style="border-left-color:'+priorityColor+';" data-id="'+p.id+'">' +
+        '<div class="pli-header">' +
+            '<input type="checkbox" class="pli-checkbox" data-id="'+p.id+'"'+checked+'>' +
+            '<div class="pli-header-left" data-action="goToProject" data-id="'+p.id+'">' +
+                healthDot +
+                '<span class="pli-name">'+esc(p.name)+'</span>' +
             '</div>' +
-            '<h4>'+esc(p.name)+'</h4>' +
-            '<p>'+esc(p.description||'No description')+'</p>' +
-            '<div style="margin-top:8px;font-size:0.75rem;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap;">' +
-                (p.client ? '<span>Client: '+esc(p.client)+'</span>' : '') +
-                '<span>'+(p.owner_name ? esc(p.owner_name) : 'Owner: \u2014')+'</span>' +
-                (p.due_date ? '<span>Due: '+p.due_date.split('T')[0]+'</span>' : '') +
-                '<span>Scans: '+(p.scan_count||0)+'</span>' +
+            '<div class="pli-header-right">' +
+                '<span class="pli-badge" style="background:'+statusColor+'22;color:'+statusColor+';">'+esc(p.status||'active')+'</span>' +
+                '<span class="pli-badge" style="background:'+priorityColor+'22;color:'+priorityColor+';">'+esc(p.priority||'medium')+'</span>' +
+                (tagHtml ? '<div class="pli-tags">'+tagHtml+'</div>' : '') +
+                pinBtn +
             '</div>' +
-            '<div style="margin-top: 6px; font-size: 0.7rem; color: #94a3b8;">Created: '+formatDate(p.created_at)+'</div>' +
-            '<div style="display:flex;gap:6px;margin-top:10px;">' +
-                '<button class="btn btn-secondary btn-sm" style="flex:1;" data-action="showProjectDashboard" data-id="'+p.id+'" title="Dashboard"> Dashboard</button>' +
-                (currentUser.role === 'admin' ?
-                '<button class="btn btn-secondary btn-sm" style="flex:1;" data-action="showEditProjectModal" data-id="'+p.id+'" data-name="'+esc(p.name)+'" data-desc="'+esc(p.description||'')+'" data-status="'+esc(p.status||'active')+'" data-priority="'+esc(p.priority||'medium')+'" data-tags="'+esc(p.tags||'')+'" data-client="'+esc(p.client||'')+'" data-owner-id="'+(p.owner_id!=null?p.owner_id:'')+'" data-due="'+(p.due_date?p.due_date.split('T')[0]:'')+'" title="Edit"> Edit</button>' +
-                '<button class="btn btn-danger btn-sm" style="flex:1;" data-action="handleDeleteProject" data-id="'+p.id+'" data-name="'+esc(p.name)+'" title="Delete"> Delete</button>' : '') +
+        '</div>' +
+        (p.description ? '<div class="pli-desc" data-action="goToProject" data-id="'+p.id+'">'+esc(p.description)+'</div>' : '') +
+        '<div class="pli-meta" data-action="goToProject" data-id="'+p.id+'">' +
+            (p.client ? '<span>Client: '+esc(p.client)+'</span>' : '') +
+            (p.owner_name ? '<span>Owner: '+esc(p.owner_name)+'</span>' : '') +
+            dueHtml +
+            lastScanHtml +
+        '</div>' +
+        progressHtml +
+        '<div class="pli-footer">' +
+            '<div class="pli-footer-left" data-action="goToProject" data-id="'+p.id+'">Scans: '+(p.scan_count||0)+' &middot; Created: '+formatDate(p.created_at)+'</div>' +
+            '<div class="pli-actions">' +
+                archiveBtn +
+                duplicateBtn +
+                editBtn +
+                deleteBtn +
             '</div>' +
-            '</div>';
-    }).join('');
+        '</div>' +
+    '</div>';
+}
+
+function updateBulkBar() {
+    var bar = document.getElementById('bulk-bar');
+    var countEl = document.getElementById('bulk-count');
+    var archiveBtn = document.getElementById('bulk-archive-btn');
+    var activateBtn = document.getElementById('bulk-activate-btn');
+    var deleteBtn = document.getElementById('bulk-delete-btn');
+    if (!bar) return;
+    var count = selectedIds.length;
+    countEl.textContent = count + ' selected';
+    if (count > 0) {
+        bar.classList.add('visible');
+        archiveBtn.style.display = '';
+        activateBtn.style.display = '';
+        deleteBtn.style.display = '';
+    } else {
+        bar.classList.remove('visible');
+        archiveBtn.style.display = 'none';
+        activateBtn.style.display = 'none';
+        deleteBtn.style.display = 'none';
+    }
+}
+
+function handleBulkSelectAll() {
+    var cb = document.getElementById('bulk-select-all');
+    selectAllMode = cb.checked;
+    if (selectAllMode) {
+        selectedIds = allProjects.map(function(p){ return p.id; });
+    } else {
+        selectedIds = [];
+    }
+    var checkboxes = document.querySelectorAll('#projects-list .pli-checkbox');
+    checkboxes.forEach(function(c){ c.checked = selectAllMode; });
+    updateBulkBar();
+}
+
+function handleBulkArchive() { bulkStatusAction('archived'); }
+function handleBulkActivate() { bulkStatusAction('active'); }
+function handleBulkDelete() {
+    if (!selectedIds.length) return;
+    if (!confirm('Delete ' + selectedIds.length + ' projects? This cannot be undone.')) return;
+    (async function() {
+        try {
+            var res = await fetch('/api/projects/bulk/delete', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }, body: JSON.stringify({ ids: selectedIds }) });
+            await ensureProjectActionOK(res, 'Failed to delete projects');
+            showToast(selectedIds.length + ' projects deleted');
+            selectedIds = [];
+            selectAllMode = false;
+            document.getElementById('bulk-select-all').checked = false;
+            await loadProjects();
+        } catch(e) {
+            showToast(e.message || 'Failed to delete projects');
+        }
+    })();
+}
+
+function bulkStatusAction(status) {
+    if (!selectedIds.length) return;
+    (async function() {
+        try {
+            var res = await fetch('/api/projects/bulk/status', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }, body: JSON.stringify({ ids: selectedIds, status: status }) });
+            await ensureProjectActionOK(res, 'Failed to update projects');
+            showToast(selectedIds.length + ' projects updated');
+            selectedIds = [];
+            selectAllMode = false;
+            document.getElementById('bulk-select-all').checked = false;
+            await loadProjects();
+        } catch(e) {
+            showToast(e.message || 'Failed to update projects');
+        }
+    })();
+}
+
+function handleTogglePin(e) {
+    e.stopPropagation();
+    var id = parseInt(this.getAttribute('data-id'));
+    (async function() {
+        try {
+            var res = await fetch('/api/projects/' + id + '/pin', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken } });
+            if (!res.ok) throw new Error('Failed');
+            await loadProjects();
+        } catch(e) {
+            showToast('Failed to toggle pin');
+        }
+    })();
+}
+
+function handleQuickArchive(e) {
+    e.stopPropagation();
+    var id = parseInt(this.getAttribute('data-id'));
+    var status = this.getAttribute('data-status');
+    (async function() {
+        try {
+            var res = await fetch('/api/projects/' + id + '/status', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }, body: JSON.stringify({ status: status }) });
+            await ensureProjectActionOK(res, 'Failed to update project');
+            showToast('Project ' + (status === 'archived' ? 'archived' : 'activated'));
+            await loadProjects();
+        } catch(e) {
+            showToast(e.message || 'Failed to update project');
+        }
+    })();
+}
+
+function handleDuplicateProject(e) {
+    e.stopPropagation();
+    var id = parseInt(this.getAttribute('data-id'));
+    var name = this.getAttribute('data-name');
+    var newName = prompt('Duplicate project name:', name + ' (Copy)');
+    if (!newName) return;
+    (async function() {
+        try {
+            var res = await fetch('/api/projects/' + id + '/duplicate', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }, body: JSON.stringify({ name: newName }) });
+            await ensureProjectActionOK(res, 'Failed to duplicate project');
+            showToast('Project duplicated');
+            await loadProjects();
+        } catch(e) {
+            showToast(e.message || 'Failed to duplicate project');
+        }
+    })();
+}
+
+function handleChipTagClick(e) {
+    var chip = e.target.closest('.pli-chip');
+    if (!chip) return;
+    var tag = chip.getAttribute('data-tag');
+    if (!tag) return;
+    var idx = selectedTags.indexOf(tag);
+    if (idx === -1) {
+        selectedTags.push(tag);
+    } else {
+        selectedTags.splice(idx, 1);
+    }
+    updateTagChips();
+    document.getElementById('search-projects').value = selectedTags.join(' ');
+    filterProjects();
+}
+
+function handleCheckboxChange(e) {
+    var cb = e.target;
+    if (!cb.classList.contains('pli-checkbox')) return;
+    var id = parseInt(cb.getAttribute('data-id'));
+    var idx = selectedIds.indexOf(id);
+    if (cb.checked) {
+        if (idx === -1) selectedIds.push(id);
+    } else {
+        if (idx !== -1) selectedIds.splice(idx, 1);
+        document.getElementById('bulk-select-all').checked = false;
+        selectAllMode = false;
+    }
+    updateBulkBar();
 }
 
 function showAllProjects() {
     document.getElementById('filter-status').value = '';
     document.getElementById('filter-priority').value = '';
+    document.getElementById('filter-owner').value = '';
     document.getElementById('search-projects').value = '';
+    document.getElementById('sort-projects').value = 'newest';
+    selectedTags = [];
+    updateTagChips();
     filterProjects();
-}
-
-async function showGlobalStats() {
-    document.getElementById('global-stats-modal').style.display = 'flex';
-    document.getElementById('global-stats-body').innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
-    try {
-        var stats = await getGlobalStats();
-        var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
-            '<div class="stat-card" style="text-align:center;padding:16px;grid-column:1/-1;background:rgba(59,130,246,0.08);"><div style="font-size:1.8rem;font-weight:700;color:var(--accent);">'+stats.total_projects+'</div><div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Total Projects</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#22c55e;">'+stats.active_projects+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Active</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#64748b;">'+stats.archived_projects+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Archived</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#3b82f6;">'+stats.completed_projects+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Completed</div></div>' +
-        '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;">'+stats.total_scans+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Total Scans</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:var(--accent);">'+stats.running_scans+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Running</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#22c55e;">'+stats.completed_scans+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Completed</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;color:#ef4444;">'+stats.failed_scans+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Failed</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;">'+stats.total_hosts+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Total Hosts</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;">'+stats.total_live_hosts+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Live Hosts</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;"><div style="font-size:1.2rem;font-weight:700;">'+stats.total_ports+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Total Ports</div></div>' +
-            '<div class="stat-card" style="text-align:center;padding:12px;grid-column:1/-1;"><div style="font-size:1.2rem;font-weight:700;">'+stats.unique_services+'</div><div style="font-size:0.7rem;color:var(--text-muted);">Unique Services</div></div>' +
-        '</div>';
-        document.getElementById('global-stats-body').innerHTML = html;
-    } catch(e) {
-        document.getElementById('global-stats-body').innerHTML = '<div class="empty-state"><p>Error loading global stats</p></div>';
-    }
-}
-
-function hideGlobalStats() {
-    document.getElementById('global-stats-modal').style.display = 'none';
 }
 
 async function showTagCloud() {
@@ -379,6 +638,7 @@ function hideTagCloud() {
 
 function applyTagFilter() {
     hideTagCloud();
+    updateTagChips();
     if (selectedTags.length) {
         document.getElementById('search-projects').value = selectedTags.join(' ');
     } else {
@@ -390,8 +650,21 @@ function applyTagFilter() {
 function clearTagFilter() {
     selectedTags = [];
     hideTagCloud();
+    updateTagChips();
     document.getElementById('search-projects').value = '';
     filterProjects();
+}
+
+function updateTagChips() {
+    var container = document.getElementById('tag-chips');
+    if (!selectedTags || !selectedTags.length) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = selectedTags.map(function(t) {
+        return '<span class="tag-chip-sel">#'+esc(t)+' <span class="tag-chip-remove" data-tag="'+esc(t)+'">&times;</span></span>';
+    }).join('');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -423,6 +696,28 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('search-projects').addEventListener('input', filterProjects);
     document.getElementById('filter-status').addEventListener('change', filterProjects);
     document.getElementById('filter-priority').addEventListener('change', filterProjects);
+    document.getElementById('sort-projects').addEventListener('change', sortProjects);
+    document.getElementById('group-projects').addEventListener('change', groupProjects);
+    document.getElementById('bulk-select-all').addEventListener('change', handleBulkSelectAll);
+    document.getElementById('projects-list').addEventListener('click', handleChipTagClick);
+    document.getElementById('projects-list').addEventListener('change', handleCheckboxChange);
+    (function() {
+        var closeBtn = document.querySelector('[data-action="clearProjectSearch"]');
+        if (closeBtn) closeBtn.addEventListener('click', clearProjectSearch);
+    })();
+    document.getElementById('tag-chips').addEventListener('click', function(e) {
+        var removeBtn = e.target.closest('.tag-chip-remove');
+        if (removeBtn) {
+            var tag = removeBtn.getAttribute('data-tag');
+            var idx = selectedTags.indexOf(tag);
+            if (idx !== -1) {
+                selectedTags.splice(idx, 1);
+                updateTagChips();
+                document.getElementById('search-projects').value = selectedTags.join(' ');
+                filterProjects();
+            }
+        }
+    });
     document.getElementById('tag-cloud-body').addEventListener('click', function(e) {
         var tagEl = e.target.closest('[data-tag]');
         if (tagEl) {
@@ -443,17 +738,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.closest('#delete-modal.modal-overlay') && e.target === e.target.closest('#delete-modal')) {
             hideDeleteModal();
         }
-        if (e.target.closest('#global-stats-modal.modal-overlay') && e.target === e.target.closest('#global-stats-modal')) {
-            hideGlobalStats();
-        }
         if (e.target.closest('#tag-cloud-modal.modal-overlay') && e.target === e.target.closest('#tag-cloud-modal')) {
             hideTagCloud();
         }
         if (e.target.closest('#about-modal.modal-overlay') && e.target === e.target.closest('#about-modal')) {
             hideAboutModal();
-        }
-        if (e.target.closest('#dashboard-modal.modal-overlay') && e.target === e.target.closest('#dashboard-modal')) {
-            hideProjectDashboard();
         }
         if (e.target.closest('#edit-modal.modal-overlay') && e.target === e.target.closest('#edit-modal')) {
             hideEditProjectModal();

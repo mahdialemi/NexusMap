@@ -268,6 +268,16 @@ func (d *DB) RevertResultField(table string, id int, field string) error {
 		strVal = fmt.Sprintf("%v", v)
 	}
 
+	// Save current value as original_data so subsequent reverts work as undo
+	var currentVal string
+	d.QueryRow(fmt.Sprintf("SELECT %s FROM %s WHERE id = ?", field, table), id).Scan(&currentVal)
+	if currentVal != strVal {
+		// Update original_data by replacing the field's value with the current one
+		data[field] = currentVal
+		newJSON, _ := json.Marshal(data)
+		d.Exec(fmt.Sprintf("UPDATE %s SET original_data = ? WHERE id = ?", table), string(newJSON), id)
+	}
+
 	query = fmt.Sprintf("UPDATE %s SET %s = ? WHERE id = ?", table, field)
 	_, err := d.Exec(query, strVal, id)
 	return err

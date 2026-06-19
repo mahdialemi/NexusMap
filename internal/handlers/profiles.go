@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+
+	"github.com/mahdialemi/NexusMap/internal/nmap"
 )
 
 func (s *Server) HandleScanProfiles(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +61,10 @@ func (s *Server) createProfile(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, 400, map[string]string{"error": "name, command, and category are required"})
 		return
 	}
+	if err := nmap.ValidateNmapArgs(strings.Fields(req.Command)); err != nil {
+		jsonResponse(w, 400, map[string]string{"error": "invalid command: " + err.Error()})
+		return
+	}
 	if err := s.DB.CreateProfile(req.Name, req.Description, req.Command, req.Category); err != nil {
 		serverError(w, err)
 		return
@@ -83,6 +89,10 @@ func (s *Server) updateProfile(w http.ResponseWriter, r *http.Request) {
 	req.Category = strings.TrimSpace(req.Category)
 	if req.Name == "" || req.Command == "" || req.Category == "" {
 		jsonResponse(w, 400, map[string]string{"error": "name, command, and category are required"})
+		return
+	}
+	if err := nmap.ValidateNmapArgs(strings.Fields(req.Command)); err != nil {
+		jsonResponse(w, 400, map[string]string{"error": "invalid command: " + err.Error()})
 		return
 	}
 	if err := s.DB.UpdateProfile(req.ID, req.Name, req.Description, req.Command, req.Category); err != nil {

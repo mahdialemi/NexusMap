@@ -28,6 +28,9 @@ func (d *DB) GetScans(projectID int) ([]Scan, error) {
 		}
 		scans = append(scans, s)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return scans, nil
 }
 
@@ -53,6 +56,9 @@ func (d *DB) GetImportHistory(projectID int) ([]Scan, error) {
 			return nil, err
 		}
 		scans = append(scans, s)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return scans, nil
 }

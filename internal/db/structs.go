@@ -33,8 +33,11 @@ type Project struct {
 	DueDate     *string    `json:"due_date,omitempty"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
-	ScanCount   int        `json:"scan_count,omitempty"`
-	LastScanAt  *time.Time `json:"last_scan_at,omitempty"`
+	ScanCount       int        `json:"scan_count"`
+	ConfirmedCount  int        `json:"confirmed_count"`
+	LastScanAt      *time.Time `json:"last_scan_at"`
+	LastScanStatus  string     `json:"last_scan_status"`
+	IsPinned        bool       `json:"is_pinned"`
 }
 
 type Scan struct {
@@ -250,6 +253,8 @@ type ConsolidatedNote struct {
 	Port      int    `json:"port"`
 	Protocol  string `json:"protocol"`
 	Note      string `json:"note"`
+	Service   string `json:"service,omitempty"`
+	Hostname  string `json:"hostname,omitempty"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
 }
@@ -375,6 +380,29 @@ type ScanSchedule struct {
 	NextRunAt       *string `json:"next_run_at,omitempty"`
 	LastRunAt       *string `json:"last_run_at,omitempty"`
 	CreatedAt       string  `json:"created_at"`
+}
+
+type DayCount struct {
+	Date  string `json:"date"`
+	Count int    `json:"count"`
+}
+
+type ServiceCount struct {
+	Service string `json:"service"`
+	Port    int    `json:"port"`
+	Count   int    `json:"count"`
+}
+
+type ProjectStatsResponse struct {
+	Project             Project        `json:"project"`
+	ScanStatusBreakdown map[string]int `json:"scan_status_breakdown"`
+	PortStateBreakdown  map[string]int `json:"port_state_breakdown"`
+	TopServices         []ServiceCount `json:"top_services"`
+	HostCount           int            `json:"host_count"`
+	OpenPortCount       int            `json:"open_port_count"`
+	HighRiskPortCount   int            `json:"high_risk_port_count"`
+	RecentScans         []Scan         `json:"recent_scans"`
+	ScanActivity        []DayCount     `json:"scan_activity"`
 }
 
 func parseInt(s string) int {

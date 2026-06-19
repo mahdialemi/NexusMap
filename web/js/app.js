@@ -116,12 +116,6 @@ async function updateProject(id, name, description, status, priority, tags, clie
     return data;
 }
 
-async function getGlobalStats() {
-    const res = await fetch(`${API}/api/stats/global`);
-    if (!res.ok) throw new Error('Failed to load global stats');
-    return res.json();
-}
-
 async function getTagCloud() {
     const res = await fetch(`${API}/api/tags`);
     if (!res.ok) throw new Error('Failed to load tag cloud');
@@ -373,6 +367,43 @@ function esc(s) {
 
 function escAttr(s) {
     return (s == null ? '' : String(s)).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+async function checkForUpdatesBadge() {
+    try {
+        const res = await fetch('/api/check-update');
+        const data = await res.json();
+        if (data.update_available) {
+            const btn = document.querySelector('[data-action="showAboutModal"]');
+            if (btn && !btn.querySelector('.update-badge')) {
+                const badge = document.createElement('span');
+                badge.className = 'update-badge';
+                btn.appendChild(badge);
+            }
+        }
+    } catch (e) {}
+}
+checkForUpdatesBadge();
+
+async function checkForUpdates() {
+    const btn = document.querySelector('[data-action="checkForUpdates"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Checking...'; }
+    try {
+        const res = await fetch('/api/check-update');
+        const data = await res.json();
+        if (data.update_available) {
+            showToast('Update ' + data.latest + ' available — opening releases page...', 'info', 5000);
+            setTimeout(function () { window.open('https://github.com/mahdialemi/NexusMap/releases/latest', '_blank'); }, 800);
+        } else if (data.latest) {
+            showToast('You are up to date (' + data.current + ')', 'success');
+        } else {
+            showToast('Could not check for updates', 'error');
+        }
+    } catch (e) {
+        showToast('Update check failed: ' + e.message, 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Check for Updates'; }
+    }
 }
 
 function stateBadge(state) {

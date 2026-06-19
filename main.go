@@ -7,12 +7,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"os/exec"
 	"io"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"strings"
@@ -40,27 +40,33 @@ func (g *gzipResponseWriter) Write(b []byte) (int, error) {
 	return g.Writer.Write(b)
 }
 
-var version = "v0.9.1"
+func (g *gzipResponseWriter) Flush() {
+	if f, ok := g.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
 
-func checkLatestVersion() {
+var version = "v0.9.2"
+
+func handleCheckUpdate(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Get("https://api.github.com/repos/mahdialemi/NexusMap/releases/latest")
-	if err != nil {
-		return
+	latest := ""
+	if err == nil {
+		defer resp.Body.Close()
+		var rel struct {
+			TagName string `json:"tag_name"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&rel); err == nil {
+			latest = rel.TagName
+		}
 	}
-	defer resp.Body.Close()
-
-	var rel struct {
-		TagName string `json:"tag_name"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&rel); err != nil {
-		return
-	}
-
-	if rel.TagName != "" && rel.TagName != version {
-		log.Printf("Update available: %s (you are on %s)", rel.TagName, version)
-		log.Printf("  go install github.com/mahdialemi/NexusMap@%s", rel.TagName)
-	}
+	updateAvailable := latest != "" && latest != version
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"current":          version,
+		"latest":           latest,
+		"update_available": updateAvailable,
+	})
 }
 
 func main() {
@@ -102,9 +108,13 @@ func main() {
 	if pwd, err := appDB.SeedAdmin(*adminPassword); err != nil {
 		log.Printf("Seed admin warning: %v", err)
 	} else if pwd != "" {
+		displayPassword := pwd
+		if *adminPassword != "" {
+			displayPassword = strings.Repeat("*", len(pwd))
+		}
 		log.Printf("==========================================")
 		log.Printf("  Admin user: admin")
-		log.Printf("  Password: %s", pwd)
+		log.Printf("  Password: %s", displayPassword)
 		log.Printf("  You MUST change it on first login.")
 		log.Printf("==========================================")
 	}
@@ -156,7 +166,11 @@ func main() {
 	mux.HandleFunc("/api/projects", csrf(auth.APIAuthMiddleware(authSvc, handlers.RateLimitMiddleware(srv.HandleProjects, handlers.ApiRateLimiter))))
 	mux.HandleFunc("/api/projects/{id}", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleProjectByID)))
 	mux.HandleFunc("/api/projects/{id}/status", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleProjectStatus)))
+	mux.HandleFunc("/api/projects/{id}/pin", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleToggleProjectPin)))
+	mux.HandleFunc("/api/projects/{id}/duplicate", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleDuplicateProject)))
 	mux.HandleFunc("/api/projects/{id}/scans", auth.APIAuthMiddleware(authSvc, srv.HandleProjectScans))
+	mux.HandleFunc("/api/projects/bulk/status", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleBulkProjectStatus)))
+	mux.HandleFunc("/api/projects/bulk/delete", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleBulkProjectDelete)))
 	mux.HandleFunc("/api/projects/{id}/schedules", auth.APIAuthMiddleware(authSvc, srv.HandleGetSchedules))
 	mux.HandleFunc("/api/projects/{id}/schedules/create", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleCreateSchedule)))
 	mux.HandleFunc("/api/projects/{id}/schedules/{schedule_id}/delete", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleDeleteSchedule)))
@@ -198,6 +212,7 @@ func main() {
 	mux.HandleFunc("/api/projects/{id}/consolidated/export/scripts/txt", auth.APIAuthMiddleware(authSvc, srv.HandleScriptsExportTXT))
 	mux.HandleFunc("/api/projects/{id}/consolidated/export/scripts/sizes", auth.APIAuthMiddleware(authSvc, srv.HandleScriptsExportSizes))
 	mux.HandleFunc("/api/projects/{id}/consolidated/scripts", auth.APIAuthMiddleware(authSvc, srv.HandleConsolidatedScripts))
+	mux.HandleFunc("/api/projects/{id}/consolidated/notes/all", auth.APIAuthMiddleware(authSvc, srv.HandleGetProjectNotes))
 	mux.HandleFunc("/api/projects/{id}/consolidated/notes", auth.APIAuthMiddleware(authSvc, srv.HandleGetPortNote))
 	mux.HandleFunc("/api/projects/{id}/consolidated/notes/set", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleSetPortNote)))
 	mux.HandleFunc("/api/projects/{id}/consolidated/notes/delete", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleDeletePortNote)))
@@ -244,8 +259,10 @@ func main() {
 	mux.HandleFunc("/api/db/import", csrf(auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleDBImport))))
 	mux.HandleFunc("/api/db/health", auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleHealth)))
 	mux.HandleFunc("/api/db", csrf(auth.APIAuthMiddleware(authSvc, auth.RequireAdmin(srv.HandleDBManagement))))
+	mux.HandleFunc("/api/projects/{id}/stats", auth.APIAuthMiddleware(authSvc, srv.HandleProjectStats))
 	mux.HandleFunc("/api/stats/global", auth.APIAuthMiddleware(authSvc, srv.HandleGlobalStats))
 	mux.HandleFunc("/api/events", auth.APIAuthMiddleware(authSvc, srv.SSE.HandleSSE))
+	mux.HandleFunc("/api/check-update", handleCheckUpdate)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -273,7 +290,6 @@ func main() {
 	log.Printf("Database: %s", *dbPath)
 	log.Printf("NexusMap %s starting on http://%s", version, addr)
 
-	go checkLatestVersion()
 	go srv.BackfillAllScripts()
 	go srv.StartScheduler()
 

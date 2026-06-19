@@ -11,7 +11,7 @@
         <div class="header">
         <a href="/" class="header-link">
             <svg width="28" height="28" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
-            <h1>NexusMap <span class="version-badge">v0.9.1</span></h1>
+            <h1>NexusMap <span class="version-badge">v0.9.2</span></h1>
         </a>
         <div class="header-nav">
             <span id="user-info"></span>
@@ -20,14 +20,11 @@
 
     <div class="project-body">
         <nav class="sidebar">
-            <button class="sidebar-btn" title="All Projects" data-action="showAllProjects">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-folder"/></svg>
-            </button>
             <button class="sidebar-btn" title="New Project" data-action="showCreateModal">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-plus"/></svg>
             </button>
-            <button class="sidebar-btn" title="Global Stats" data-action="showGlobalStats">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-bar-chart"/></svg>
+            <button class="sidebar-btn" title="All Projects" data-action="showAllProjects">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-folder"/></svg>
             </button>
             <button class="sidebar-btn" title="Tags" data-action="showTagCloud">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-tag"/></svg>
@@ -65,29 +62,60 @@
         <div class="main-area">
             <div id="toast-container" class="toast-container"></div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Projects</h2>
-                </div>
-
-                <div class="toolbar tb-padded">
-                    <input type="text" id="search-projects" class="form-control search-box" placeholder="Search projects..." data-action="filterProjects">
-                    <select id="filter-status" class="form-control filter-sel" data-action="filterProjects">
+            <div class="asset-actions">
+                <h2 class="card-title">Projects <span id="project-count" class="title-count"></span></h2>
+                <div class="asset-toolbar-right">
+                    <div class="search-wrapper">
+                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
+                        <input type="text" id="search-projects" class="search-input" placeholder="Search..." autocomplete="off" data-action="filterProjects">
+                        <button class="search-close" data-action="clearProjectSearch">&times;</button>
+                    </div>
+                    <select id="filter-status" class="form-control" data-action="filterProjects">
                         <option value="">All Status</option>
                         <option value="active">Active</option>
                         <option value="archived">Archived</option>
                         <option value="completed">Completed</option>
                     </select>
-                    <select id="filter-priority" class="form-control filter-sel" data-action="filterProjects">
+                    <select id="filter-priority" class="form-control" data-action="filterProjects">
                         <option value="">All Priority</option>
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
                         <option value="high">High</option>
                         <option value="critical">Critical</option>
                     </select>
+                    <select id="filter-owner" class="form-control" data-action="filterProjects">
+                        <option value="">All Owners</option>
+                    </select>
+                    <select id="group-projects" class="form-control group-by-sel" data-action="groupProjects">
+                        <option value="">No Grouping</option>
+                        <option value="status">By Status</option>
+                        <option value="priority">By Priority</option>
+                        <option value="owner">By Owner</option>
+                    </select>
+                    <select id="sort-projects" class="form-control" data-action="sortProjects">
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                        <option value="name">Name A-Z</option>
+                        <option value="name_desc">Name Z-A</option>
+                        <option value="priority">Priority</option>
+                        <option value="scans">Most Scans</option>
+                        <option value="due">Due Date</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;">
+                <div id="tag-chips" class="tag-chips" style="display:none;"></div>
+
+                <div id="bulk-bar" class="bulk-bar">
+                    <input type="checkbox" id="bulk-select-all" class="bulk-select-all" title="Select all">
+                    <span class="bulk-count" id="bulk-count">0 selected</span>
+                    <button class="btn btn-secondary" id="bulk-archive-btn" data-action="handleBulkArchive" style="display:none;">Archive</button>
+                    <button class="btn btn-secondary" id="bulk-activate-btn" data-action="handleBulkActivate" style="display:none;">Activate</button>
+                    <button class="btn btn-danger" id="bulk-delete-btn" data-action="handleBulkDelete" style="display:none;">Delete</button>
                 </div>
 
-                <div id="projects-grid" class="grid grid-3 grid-padded">
+                <div id="projects-list">
                     <div class="empty-state">
                         <div class="spinner"></div>
                         <p>Loading projects...</p>
@@ -253,27 +281,6 @@
         </div>
     </div>
 
-    <!-- Global Stats Modal -->
-    <div id="global-stats-modal" class="modal-overlay" style="display:none;">
-        <div class="modal modal-max-560">
-            <div class="modal-header">
-                <div class="modal-header-flex">
-                    <div class="modal-icon-box">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon-svg"><use href="#icon-bar-chart"/></svg>
-                    </div>
-                    <div>
-                        <h3 class="modal-h3">Global Stats</h3>
-                        <p class="modal-subtitle">Overview across all projects</p>
-                    </div>
-                </div>
-                <button class="modal-close" data-action="hideGlobalStats">&times;</button>
-            </div>
-            <div id="global-stats-body" class="modal-body-pad">
-                <div class="spinner spinner-center"></div>
-            </div>
-        </div>
-    </div>
-
     <!-- Tags Cloud Modal -->
     <div id="tag-cloud-modal" class="modal-overlay" style="display:none;">
         <div class="modal modal-max-480">
@@ -302,61 +309,36 @@
     <div id="about-modal" class="modal-overlay" style="display:none;">
         <div class="modal modal-max-480">
             <div class="modal-header">
-                <h3>About NexusMap</h3>
+                <h3>About</h3>
                 <button class="modal-close" data-action="hideAboutModal">&times;</button>
             </div>
             <div class="about-body">
-                <div class="about-icon-wrap">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="about-icon-svg">
+                <div class="about-hero">
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="about-hero-icon">
                         <use href="#icon-shield"/>
                     </svg>
+                    <h2 class="about-hero-title">NexusMap</h2>
+                    <p class="about-hero-version">v0.9.2 &middot; Network Scanner &amp; Asset Management</p>
                 </div>
-                <h2 class="about-title">NexusMap</h2>
-                <p class="about-version">Version 0.9.0 &middot; Network Scanner &amp; Asset Management</p>
-                <div class="about-card">
-                    <h4>What it does</h4>
+                <div class="about-desc">
                     <p>NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
+                    <p class="about-desc-sub">Built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach. Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
                 </div>
-                <div class="about-card">
-                    <h4>How it was built</h4>
-                    <p>This project was built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach where the entire codebase was generated through natural language conversation.</p>
-                    <p>Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
+                <div class="about-pills">
+                    <span class="about-pill">Go</span>
+                    <span class="about-pill">SQLite</span>
+                    <span class="about-pill">Vanilla JS</span>
                 </div>
-                <div class="about-tech">
-                    <div class="about-tech-item"><div>Go</div><div>Backend</div></div>
-                    <div class="about-tech-sep">&middot;</div>
-                    <div class="about-tech-item"><div>SQLite</div><div>Database</div></div>
-                    <div class="about-tech-sep">&middot;</div>
-                    <div class="about-tech-item"><div>Vanilla JS</div><div>Frontend</div></div>
+                <div class="about-ftr">
+                    <span>Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></span>
+                    <button class="btn btn-secondary btn-sm" data-action="checkForUpdates">Check for Updates</button>
                 </div>
-                <p class="about-footer">Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dashboard Modal -->
-    <div id="dashboard-modal" class="modal-overlay" style="display:none;">
-        <div class="modal modal-max-520">
-            <div class="modal-header">
-                <div class="modal-header-flex">
-                    <div class="modal-icon-box">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon-svg"><use href="#icon-grid"/></svg>
-                    </div>
-                    <div>
-                        <h3 class="modal-m0" id="dashboard-title">Project Dashboard</h3>
-                        <p class="modal-subtitle" id="dashboard-subtitle">Project overview</p>
-                    </div>
-                </div>
-                <button class="modal-close" data-action="hideProjectDashboard">&times;</button>
-            </div>
-            <div id="dashboard-body" class="modal-body-pad">
-                <div class="spinner spinner-center"></div>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        NexusMap v0.9.1 &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap v0.9.2 &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

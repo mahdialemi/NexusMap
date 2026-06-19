@@ -136,8 +136,9 @@ func ToConsolidatedExcelWithScripts(hosts []db.ConsolidatedHost, ports []db.Cons
 	f.SetSheetName("Sheet1", portSheet)
 
 	portHeaders := []string{
-		"IP", "Port", "Protocol", "State", "Service", "Version",
-		"Product", "Extra Info", "Changes", "Last Seen",
+		"IP", "MAC", "Hostnames", "OS", "Status",
+		"Port", "Proto", "State", "Service", "Version",
+		"Product", "Extra", "Notes", "Label", "Changes", "Last Seen",
 	}
 	for i, h := range portHeaders {
 		cell := fmt.Sprintf("%c1", 'A'+i)
@@ -147,13 +148,14 @@ func ToConsolidatedExcelWithScripts(hosts []db.ConsolidatedHost, ports []db.Cons
 		Font: &excelize.Font{Bold: true, Color: "#FFFFFF"},
 		Fill: excelize.Fill{Type: "pattern", Color: []string{"#4472C4"}, Pattern: 1},
 	})
-	f.SetCellStyle(portSheet, "A1", "J1", portStyle)
+	f.SetCellStyle(portSheet, "A1", "P1", portStyle)
 
 	for i, p := range ports {
 		row := i + 2
 		values := []interface{}{
-			p.IP, p.Port, p.Protocol, p.State, p.Service, p.Version,
-			p.Product, p.ExtraInfo, p.ChangeCount, p.LastSeen,
+			p.IP, p.MAC, p.Hostname, p.OS, p.HostStatus,
+			p.Port, p.Protocol, p.State, p.Service, p.Version,
+			p.Product, p.ExtraInfo, p.NotePreview, p.Label, p.ChangeCount, p.LastSeen,
 		}
 		for j, v := range values {
 			cell := fmt.Sprintf("%c%d", 'A'+j, row)
@@ -240,13 +242,15 @@ func ToConsolidatedTXT(ports []db.ConsolidatedPort, scripts []db.ConsolidatedScr
 	buf := new(bytes.Buffer)
 
 	buf.WriteString("=== Consolidated Ports ===\n\n")
-	buf.WriteString(fmt.Sprintf("%-16s %-6s %-6s %-10s %-16s %-10s %-16s %s\n",
-		"IP", "Port", "Proto", "State", "Service", "Version", "Product", "Extra"))
-	buf.WriteString(strings.Repeat("-", 100) + "\n")
+	buf.WriteString(fmt.Sprintf("%-16s %-18s %-20s %-16s %-8s %-6s %-6s %-10s %-16s %-12s %-16s %-16s %-20s %-10s %-8s %s\n",
+		"IP", "MAC", "Hostnames", "OS", "Status", "Port", "Proto", "State",
+		"Service", "Version", "Product", "Extra", "Notes", "Label", "Changes", "Last Seen"))
+	buf.WriteString(strings.Repeat("-", 230) + "\n")
 
 	for _, p := range ports {
-		buf.WriteString(fmt.Sprintf("%-16s %-6d %-6s %-10s %-16s %-10s %-16s %s\n",
-			p.IP, p.Port, p.Protocol, p.State, p.Service, p.Version, p.Product, p.ExtraInfo))
+		buf.WriteString(fmt.Sprintf("%-16s %-18s %-20s %-16s %-8s %-6d %-6s %-10s %-16s %-12s %-16s %-16s %-20s %-10s %-8d %s\n",
+			p.IP, p.MAC, p.Hostname, p.OS, p.HostStatus, p.Port, p.Protocol, p.State,
+			p.Service, p.Version, p.Product, p.ExtraInfo, p.NotePreview, p.Label, p.ChangeCount, p.LastSeen))
 	}
 
 	buf.WriteString("\n=== NSE Scripts ===\n\n")
@@ -447,20 +451,22 @@ func ToScriptsExcel(hosts []db.ConsolidatedHost, ports []db.ConsolidatedPort, sc
 		f.NewSheet(portSheet)
 
 		portHeaders := []string{
-			"IP", "Port", "Protocol", "State", "Service", "Version",
-			"Product", "Extra Info", "Changes", "Last Seen",
+			"IP", "MAC", "Hostnames", "OS", "Status",
+			"Port", "Proto", "State", "Service", "Version",
+			"Product", "Extra", "Notes", "Label", "Changes", "Last Seen",
 		}
 		for i, h := range portHeaders {
 			cell := fmt.Sprintf("%c1", 'A'+i)
 			f.SetCellValue(portSheet, cell, h)
 		}
-		f.SetCellStyle(portSheet, "A1", "J1", style)
+		f.SetCellStyle(portSheet, "A1", "P1", style)
 
 		for i, p := range ports {
 			row := i + 2
 			values := []interface{}{
-				p.IP, p.Port, p.Protocol, p.State, p.Service, p.Version,
-				p.Product, p.ExtraInfo, p.ChangeCount, p.LastSeen,
+				p.IP, p.MAC, p.Hostname, p.OS, p.HostStatus,
+				p.Port, p.Protocol, p.State, p.Service, p.Version,
+				p.Product, p.ExtraInfo, p.NotePreview, p.Label, p.ChangeCount, p.LastSeen,
 			}
 			for j, v := range values {
 				cell := fmt.Sprintf("%c%d", 'A'+j, row)
@@ -468,7 +474,7 @@ func ToScriptsExcel(hosts []db.ConsolidatedHost, ports []db.ConsolidatedPort, sc
 			}
 		}
 
-		f.SetColWidth(portSheet, "A", "J", 18)
+		f.SetColWidth(portSheet, "A", "P", 18)
 	}
 
 	buf := new(bytes.Buffer)

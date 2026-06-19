@@ -66,7 +66,7 @@ func (d *DB) GetConsolidatedPortsPaged(projectID, page, limit int, search, state
 		SELECT DISTINCT cp.ip, COALESCE(ch.mac, ''), COALESCE(ch.hostname, ''), COALESCE(ch.os, ''), COALESCE(ch.status, ''),
 			   cp.port, cp.protocol, cp.state, cp.service, cp.version, cp.product, cp.extra_info,
 			   cp.change_count, strftime('%Y-%m-%dT%H:%M:%SZ', cp.first_seen), strftime('%Y-%m-%dT%H:%M:%SZ', cp.last_seen), cp.last_scan_id,
-			   COALESCE(cn.note, '')
+			   COALESCE(cn.note, ''), COALESCE(cp.label, '')
 		FROM consolidated_ports cp
 		INNER JOIN hosts h ON h.ip = cp.ip
 		INNER JOIN scans s ON s.id = h.scan_id AND s.project_id = ?
@@ -82,7 +82,7 @@ func (d *DB) GetConsolidatedPortsPaged(projectID, page, limit int, search, state
 	var result []ConsolidatedPort
 	for rows.Next() {
 		var p ConsolidatedPort
-		if err := rows.Scan(&p.IP, &p.MAC, &p.Hostname, &p.OS, &p.HostStatus, &p.Port, &p.Protocol, &p.State, &p.Service, &p.Version, &p.Product, &p.ExtraInfo, &p.ChangeCount, &p.FirstSeen, &p.LastSeen, &p.LastScanID, &p.NotePreview); err != nil {
+		if err := rows.Scan(&p.IP, &p.MAC, &p.Hostname, &p.OS, &p.HostStatus, &p.Port, &p.Protocol, &p.State, &p.Service, &p.Version, &p.Product, &p.ExtraInfo, &p.ChangeCount, &p.FirstSeen, &p.LastSeen, &p.LastScanID, &p.NotePreview, &p.Label); err != nil {
 			return nil, err
 		}
 		result = append(result, p)
@@ -522,6 +522,33 @@ func (d *DB) SetPortNote(ip string, port int, protocol string, note string) erro
 func (d *DB) DeletePortNote(ip string, port int, protocol string) error {
 	_, err := d.Exec(`DELETE FROM consolidated_notes WHERE ip = ? AND port = ? AND protocol = ?`, ip, port, protocol)
 	return err
+}
+
+func (d *DB) GetAllProjectNotes(projectID int) ([]ConsolidatedNote, error) {
+	rows, err := d.Query(`
+		SELECT DISTINCT cn.id, cn.ip, cn.port, cn.protocol, cn.note,
+			COALESCE(cp.service, '') AS service,
+			COALESCE(h.hostname, '') AS hostname,
+			cn.created_at, cn.updated_at
+		FROM consolidated_notes cn
+		JOIN hosts h ON h.ip = cn.ip
+		JOIN scans s ON s.id = h.scan_id AND s.project_id = ?
+		LEFT JOIN consolidated_ports cp ON cp.ip = cn.ip AND cp.port = cn.port AND cp.protocol = cn.protocol
+		ORDER BY cn.updated_at DESC`, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var notes []ConsolidatedNote
+	for rows.Next() {
+		var n ConsolidatedNote
+		if err := rows.Scan(&n.ID, &n.IP, &n.Port, &n.Protocol, &n.Note, &n.Service, &n.Hostname, &n.CreatedAt, &n.UpdatedAt); err != nil {
+			return nil, err
+		}
+		notes = append(notes, n)
+	}
+	return notes, rows.Err()
 }
 
 func (d *DB) GetConsolidatedFieldValues(projectID int, field, query string) ([]string, error) {

@@ -37,13 +37,21 @@ func ParseNmapNormal(data string) ([]db.Host, []db.Port, []db.PortScript, []db.H
 		line := strings.TrimRight(lines[i], "\r")
 
 		if strings.HasPrefix(line, "Nmap scan report for") {
-			currentHost = &db.Host{Status: "up"}
 			target := strings.TrimPrefix(line, "Nmap scan report for ")
+			hostname := ""
 			if idx := strings.Index(target, " ("); idx > 0 {
-				currentHost.Hostname = target[idx+2 : strings.LastIndex(target, ")")]
+				hostname = target[idx+2 : strings.LastIndex(target, ")")]
 				target = target[:idx]
 			}
-			currentHost.IP = target
+			if idx2, exists := hostIndexMap[target]; exists {
+				currentHost = &hosts[idx2]
+				if hostname != "" && currentHost.Hostname == "" {
+					currentHost.Hostname = hostname
+				}
+				inPortSection = false
+				continue
+			}
+			currentHost = &db.Host{Status: "up", IP: target, Hostname: hostname}
 			hosts = append(hosts, *currentHost)
 			hostIndexMap[currentHost.IP] = len(hosts) - 1
 			inPortSection = false
@@ -85,7 +93,7 @@ func ParseNmapNormal(data string) ([]db.Host, []db.Port, []db.PortScript, []db.H
 			continue
 		}
 
-		if strings.HasPrefix(line, "PORT") || strings.HasPrefix(line, "PORT") {
+		if strings.HasPrefix(line, "PORT") {
 			inPortSection = true
 			continue
 		}

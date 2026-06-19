@@ -285,6 +285,7 @@ func (d *DB) Init() error {
 			applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`ALTER TABLE scans ADD COLUMN schedule_id INTEGER REFERENCES scan_schedules(id) ON DELETE SET NULL`,
+		`ALTER TABLE projects ADD COLUMN is_pinned INTEGER DEFAULT 0`,
 	}
 
 	for i, sql := range migrations {
@@ -559,7 +560,7 @@ func (d *DB) SeedAdmin(adminPassword string) (string, error) {
 }
 
 func generateRandomPassword() string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*-_=+[]{}<>?/"
 	b := make([]byte, 16)
 	for i := range b {
 		n, _ := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))

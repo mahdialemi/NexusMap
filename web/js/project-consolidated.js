@@ -161,6 +161,84 @@
             }
         }
 
+        function toggleNoteRow(btn, ip, port, protocol) {
+            const tr = btn.closest('tr');
+            // note-row should be the first hidden row (before nse-row)
+            let noteRow = tr.nextElementSibling;
+            while (noteRow && !noteRow.classList.contains('note-row')) {
+                noteRow = noteRow.nextElementSibling;
+            }
+            if (noteRow && noteRow.dataset.parentIp === ip) {
+                const isHidden = noteRow.style.display === 'none';
+                noteRow.style.display = isHidden ? '' : 'none';
+                btn.classList.toggle('active', isHidden);
+            }
+        }
+
+        // Delegate save/delete for note inline rows
+        document.addEventListener('click', function(e) {
+            const saveBtn = e.target.closest('.note-inline-save');
+            if (saveBtn) {
+                const noteRow = saveBtn.closest('.note-row');
+                if (!noteRow) return;
+                const ta = noteRow.querySelector('.note-inline-ta');
+                const ip = noteRow.dataset.parentIp;
+                const port = parseInt(noteRow.dataset.parentPort);
+                const protocol = noteRow.dataset.parentProto;
+                saveInlineNote(ip, port, protocol, ta.value.trim(), noteRow);
+                return;
+            }
+            const delBtn = e.target.closest('.note-inline-delete');
+            if (delBtn) {
+                const noteRow = delBtn.closest('.note-row');
+                if (!noteRow) return;
+                const ip = noteRow.dataset.parentIp;
+                const port = parseInt(noteRow.dataset.parentPort);
+                const protocol = noteRow.dataset.parentProto;
+                deleteInlineNote(ip, port, protocol, noteRow);
+            }
+        });
+
+        async function saveInlineNote(ip, port, protocol, note, noteRow) {
+            try {
+                await fetch(`/api/projects/${projectId}/consolidated/notes/set`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip, port, protocol, note })
+                });
+                showToast(note ? 'Note saved' : 'Note cleared');
+                noteRow.style.display = 'none';
+                // Update note_preview in local data and re-render
+                const p = consolidatedPortsData.ports.find(x => x.ip === ip && x.port === port && x.protocol === protocol);
+                if (p) p.note_preview = note;
+                if (consolidatedAllPorts) {
+                    const ap = consolidatedAllPorts.find(x => x.ip === ip && x.port === port && x.protocol === protocol);
+                    if (ap) ap.note_preview = note;
+                }
+                renderConsolidatedPorts();
+            } catch (e) {
+                showToast('Error saving note: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteInlineNote(ip, port, protocol, noteRow) {
+            if (!confirm('Delete this note?')) return;
+            try {
+                await fetch(`/api/projects/${projectId}/consolidated/notes/delete?ip=${encodeURIComponent(ip)}&port=${port}&protocol=${encodeURIComponent(protocol)}`, { method: 'DELETE' });
+                showToast('Note deleted');
+                noteRow.style.display = 'none';
+                const p = consolidatedPortsData.ports.find(x => x.ip === ip && x.port === port && x.protocol === protocol);
+                if (p) p.note_preview = '';
+                if (consolidatedAllPorts) {
+                    const ap = consolidatedAllPorts.find(x => x.ip === ip && x.port === port && x.protocol === protocol);
+                    if (ap) ap.note_preview = '';
+                }
+                renderConsolidatedPorts();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
         let consolidatedSelected = new Set();
         let consolidatedGroupMode = false;
         let consolidatedFilterGroups = [{ group_mode: 'and', filters: [] }];
@@ -721,10 +799,13 @@
                 html += '<td class="editable-cell" ondblclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'extra_info\',\'' + esc(p.extra_info || '') + '\')" title="' + esc(p.extra_info || '') + '">' + (esc(p.extra_info) || '-') + '</td>';
                 html += '<td style="text-align:center;">' + p.change_count + '</td>';
                 html += '<td>' + formatDate(p.last_seen) + '</td>';
-                html += '<td class="editable-cell" onclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'note\',\'' + esc(p.note_preview || '') + '\')" title="' + esc(p.note_preview || '') + '">' + (esc(p.note_preview) || '-') + '</td>';
+                html += '<td title="' + esc(p.note_preview || '') + '"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toggleNoteRow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="Edit note" style="padding:2px 6px;font-size:0.75rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>';
                 html += '<td>' + renderLabelDropdown(p) + '</td>';
                 html += '<td class="sticky-right-2">' + nseBtn + '</td>';
                 html += '<td class="sticky-right">' + histBtn + '</td>';
+                html += '</tr>';
+                html += '<tr class="note-row" style="display:none;" data-parent-ip="' + esc(p.ip) + '" data-parent-port="' + p.port + '" data-parent-proto="' + esc(p.protocol) + '">';
+                html += '<td colspan="19"><div class="note-inline"><textarea class="form-control note-inline-ta" placeholder="Enter note for this port...">' + esc(p.note_preview || '') + '</textarea><div class="note-inline-actions"><button class="btn btn-secondary btn-sm note-inline-delete">Delete</button><button class="btn btn-primary btn-sm note-inline-save">Save</button></div></div></td>';
                 html += '</tr>';
                 if (nseScripts.length > 0) {
                     html += '<tr class="nse-row" style="display:none;" data-parent-ip="' + esc(p.ip) + '" data-parent-port="' + p.port + '" data-parent-proto="' + esc(p.protocol) + '">';
@@ -966,10 +1047,13 @@
                     html += '<td class="editable-cell" ondblclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'extra_info\',\'' + esc(p.extra_info || '') + '\')" title="' + esc(p.extra_info || '') + '">' + (esc(p.extra_info) || '-') + '</td>';
                     html += '<td style="text-align:center;">' + p.change_count + '</td>';
                     html += '<td>' + formatDate(p.last_seen) + '</td>';
-                    html += '<td class="editable-cell" ondblclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'note\',\'' + esc(p.note_preview || '') + '\')" title="' + esc(p.note_preview || '') + '">' + (esc(p.note_preview) || '-') + '</td>';
+                    html += '<td title="' + esc(p.note_preview || '') + '"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toggleNoteRow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="Edit note" style="padding:2px 6px;font-size:0.75rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>';
                     html += '<td>' + renderLabelDropdown(p) + '</td>';
                     html += '<td class="sticky-right-2">' + nseBtn + '</td>';
                     html += '<td class="sticky-right">' + histBtn + '</td>';
+                    html += '</tr>';
+                    html += '<tr class="note-row" style="display:none;" data-group-key="' + esc(key) + '" data-parent-ip="' + esc(p.ip) + '" data-parent-port="' + p.port + '" data-parent-proto="' + esc(p.protocol) + '">';
+                    html += '<td colspan="' + nCols + '"><div class="note-inline"><textarea class="form-control note-inline-ta" placeholder="Enter note for this port...">' + esc(p.note_preview || '') + '</textarea><div class="note-inline-actions"><button class="btn btn-secondary btn-sm note-inline-delete">Delete</button><button class="btn btn-primary btn-sm note-inline-save">Save</button></div></div></td>';
                     html += '</tr>';
                     if (nseScripts.length > 0) {
                         html += '<tr class="nse-row" style="display:none;" data-group-key="' + esc(key) + '" data-parent-ip="' + esc(p.ip) + '" data-parent-port="' + p.port + '" data-parent-proto="' + esc(p.protocol) + '">';
@@ -983,6 +1067,15 @@
             }
             html += '</tbody></table>';
             container.innerHTML = html;
+        }
+
+        function refreshCurrentNoteView() {
+            const tab = document.getElementById('tab-notes');
+            if (tab && tab.style.display !== 'none') {
+                loadNotesTab();
+            } else {
+                renderConsolidatedPorts();
+            }
         }
 
         async function openPortNote(ip, port, protocol) {
@@ -1015,6 +1108,7 @@
                     });
                     showToast(note ? 'Note saved' : 'Note cleared');
                     closeModal(mid);
+                    refreshCurrentNoteView();
                 } catch (e) {
                     showToast('Error saving note: ' + e.message, 'error');
                 }
@@ -1024,6 +1118,7 @@
                     await fetch(`/api/projects/${projectId}/consolidated/notes/delete?ip=${encodeURIComponent(ip)}&port=${port}&protocol=${encodeURIComponent(protocol)}`, { method: 'DELETE' });
                     showToast('Note deleted');
                     closeModal(mid);
+                    refreshCurrentNoteView();
                 } catch (e) {
                     showToast('Error: ' + e.message, 'error');
                 }
@@ -1306,6 +1401,133 @@
             }).catch(() => {
                 document.getElementById('scripts-table').innerHTML = '<div class="empty-state"><h3>No scripts</h3><p>No NSE scripts found</p></div>';
             });
+        }
+
+        let notesData = [];
+        let notesFiltered = [];
+        let notesPerPage = 50;
+        let notesCurrentPage = 1;
+
+        async function loadNotesTab() {
+            notesCurrentPage = 1;
+            const limitEl = document.getElementById('notes-limit');
+            if (limitEl) notesPerPage = parseInt(limitEl.value) || 50;
+            try {
+                const res = await fetch(`/api/projects/${projectId}/consolidated/notes/all`);
+                const data = await res.json();
+                notesData = data.notes || [];
+                applyNotesFilters();
+            } catch (e) {
+                document.getElementById('notes-table').innerHTML = '<div class="empty-state"><h3>No notes</h3><p>No port notes found</p></div>';
+            }
+        }
+
+        function applyNotesFilters() {
+            const q = document.getElementById('notes-search-tab')?.value?.toLowerCase() || '';
+            notesFiltered = notesData.filter(n => {
+                if (!q) return true;
+                return safeLower(n.ip).includes(q) ||
+                       String(n.port).includes(q) ||
+                       safeLower(n.protocol).includes(q) ||
+                       safeLower(n.service).includes(q) ||
+                       safeLower(n.hostname).includes(q) ||
+                       safeLower(n.note).includes(q);
+            });
+            notesCurrentPage = 1;
+            renderNotesPage();
+            renderNotesPagination();
+        }
+
+        function renderNotesPage() {
+            const start = (notesCurrentPage - 1) * notesPerPage;
+            const end = Math.min(start + notesPerPage, notesFiltered.length);
+            const pageData = notesFiltered.slice(start, end);
+            const container = document.getElementById('notes-table');
+            if (pageData.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>No results</h3><p>No notes match the current filter</p></div>';
+                return;
+            }
+            let html = '<table><thead><tr>';
+            html += '<th>IP</th><th>Port</th><th>Proto</th><th>Service</th><th>Hostname</th><th>Note</th><th>Updated</th><th></th>';
+            html += '</tr></thead><tbody>';
+            for (const n of pageData) {
+                html += '<tr>';
+                html += '<td class="mono">' + esc(n.ip) + '</td>';
+                html += '<td>' + n.port + '</td>';
+                html += '<td>' + esc(n.protocol) + '</td>';
+                html += '<td>' + (esc(n.service) || '-') + '</td>';
+                html += '<td>' + (esc(n.hostname) || '-') + '</td>';
+                html += '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(n.note) + '">' + esc(n.note) + '</td>';
+                html += '<td>' + formatDate(n.updated_at) + '</td>';
+                html += '<td style="white-space:nowrap;">';
+                html += '<button class="btn btn-secondary btn-sm" onclick="openPortNote(\'' + esc(n.ip) + '\',' + n.port + ',\'' + esc(n.protocol) + '\')" title="Edit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+                html += ' <button class="btn btn-secondary btn-sm" onclick="deleteNoteFromTab(\'' + esc(n.ip) + '\',' + n.port + ',\'' + esc(n.protocol) + '\')" title="Delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+                html += '</td>';
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function notesGoTo(page) {
+            notesCurrentPage = page;
+            renderNotesPage();
+            renderNotesPagination();
+        }
+
+        function renderNotesPagination() {
+            const container = document.getElementById('notes-pagination');
+            if (!container) return;
+            if (notesFiltered.length === 0) { container.innerHTML = ''; return; }
+            const totalPages = Math.ceil(notesFiltered.length / notesPerPage);
+            const currentPage = notesCurrentPage;
+            let html = '<div class="pagination">';
+            html += '<span class="pagination-info">' + notesFiltered.length + ' note' + (notesFiltered.length > 1 ? 's' : '') + '</span>';
+            if (currentPage > 1) {
+                html += '<button class="btn btn-secondary btn-sm" onclick="notesGoTo(' + (currentPage - 1) + ')">&laquo; Prev</button>';
+            }
+            const maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+            if (endPage - startPage + 1 < maxButtons) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+            if (startPage > 1) {
+                html += '<button class="btn btn-secondary btn-sm" onclick="notesGoTo(1)">1</button>';
+                if (startPage > 2) html += '<span class="pagination-dots">...</span>';
+            }
+            for (let i = startPage; i <= endPage; i++) {
+                html += '<button class="btn btn-sm ' + (i === currentPage ? 'btn-primary' : 'btn-secondary') + '" onclick="notesGoTo(' + i + ')">' + i + '</button>';
+            }
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += '<span class="pagination-dots">...</span>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="notesGoTo(' + totalPages + ')">' + totalPages + '</button>';
+            }
+            if (currentPage < totalPages) {
+                html += '<button class="btn btn-secondary btn-sm" onclick="notesGoTo(' + (currentPage + 1) + ')">Next &raquo;</button>';
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        async function deleteNoteFromTab(ip, port, protocol) {
+            if (!confirm('Delete this note?')) return;
+            try {
+                const res = await fetch(`/api/projects/${projectId}/consolidated/notes/delete?ip=${encodeURIComponent(ip)}&port=${port}&protocol=${encodeURIComponent(protocol)}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error((await res.json()).error);
+                showToast('Note deleted');
+                notesData = notesData.filter(n => !(n.ip === ip && n.port === port && n.protocol === protocol));
+                applyNotesFilters();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        function changeNotesLimit(e) {
+            notesPerPage = parseInt(e.target.value) || 50;
+            notesCurrentPage = 1;
+            renderNotesPage();
+            renderNotesPagination();
         }
 
         function sortScriptsData() {
@@ -1620,6 +1842,23 @@
             wrap.style.display = 'flex';
             toggle.style.display = 'none';
             var input = document.getElementById('script-search-tab');
+            if (input) { input.focus(); input.select(); }
+        }
+        function clearNotesSearch() {
+            document.getElementById('notes-search-tab').value = '';
+            var wrap = document.getElementById('notes-search-wrap');
+            var toggle = document.getElementById('notes-search-toggle');
+            if (wrap) wrap.style.display = 'none';
+            if (toggle) toggle.style.display = '';
+            applyNotesFilters();
+        }
+        function toggleNotesSearch() {
+            var wrap = document.getElementById('notes-search-wrap');
+            var toggle = document.getElementById('notes-search-toggle');
+            if (!wrap || !toggle) return;
+            wrap.style.display = 'flex';
+            toggle.style.display = 'none';
+            var input = document.getElementById('notes-search-tab');
             if (input) { input.focus(); input.select(); }
         }
         function showScriptExportModal() {

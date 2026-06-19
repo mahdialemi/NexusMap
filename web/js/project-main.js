@@ -118,11 +118,13 @@
             document.getElementById('tab-live').style.display = tab === 'live' ? '' : 'none';
             document.getElementById('tab-import').style.display = tab === 'import' ? '' : 'none';
             document.getElementById('tab-scripts').style.display = tab === 'scripts' ? '' : 'none';
+            document.getElementById('tab-notes').style.display = tab === 'notes' ? '' : 'none';
             if (tab === 'scans') loadScans();
             if (tab === 'consolidated') loadConsolidated(1);
             if (tab === 'topology') loadTopology();
             if (tab === 'live') loadLiveHosts();
             if (tab === 'scripts') loadScriptsTab();
+            if (tab === 'notes') loadNotesTab();
             if (tab === 'new-scan') loadScanProfiles();
             if (tab === 'import') { loadImportProfiles(); loadImportMergeScans(); loadImportHistory(); }
         }

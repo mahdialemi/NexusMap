@@ -47,6 +47,10 @@ func (s *Server) HandleCreateScan(w http.ResponseWriter, r *http.Request) {
 		req.Profile = "default"
 	}
 
+	if strings.HasPrefix(req.Target, "-") {
+		jsonResponse(w, 400, map[string]string{"error": "invalid target"})
+		return
+	}
 	if err := nmap.ValidateNmapArgs([]string{req.Target}); err != nil {
 		jsonResponse(w, 400, map[string]string{"error": "invalid target"})
 		return
