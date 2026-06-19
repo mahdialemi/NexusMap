@@ -385,6 +385,17 @@ async function checkForUpdatesBadge() {
 }
 checkForUpdatesBadge();
 
+async function loadVersion() {
+    try {
+        const res = await fetch('/api/version');
+        const data = await res.json();
+        if (data.version) {
+            document.querySelectorAll('.app-version').forEach(function(el) { el.textContent = data.version; });
+        }
+    } catch (e) {}
+}
+loadVersion();
+
 async function checkForUpdates() {
     const btn = document.querySelector('[data-action="checkForUpdates"]');
     if (btn) { btn.disabled = true; btn.textContent = 'Checking...'; }
@@ -591,3 +602,131 @@ if (document.getElementById('notif-badge')) {
     }
     window.addEventListener('beforeunload', function() { clearInterval(notifInterval); });
 }
+
+// Inject shortcuts CSS (available on every page)
+(function() {
+    var style = document.createElement('style');
+    style.textContent =
+        '.shortcuts-body{padding:4px 0}' +
+        '.sc-group{margin-bottom:20px}' +
+        '.sc-group:last-child{margin-bottom:0}' +
+        '.sc-group-header{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:10px;padding:6px 10px;background:var(--bg-input);border-radius:6px}' +
+        '.sc-items{display:grid;grid-template-columns:1fr 1fr;gap:4px}@media(max-width:600px){.sc-items{grid-template-columns:1fr}}' +
+        '.sc-item{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;transition:background 0.12s;cursor:default}' +
+        '.sc-item:hover{background:var(--bg-input)}' +
+        '.sc-item kbd{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:26px;padding:0 9px;font-size:0.72rem;font-family:var(--font-mono);font-weight:700;background:var(--bg-card);border:1px solid var(--border);border-radius:5px;border-bottom:3px solid var(--border);color:var(--text);line-height:1}' +
+        '.sc-item span{font-size:0.83rem;color:var(--text)}' +
+        '.sc-footer{text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted)}' +
+        '.sc-footer kbd{display:inline;padding:1px 7px 2px;font-size:0.7rem;font-family:var(--font-mono);font-weight:700;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;border-bottom:2px solid var(--border);color:var(--text)}';
+    document.head.appendChild(style);
+})();
+
+// ----- Keyboard Shortcuts -----
+var SHORTCUTS = [
+    { key: '?', label: 'Show keyboard shortcuts', global: true, fn: showShortcutsHelp },
+    { key: 'n', label: 'New Scan', global: false, fn: function() {
+        var btn = document.querySelector('.sidebar-btn[data-tab="new-scan"]');
+        if (btn && typeof showTab === 'function') { btn.click(); }
+    }},
+    { key: 's', label: 'Focus scan search', global: false, fn: function() {
+        var wrap = document.getElementById('scan-search-wrap');
+        if (wrap) {
+            wrap.style.display = 'flex';
+            var inp = document.getElementById('scan-search');
+            if (inp) { inp.focus(); inp.select(); }
+            var toggle = document.getElementById('scan-search-toggle');
+            if (toggle) toggle.style.display = 'none';
+        } else {
+            var gs = document.getElementById('search-projects');
+            if (gs) { gs.focus(); gs.select(); }
+        }
+    }},
+    { key: 'a', label: 'Go to Assets', global: false, fn: function() {
+        var btn = document.querySelector('.sidebar-btn[data-tab="consolidated"]');
+        if (btn && typeof showTab === 'function') { btn.click(); }
+    }},
+    { key: 'l', label: 'Go to Live Hosts', global: false, fn: function() {
+        var btn = document.querySelector('.sidebar-btn[data-tab="live"]');
+        if (btn && typeof showTab === 'function') { btn.click(); }
+    }},
+    { key: 't', label: 'Go to Topology', global: false, fn: function() {
+        var btn = document.querySelector('.sidebar-btn[data-tab="topology"]');
+        if (btn && typeof showTab === 'function') { btn.click(); }
+    }},
+    { key: 'o', label: 'Go to Notes', global: false, fn: function() {
+        var btn = document.querySelector('.sidebar-btn[data-tab="notes"]');
+        if (btn && typeof showTab === 'function') { btn.click(); }
+    }},
+    { key: 'i', label: 'Go to Import', global: false, fn: function() {
+        var btn = document.querySelector('.sidebar-btn[data-tab="import"]');
+        if (btn && typeof showTab === 'function') { btn.click(); }
+    }},
+    { key: 'b', label: 'Back to projects', global: false, fn: function() {
+        var btn = document.querySelector('[data-action="backToProjects"]');
+        if (btn) { btn.click(); }
+    }},
+    { key: 'Escape', label: 'Close modal / search', global: true, fn: function() {
+        // Close any open modal via overlay clicks
+        var modals = document.querySelectorAll('.modal[style*="flex"], .modal-overlay[style*="block"], .modal-overlay[style*="flex"]');
+        modals.forEach(function(m) {
+            if (m.id === 'about-modal' && typeof hideAboutModal === 'function') hideAboutModal();
+            else if (typeof closeModal === 'function') closeModal(m.id);
+            m.style.display = 'none';
+        });
+        // Close search wrappers
+        var wraps = document.querySelectorAll('.search-wrapper[style*="flex"]');
+        wraps.forEach(function(w) {
+            var close = w.querySelector('.search-close');
+            if (close && typeof close.click === 'function') close.click();
+        });
+    }},
+];
+
+function showShortcutsHelp() {
+    var globalItems = [];
+    var pageItems = [];
+    for (var i = 0; i < SHORTCUTS.length; i++) {
+        var s = SHORTCUTS[i];
+        var keyDisplay = s.key === 'Escape' ? 'Esc' : s.key;
+        var icon = '';
+        if (s.key === '?') icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+        else if (s.key === 'Escape') icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+        var item = '<div class="sc-item">' + icon + '<kbd>' + esc(keyDisplay) + '</kbd><span>' + esc(s.label) + '</span></div>';
+        if (s.global) { globalItems.push(item); } else { pageItems.push(item); }
+    }
+
+    var html = '';
+    if (globalItems.length) {
+        html += '<div class="sc-group"><div class="sc-group-header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Global</div><div class="sc-items">' + globalItems.join('') + '</div></div>';
+    }
+    if (pageItems.length) {
+        html += '<div class="sc-group"><div class="sc-group-header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg> Project Page</div><div class="sc-items">' + pageItems.join('') + '</div></div>';
+    }
+    html += '<div class="sc-footer">Press <kbd>?</kbd> anytime to show this help</div>';
+
+    showModal('shortcuts-help-modal', 'Keyboard Shortcuts', '<div class="shortcuts-body">' + html + '</div>', 'modal-medium');
+}
+
+function isEditable(el) {
+    if (!el) return true;
+    var tag = el.tagName.toLowerCase();
+    return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
+}
+
+document.addEventListener('keydown', function(e) {
+    // Ignore when typing in editable fields (except Escape and enter key combos that are global)
+    if (e.key !== 'Escape' && !e.ctrlKey && !e.metaKey && !e.altKey && isEditable(e.target)) return;
+
+    var key = e.key === '?' || e.key === '§' ? '?' : e.key;
+    var i, s;
+    for (i = 0; i < SHORTCUTS.length; i++) {
+        s = SHORTCUTS[i];
+        if (s.key === key && (s.global || !isEditable(e.target))) {
+            // Don't trigger single letters while typing
+            if (s.key.length === 1 && s.key !== '?' && isEditable(e.target)) continue;
+            e.preventDefault();
+            s.fn();
+            return;
+        }
+    }
+});

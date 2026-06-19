@@ -119,6 +119,7 @@
             document.getElementById('tab-import').style.display = tab === 'import' ? '' : 'none';
             document.getElementById('tab-scripts').style.display = tab === 'scripts' ? '' : 'none';
             document.getElementById('tab-notes').style.display = tab === 'notes' ? '' : 'none';
+            document.getElementById('tab-dashboard').style.display = tab === 'dashboard' ? 'flex' : 'none';
             if (tab === 'scans') loadScans();
             if (tab === 'consolidated') loadConsolidated(1);
             if (tab === 'topology') loadTopology();
@@ -127,6 +128,7 @@
             if (tab === 'notes') loadNotesTab();
             if (tab === 'new-scan') loadScanProfiles();
             if (tab === 'import') { loadImportProfiles(); loadImportMergeScans(); loadImportHistory(); }
+            if (tab === 'dashboard') loadProjectDashboard();
         }
 
         async function confirmScan(id) {
@@ -247,6 +249,10 @@
             if (e.target.closest('#about-modal.modal-overlay') && e.target === e.target.closest('#about-modal')) {
                 hideAboutModal();
             }
+        });
+
+        document.getElementById('compare-modal').addEventListener('click', function(e) {
+            if (e.target === this) hideCompareModal();
         });
 
         document.getElementById('profile-manager-modal').addEventListener('click', function(e) {

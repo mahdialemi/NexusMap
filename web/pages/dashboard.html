@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan Results - NexusMap</title>
+    <title>Dashboard - NexusMap</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/results.css">
+    <link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body>
     <div class="header">
@@ -20,10 +20,10 @@
 
     <div class="project-body">
         <nav class="sidebar">
-            <button class="sidebar-btn" title="Back to Project" data-action="goBackToProject">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-back"/></svg>
+            <button class="sidebar-btn" title="Dashboard" data-action="refreshDashboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             </button>
-            <button class="sidebar-btn" title="Projects" data-action="backToProjects">
+            <button class="sidebar-btn" title="All Projects" data-action="goToProjects">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-folder"/></svg>
             </button>
             <div class="sidebar-spacer"></div>
@@ -62,66 +62,16 @@
         <div class="main-area">
             <div id="toast-container" class="toast-container"></div>
 
-            <div class="asset-actions">
-                <h2 class="card-title card-title-m0">Scan Results <span id="breadcrumb-scan" class="version-badge">Scan #1</span></h2>
-                <div class="asset-toolbar-right">
-                    <button class="btn btn-secondary btn-sm" id="global-search-toggle" data-action="toggleGlobalSearch" title="Search">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
-                    </button>
-                    <div class="search-wrapper" id="global-search-wrap" style="display:none;">
-                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
-                        <input type="text" id="global-search" class="search-input" placeholder="Search..." data-action="debounceSearchResults" autocomplete="off">
-                        <button class="search-close" data-action="clearGlobalSearch" title="Close (Esc)">&#10005;</button>
-                    </div>
-                    <button class="btn btn-secondary btn-sm" data-action="refreshResults" title="Refresh">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
-                    </button>
-                    <div class="dropdown dropdown-relative">
-                        <button class="btn btn-secondary btn-sm" data-action="toggleResultsExportDropdown" title="Export">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
-                        </button>
-                        <div id="results-export-dropdown" class="dropdown-menu" style="display:none;">
-                            <div class="dropdown-item dd-item" data-action="doExport" data-format="xlsx">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dd-icon-green"><use href="#icon-calendar"/></svg>
-                                Excel (.xlsx)
-                            </div>
-                            <div class="dropdown-item dd-item" data-action="doExport" data-format="json">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dd-icon-yellow"><use href="#icon-file"/></svg>
-                                JSON (.json)
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card results-card">
-                <div id="results-container" class="table-container">
-                    <div class="empty-state">
-                        <div class="spinner"></div>
-                        <p>Loading results...</p>
-                    </div>
-                </div>
-                <div id="pagination" class="pagination" style="display:none;">
-                    <select id="page-size-select" class="page-size-select">
-                        <option value="50">50 / page</option>
-                        <option value="100" selected>100 / page</option>
-                        <option value="250">250 / page</option>
-                        <option value="500">500 / page</option>
-                    </select>
-                    <button class="page-btn" id="page-first" data-action="doGoToPage" data-page="first">&laquo;</button>
-                    <button class="page-btn" id="page-prev" data-action="doGoToPage" data-page="prev">&lsaquo;</button>
-                    <span class="page-info" id="page-info">Page 1 of 1</span>
-                    <button class="page-btn" id="page-next" data-action="doGoToPage" data-page="next">&rsaquo;</button>
-                    <button class="page-btn" id="page-last" data-action="doGoToPage" data-page="last">&raquo;</button>
-                    <span class="page-info total-info" id="total-info">0 total</span>
+            <div id="dashboard-content">
+                <div class="empty-state">
+                    <div class="spinner"></div>
+                    <p>Loading dashboard...</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="/static/js/app.js"></script>
-    <script src="/static/js/results.js"></script>
-
+    <!-- About Modal -->
     <div id="about-modal" class="modal-overlay" style="display:none;">
         <div class="modal modal-max-480">
             <div class="modal-header">
@@ -156,5 +106,9 @@
     <div class="footer">
         NexusMap <span class="app-version">v0.9.3</span> &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
+
+    <script src="/static/js/lib/chart.umd.min.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/dashboard.js"></script>
 </body>
 </html>

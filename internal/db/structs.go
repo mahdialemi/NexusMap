@@ -323,19 +323,49 @@ type PortHistoryEntry struct {
 	StartedAt string `json:"started_at"`
 }
 
+type PortCount struct {
+	Port     int    `json:"port"`
+	Protocol string `json:"protocol"`
+	Service  string `json:"service"`
+	Count    int    `json:"count"`
+}
+
+type OSCount struct {
+	OS    string `json:"os"`
+	Count int    `json:"count"`
+}
+
+type ProjectScanCount struct {
+	ProjectID   int    `json:"project_id"`
+	ProjectName string `json:"project_name"`
+	Count       int    `json:"count"`
+}
+
 type GlobalStats struct {
-	TotalProjects    int `json:"total_projects"`
-	ActiveProjects   int `json:"active_projects"`
-	ArchivedProjects int `json:"archived_projects"`
-	CompletedProjects int `json:"completed_projects"`
-	TotalScans       int `json:"total_scans"`
-	RunningScans     int `json:"running_scans"`
-	CompletedScans   int `json:"completed_scans"`
-	FailedScans      int `json:"failed_scans"`
-	TotalHosts       int `json:"total_hosts"`
-	TotalPorts       int `json:"total_ports"`
-	UniqueServices   int `json:"unique_services"`
-	TotalLiveHosts   int `json:"total_live_hosts"`
+	TotalProjects       int                    `json:"total_projects"`
+	ActiveProjects      int                    `json:"active_projects"`
+	ArchivedProjects    int                    `json:"archived_projects"`
+	CompletedProjects   int                    `json:"completed_projects"`
+	TotalScans          int                    `json:"total_scans"`
+	RunningScans        int                    `json:"running_scans"`
+	CompletedScans      int                    `json:"completed_scans"`
+	FailedScans         int                    `json:"failed_scans"`
+	TotalHosts          int                    `json:"total_hosts"`
+	TotalPorts          int                    `json:"total_ports"`
+	UniqueServices      int                    `json:"unique_services"`
+	TotalLiveHosts      int                    `json:"total_live_hosts"`
+	OpenPortCount       int                    `json:"open_port_count"`
+	HighRiskPortCount   int                    `json:"high_risk_port_count"`
+	ScanActivity        []DayCount             `json:"scan_activity"`
+	TopServices         []ServiceCount         `json:"top_services"`
+	TopPorts            []PortCount            `json:"top_ports"`
+	RecentScans         []Scan                 `json:"recent_scans"`
+	ScanStatusBreakdown map[string]int         `json:"scan_status_breakdown"`
+	PortStateBreakdown  map[string]int         `json:"port_state_breakdown"`
+	TopOS               []OSCount              `json:"top_os"`
+	ProjectsByPriority  map[string]int         `json:"projects_by_priority"`
+	ScansPerProject     []ProjectScanCount     `json:"scans_per_project"`
+	RecentActivity      []ActivityEntry        `json:"recent_activity"`
 }
 
 type ScanScriptExport struct {
@@ -398,9 +428,12 @@ type ProjectStatsResponse struct {
 	ScanStatusBreakdown map[string]int `json:"scan_status_breakdown"`
 	PortStateBreakdown  map[string]int `json:"port_state_breakdown"`
 	TopServices         []ServiceCount `json:"top_services"`
+	TopOS               []OSCount      `json:"top_os"`
+	TopPorts            []PortCount    `json:"top_ports"`
 	HostCount           int            `json:"host_count"`
 	OpenPortCount       int            `json:"open_port_count"`
 	HighRiskPortCount   int            `json:"high_risk_port_count"`
+	TotalScans          int            `json:"total_scans"`
 	RecentScans         []Scan         `json:"recent_scans"`
 	ScanActivity        []DayCount     `json:"scan_activity"`
 }
@@ -408,4 +441,58 @@ type ProjectStatsResponse struct {
 func parseInt(s string) int {
 	n, _ := strconv.Atoi(s)
 	return n
+}
+
+type ScanComparison struct {
+	Scan1         ScanInfo   `json:"scan1"`
+	Scan2         ScanInfo   `json:"scan2"`
+	HostsAdded    []DiffHost `json:"hosts_added"`
+	HostsRemoved  []DiffHost `json:"hosts_removed"`
+	PortsAdded    []DiffPort `json:"ports_added"`
+	PortsRemoved  []DiffPort `json:"ports_removed"`
+	PortsChanged  []DiffPort `json:"ports_changed"`
+	Summary       DiffSummary `json:"summary"`
+}
+
+type ScanInfo struct {
+	ID        int    `json:"id"`
+	Target    string `json:"target"`
+	Profile   string `json:"profile"`
+	StartedAt string `json:"started_at"`
+}
+
+type DiffHost struct {
+	IP       string `json:"ip"`
+	MAC      string `json:"mac"`
+	Hostname string `json:"hostname"`
+	OS       string `json:"os"`
+	Status   string `json:"status"`
+}
+
+type DiffPort struct {
+	IP         string `json:"ip"`
+	Port       int    `json:"port"`
+	Protocol   string `json:"protocol"`
+	State      string `json:"state"`
+	Service    string `json:"service"`
+	Product    string `json:"product"`
+	Version    string `json:"version"`
+	Extra      string `json:"extra"`
+	OldState   string `json:"old_state,omitempty"`
+	OldService string `json:"old_service,omitempty"`
+	OldProduct string `json:"old_product,omitempty"`
+	OldVersion string `json:"old_version,omitempty"`
+	OldExtra   string `json:"old_extra,omitempty"`
+}
+
+type DiffSummary struct {
+	HostsInScan1   int `json:"hosts_in_scan1"`
+	HostsInScan2   int `json:"hosts_in_scan2"`
+	HostsAdded     int `json:"hosts_added"`
+	HostsRemoved   int `json:"hosts_removed"`
+	PortsInScan1   int `json:"ports_in_scan1"`
+	PortsInScan2   int `json:"ports_in_scan2"`
+	PortsAdded     int `json:"ports_added"`
+	PortsRemoved   int `json:"ports_removed"`
+	PortsChanged   int `json:"ports_changed"`
 }

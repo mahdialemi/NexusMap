@@ -62,6 +62,7 @@ nexusmap                 # Single binary (all frontend files embedded)
 ├── web/
 │   ├── css/             # Styles (dark/light theme via CSS vars)
 │   ├── js/              # Vanilla JS frontend logic
+│   │   └── lib/         # Chart.js (local), etc.
 │   ├── pages/           # HTML pages (served from embedded FS)
 │   └── icons/           # SVG sprite sheet
 └── data/                # Default DB location
@@ -93,6 +94,8 @@ nexusmap                 # Single binary (all frontend files embedded)
 - **Export** — Excel, JSON, CSV, TXT
 - **User management** — roles, activity log, password policy
 - **Admin tools** — DB backup, restore, vacuum, factory reset
+- **Global dashboard** — 12 KPIs, 8 charts, recent scans & activity
+- **Per-project dashboard** — project KPIs, scan trends, top services/ports/OS
 
 ---
 
@@ -104,6 +107,6 @@ MIT — see [LICENSE](LICENSE)
 
 <div align="center">
 
-**NexusMap** v0.9.2 &middot; Made by [Mahdi Alemi](https://github.com/mahdialemi)
+**NexusMap** v0.9.3 &middot; Made by [Mahdi Alemi](https://github.com/mahdialemi)
 
 </div>

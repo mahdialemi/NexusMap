@@ -620,6 +620,21 @@ func (s *Server) HandleUnifiedExport(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.gnmap", scanName))
 		w.Write(out)
 
+	case "pdf":
+		results, err := s.DB.GetResults(sid)
+		if err != nil {
+			serverError(w, err)
+			return
+		}
+		data, err := export.ToPDF(results, scan)
+		if err != nil {
+			serverError(w, err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/pdf")
+		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", scanName))
+		w.Write(data)
+
 	default:
 		http.Error(w, "unsupported format", 400)
 	}

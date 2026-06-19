@@ -173,6 +173,9 @@ func (s *Server) runCommand(scanID int, cmdStr, target, username string) {
 	}
 
 	bin := parts[0]
+	if strings.ToLower(bin) == "nmap" && s.NmapRunner.NmapPath() != "" {
+		bin = s.NmapRunner.NmapPath()
+	}
 	args := parts[1:]
 
 	// Replace <TARGET> placeholder in args
@@ -846,6 +849,154 @@ func parseNmapVerboseState(data string) string {
 		return line
 	}
 	return ""
+}
+
+func (s *Server) HandleScanCompare(w http.ResponseWriter, r *http.Request) {
+	scan1ID := parseIntID(r.URL.Query().Get("scan1"))
+	scan2ID := parseIntID(r.URL.Query().Get("scan2"))
+	if scan1ID == 0 || scan2ID == 0 {
+		jsonResponse(w, 400, map[string]string{"error": "scan1 and scan2 query params required"})
+		return
+	}
+
+	results1, err := s.DB.GetResults(scan1ID)
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+	results2, err := s.DB.GetResults(scan2ID)
+	if err != nil {
+		serverError(w, err)
+		return
+	}
+
+	scan1, _ := s.DB.GetScan(scan1ID)
+	scan2, _ := s.DB.GetScan(scan2ID)
+
+	hosts1 := make(map[string]bool)
+	hostMap1 := make(map[string][]db.ResultRow)
+	for _, r := range results1 {
+		hosts1[r.IP] = true
+		hostMap1[r.IP] = append(hostMap1[r.IP], r)
+	}
+
+	hosts2 := make(map[string]bool)
+	hostMap2 := make(map[string][]db.ResultRow)
+	for _, r := range results2 {
+		hosts2[r.IP] = true
+		hostMap2[r.IP] = append(hostMap2[r.IP], r)
+	}
+
+	var comp db.ScanComparison
+
+	if scan1 != nil {
+		t := ""
+		if !scan1.StartedAt.IsZero() {
+			t = scan1.StartedAt.Format("2006-01-02 15:04")
+		}
+		comp.Scan1 = db.ScanInfo{ID: scan1.ID, Target: scan1.Target, Profile: scan1.Profile, StartedAt: t}
+	}
+	if scan2 != nil {
+		t := ""
+		if !scan2.StartedAt.IsZero() {
+			t = scan2.StartedAt.Format("2006-01-02 15:04")
+		}
+		comp.Scan2 = db.ScanInfo{ID: scan2.ID, Target: scan2.Target, Profile: scan2.Profile, StartedAt: t}
+	}
+
+	// hosts added (in scan2 but not scan1)
+	for ip := range hosts2 {
+		if !hosts1[ip] {
+			rows := hostMap2[ip]
+			if len(rows) > 0 {
+				comp.HostsAdded = append(comp.HostsAdded, db.DiffHost{
+					IP: ip, MAC: rows[0].MAC, Hostname: rows[0].Hostname, OS: rows[0].OS, Status: rows[0].HostStatus,
+				})
+			}
+		}
+	}
+	// hosts removed (in scan1 but not scan2)
+	for ip := range hosts1 {
+		if !hosts2[ip] {
+			rows := hostMap1[ip]
+			if len(rows) > 0 {
+				comp.HostsRemoved = append(comp.HostsRemoved, db.DiffHost{
+					IP: ip, MAC: rows[0].MAC, Hostname: rows[0].Hostname, OS: rows[0].OS, Status: rows[0].HostStatus,
+				})
+			}
+		}
+	}
+
+	portKey := func(ip, proto string, port int) string {
+		return fmt.Sprintf("%s|%s|%d", ip, proto, port)
+	}
+
+	portMap1 := make(map[string]db.ResultRow)
+	portMap2 := make(map[string]db.ResultRow)
+	allPortKeys := make(map[string]bool)
+
+	for _, r := range results1 {
+		if r.Port == 0 {
+			continue
+		}
+		k := portKey(r.IP, r.Protocol, r.Port)
+		portMap1[k] = r
+		allPortKeys[k] = true
+	}
+	for _, r := range results2 {
+		if r.Port == 0 {
+			continue
+		}
+		k := portKey(r.IP, r.Protocol, r.Port)
+		portMap2[k] = r
+		allPortKeys[k] = true
+	}
+
+	for k := range allPortKeys {
+		p1, in1 := portMap1[k]
+		p2, in2 := portMap2[k]
+		if in2 && !in1 {
+			comp.PortsAdded = append(comp.PortsAdded, toDiffPort(p2, db.DiffPort{}))
+		} else if in1 && !in2 {
+			comp.PortsRemoved = append(comp.PortsRemoved, toDiffPort(p1, db.DiffPort{}))
+		} else if in1 && in2 {
+			if p1.State != p2.State || p1.Service != p2.Service || p1.Product != p2.Product || p1.Version != p2.Version || p1.ExtraInfo != p2.ExtraInfo {
+				comp.PortsChanged = append(comp.PortsChanged, toDiffPort(p2, db.DiffPort{
+					OldState: p1.State, OldService: p1.Service, OldProduct: p1.Product, OldVersion: p1.Version, OldExtra: p1.ExtraInfo,
+				}))
+			}
+		}
+	}
+
+	portCount1 := 0
+	for _, r := range results1 {
+		if r.Port != 0 {
+			portCount1++
+		}
+	}
+	portCount2 := 0
+	for _, r := range results2 {
+		if r.Port != 0 {
+			portCount2++
+		}
+	}
+
+	comp.Summary = db.DiffSummary{
+		HostsInScan1: len(hosts1), HostsInScan2: len(hosts2),
+		HostsAdded: len(comp.HostsAdded), HostsRemoved: len(comp.HostsRemoved),
+		PortsInScan1: portCount1, PortsInScan2: portCount2,
+		PortsAdded: len(comp.PortsAdded), PortsRemoved: len(comp.PortsRemoved), PortsChanged: len(comp.PortsChanged),
+	}
+
+	jsonResponse(w, 200, comp)
+}
+
+func toDiffPort(r db.ResultRow, old db.DiffPort) db.DiffPort {
+	return db.DiffPort{
+		IP: r.IP, Port: r.Port, Protocol: r.Protocol,
+		State: r.State, Service: r.Service, Product: r.Product, Version: r.Version, Extra: r.ExtraInfo,
+		OldState: old.OldState, OldService: old.OldService, OldProduct: old.OldProduct, OldVersion: old.OldVersion, OldExtra: old.OldExtra,
+	}
 }
 
 func isNmapDataLine(line string) bool {

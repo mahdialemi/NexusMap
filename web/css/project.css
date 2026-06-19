@@ -117,6 +117,8 @@ a:hover { text-decoration: underline; }
 .sidebar-btn:hover::after { content: attr(title); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); background: #1e293b; color: var(--text); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap; pointer-events: none; z-index: 100; border: 1px solid var(--border); }
 .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
 .main-area { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; padding: 20px; }
+#tab-dashboard { display:none; flex:1; flex-direction:column; overflow:hidden; min-height:0; }
+#project-dashboard-content { flex:1; overflow-y:auto; min-height:0; }
 
 /* ===== from app.css: buttons ===== */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border: none; border-radius: var(--radius-input); font-size: 0.9rem; cursor: pointer; transition: all 0.2s; text-decoration: none; white-space: nowrap; }
@@ -419,6 +421,34 @@ tr:hover td { background: rgba(59, 130, 246, 0.1); }
 .about-pill { background:var(--bg-input); border:1px solid var(--border); border-radius:20px; padding:4px 16px; font-size:0.78rem; font-weight:500; color:var(--text); }
 .about-ftr { display:flex; justify-content:space-between; align-items:center; padding-top:16px; border-top:1px solid var(--border); font-size:0.8rem; color:var(--text-muted); }
 .about-link { color:var(--text); text-decoration:none; border-bottom:1px solid var(--border); }
+
+/* scan compare */
+.modal-content.modal-compare { max-width:900px; width:95%; }
+.modal-body-scroll { max-height:65vh; overflow-y:auto; }
+.compare-selectors { display:flex; align-items:flex-end; gap:12px; }
+.compare-sel { flex:1; }
+.compare-sel label { display:block; margin-bottom:4px; font-size:0.8rem; color:var(--text-muted); }
+.compare-vs { font-size:0.9rem; color:var(--text-muted); padding-bottom:10px; font-weight:600; }
+.diff-section { margin-bottom:16px; }
+.diff-section h4 { font-size:0.85rem; font-weight:600; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid var(--border); }
+.diff-section h4 .diff-count { font-weight:400; color:var(--text-muted); font-size:0.78rem; }
+.diff-host { padding:4px 0; font-size:0.82rem; }
+.diff-host .diff-ip { font-weight:600; }
+.diff-host .diff-meta { color:var(--text-muted); margin-left:8px; }
+.diff-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+.diff-table th { text-align:left; padding:4px 8px; border-bottom:1px solid var(--border); color:var(--text-muted); font-weight:600; font-size:0.75rem; }
+.diff-table td { padding:4px 8px; border-bottom:1px solid var(--border); vertical-align:top; }
+.diff-added td { background:rgba(34,197,94,0.08); }
+.diff-removed td { background:rgba(239,68,68,0.08); }
+.diff-changed td { background:rgba(234,179,8,0.08); }
+.diff-old { text-decoration:line-through; color:var(--text-muted); font-size:0.75rem; display:block; }
+.diff-summary { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; padding:12px; background:var(--bg-input); border-radius:8px; }
+.diff-summary-item { text-align:center; flex:1; min-width:60px; }
+.diff-summary-item .ds-val { font-size:1.4rem; font-weight:700; }
+.diff-summary-item .ds-val.green { color:#22c55e; }
+.diff-summary-item .ds-val.red { color:#ef4444; }
+.diff-summary-item .ds-val.yellow { color:#eab308; }
+.diff-summary-item .ds-label { font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; }
 .update-badge { position:absolute; top:0; right:0; width:8px; height:8px; border-radius:50%; background:#ef4444; box-shadow:0 0 0 2px var(--bg-card); pointer-events:none; }
 
 /* ===== from app.css: profile section ===== */

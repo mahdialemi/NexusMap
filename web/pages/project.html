@@ -11,7 +11,7 @@
     <div class="header">
         <a href="/" class="header-link">
             <svg width="28" height="28" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
-            <h1>NexusMap <span class="version-badge">v0.9.2</span></h1>
+            <h1>NexusMap <span class="version-badge"><span class="app-version">v0.9.3</span></span></h1>
         </a>
         <div class="header-nav">
             <span id="header-project-name-nav" class="project-badge"></span>
@@ -48,6 +48,9 @@
                 <button class="sidebar-btn" data-tab="topology" data-action="showTab" title="Topology">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-expand"/></svg>
                 </button>
+                <button class="sidebar-btn" data-tab="dashboard" data-action="showTab" title="Dashboard">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </button>
                 <button class="sidebar-btn" data-tab="import" data-action="showTab" title="Import">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-upload"/></svg>
                 </button>
@@ -68,6 +71,9 @@
                         </div>
                     </div>
                 </div>
+                <button class="sidebar-btn" title="Shortcuts (?)" data-action="showShortcutsHelp">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </button>
                 <button class="sidebar-btn" title="About" data-action="showAboutModal">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-info"/></svg>
                 </button>
@@ -120,6 +126,9 @@
                     </select>
                     <button class="btn btn-sm btn-primary" id="confirm-all-btn" style="display:none;" data-action="confirmAllScans" title="Confirm all pending scans">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><use href="#icon-check"/></svg>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" data-action="compareScans" title="Compare scans">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                     </button>
                     <button class="btn btn-secondary btn-sm" data-action="loadScans" title="Refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
@@ -673,8 +682,15 @@
                     <tbody id="import-history-body"></tbody>
                 </table>
                 </div>
-            </div>
         </div>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="tab-dashboard" style="display:none;">
+        <div id="project-dashboard-content"></div>
+    </div>
+
+    </div>
     </div>
     </div>
 
@@ -1020,7 +1036,7 @@
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/><path d="M12 14v3"/>
                     </svg>
                     <h2 class="about-hero-title">NexusMap</h2>
-                    <p class="about-hero-version">v0.9.2 &middot; Network Scanner &amp; Asset Management</p>
+                    <p class="about-hero-version"><span class="app-version">v0.9.3</span> &middot; Network Scanner &amp; Asset Management</p>
                 </div>
                 <div class="about-desc">
                     <p>NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
@@ -1068,8 +1084,38 @@
         </div>
     </div>
 
+    <!-- Scan Compare Modal -->
+    <div id="compare-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content modal-compare">
+            <div class="modal-header">
+                <h3>Compare Scans</h3>
+                <button class="modal-close" data-action="hideCompareModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
+            </div>
+            <div class="modal-body modal-body-scroll">
+                <div class="compare-selectors">
+                    <div class="compare-sel">
+                        <label>Scan A (base)</label>
+                        <select id="compare-scan-a" class="form-control"></select>
+                    </div>
+                    <div class="compare-vs">vs</div>
+                    <div class="compare-sel">
+                        <label>Scan B (new)</label>
+                        <select id="compare-scan-b" class="form-control"></select>
+                    </div>
+                </div>
+                <div id="compare-results" style="display:none;margin-top:16px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-action="hideCompareModal">Cancel</button>
+                <button class="btn btn-primary" data-action="runCompare">Compare</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/lib/chart.umd.min.js"></script>
     <script src="/static/js/lib/vis-network.min.js"></script>
     <script src="/static/js/app.js?v=22"></script>
+    <script src="/static/js/project-dashboard.js"></script>
     <script src="/static/js/project-scans.js?v=1"></script>
     <script src="/static/js/project-consolidated.js?v=1"></script>
     <script src="/static/js/project-live.js?v=1"></script>
@@ -1079,7 +1125,7 @@
     <script src="/static/js/project-main.js?v=2"></script>
 
     <div class="footer">
-        NexusMap v0.9.2 &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap <span class="app-version">v0.9.3</span> &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

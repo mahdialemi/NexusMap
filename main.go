@@ -24,6 +24,7 @@ import (
 	"github.com/mahdialemi/NexusMap/internal/db"
 	"github.com/mahdialemi/NexusMap/internal/handlers"
 	"github.com/mahdialemi/NexusMap/internal/nmap"
+	"github.com/mahdialemi/NexusMap/internal/version"
 
 	_ "modernc.org/sqlite"
 )
@@ -46,8 +47,6 @@ func (g *gzipResponseWriter) Flush() {
 	}
 }
 
-var version = "v0.9.2"
-
 func handleCheckUpdate(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Get("https://api.github.com/repos/mahdialemi/NexusMap/releases/latest")
@@ -61,9 +60,9 @@ func handleCheckUpdate(w http.ResponseWriter, r *http.Request) {
 			latest = rel.TagName
 		}
 	}
-	updateAvailable := latest != "" && latest != version
+	updateAvailable := latest != "" && latest != version.Version
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"current":          version,
+		"current":          version.Version,
 		"latest":           latest,
 		"update_available": updateAvailable,
 	})
@@ -77,21 +76,28 @@ func main() {
 	bind := flag.String("bind", "127.0.0.1", "Bind address (0.0.0.0, 127.0.0.1, etc.)")
 	dbPath := flag.String("db", filepath.Join(exeDir, "scanner.db"), "Database path")
 	adminPassword := flag.String("admin-password", "", "Set admin password (generated randomly if empty)")
+	nmapPath := flag.String("nmap-path", "", "Path to nmap binary (default: look up in PATH)")
+	maxBody := flag.Int64("max-body", 33554432, "Maximum request body size in bytes (default: 32 MiB)")
 	showVersion := flag.Bool("version", false, "Print version and exit")
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Println("NexusMap", version)
+		fmt.Println("NexusMap", version.Version)
 		os.Exit(0)
 	}
 
 	fmt.Print(banner.Art)
 
-	if _, err := exec.LookPath("nmap"); err != nil {
-		log.Fatal("nmap not found in PATH.\nPlease install nmap from https://nmap.org/download and ensure it's in your PATH")
+	nmapBin := *nmapPath
+	if nmapBin == "" {
+		var err error
+		nmapBin, err = exec.LookPath("nmap")
+		if err != nil {
+			log.Fatal("nmap not found in PATH.\nPlease install nmap from https://nmap.org/download and ensure it's in your PATH, or use -nmap-path flag")
+		}
 	}
 
-	out, err := exec.Command("nmap", "-V").Output()
+	out, err := exec.Command(nmapBin, "-V").Output()
 	if err == nil {
 		log.Printf("nmap detected: %s", strings.SplitN(string(out), "\n", 2)[0])
 	}
@@ -123,10 +129,11 @@ func main() {
 	}
 
 	authSvc := auth.New(appDB.DB)
+	authSvc.StartCleanupRoutine()
 
 	scansDir := filepath.Join(exeDir, "scans")
 	os.MkdirAll(scansDir, 0755)
-	nmapRunner := nmap.New(scansDir)
+	nmapRunner := nmap.New(scansDir, nmapBin)
 
 	webSubFS, _ := fs.Sub(webFS, "web")
 
@@ -153,6 +160,7 @@ func main() {
 	mux.HandleFunc("/login", srv.HandlePage("login.html"))
 	mux.HandleFunc("/change-password", auth.Middleware(authSvc, srv.HandlePage("change-password.html")))
 	mux.HandleFunc("/", auth.Middleware(authSvc, srv.HandlePage("index.html")))
+	mux.HandleFunc("/dashboard", auth.Middleware(authSvc, srv.HandlePage("dashboard.html")))
 	mux.HandleFunc("/project/{id}", auth.Middleware(authSvc, srv.HandlePage("project.html")))
 	mux.HandleFunc("/project/{pid}/scan/{sid}", auth.Middleware(authSvc, srv.HandlePage("results.html")))
 	mux.HandleFunc("/admin", auth.Middleware(authSvc, auth.RequireAdmin(srv.HandlePage("users.html"))))
@@ -185,6 +193,7 @@ func main() {
 
 	mux.HandleFunc("/api/scans/backfill", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleBackfillScripts)))
 	mux.HandleFunc("/api/scans/{id}/backfill", csrf(auth.APIAuthMiddleware(authSvc, srv.HandleBackfillSingleScan)))
+	mux.HandleFunc("/api/scans/compare", auth.APIAuthMiddleware(authSvc, srv.HandleScanCompare))
 	mux.HandleFunc("/api/scans/{id}/log", auth.APIAuthMiddleware(authSvc, srv.HandleScanLog))
 	mux.HandleFunc("/api/scans/{id}/status", auth.APIAuthMiddleware(authSvc, srv.HandleScanStatus))
 	mux.HandleFunc("/api/scans/{id}/results", auth.APIAuthMiddleware(authSvc, srv.HandleScanResults))
@@ -262,6 +271,10 @@ func main() {
 	mux.HandleFunc("/api/projects/{id}/stats", auth.APIAuthMiddleware(authSvc, srv.HandleProjectStats))
 	mux.HandleFunc("/api/stats/global", auth.APIAuthMiddleware(authSvc, srv.HandleGlobalStats))
 	mux.HandleFunc("/api/events", auth.APIAuthMiddleware(authSvc, srv.SSE.HandleSSE))
+	mux.HandleFunc("/api/version", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"version": version.Version})
+	})
 	mux.HandleFunc("/api/check-update", handleCheckUpdate)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -274,6 +287,9 @@ func main() {
 		if r.TLS != nil {
 			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		}
+		// Body size limit
+		r.Body = http.MaxBytesReader(w, r.Body, *maxBody)
+
 		// Gzip compression for API responses
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") && !strings.Contains(r.URL.Path, "/events") {
 			w.Header().Set("Content-Encoding", "gzip")
@@ -288,7 +304,7 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%d", *bind, *port)
 	log.Printf("Database: %s", *dbPath)
-	log.Printf("NexusMap %s starting on http://%s", version, addr)
+	log.Printf("NexusMap %s starting on http://%s", version.Version, addr)
 
 	go srv.BackfillAllScripts()
 	go srv.StartScheduler()
@@ -308,7 +324,11 @@ func main() {
 		httpSrv.Shutdown(ctx)
 		srv.ScanWG.Wait()
 		appDB.CloseDB()
+		log.Printf("Shutdown complete")
+		os.Exit(0)
 	}()
 
-	log.Fatal(httpSrv.ListenAndServe())
+	if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
 }

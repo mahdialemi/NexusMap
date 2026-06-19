@@ -60,7 +60,7 @@ func (a *Auth) Login(username, password, ip string) (int, string, string, bool, 
 		return 0, "", "", false, err
 	}
 
-	a.cleanupExpiredSessions()
+	a.CleanupExpiredSessions()
 	return id, sessionID, csrfToken, mustChange, nil
 }
 
@@ -300,13 +300,24 @@ func (a *Auth) logAttempt(username, ip string, success bool) {
 	}
 }
 
-func (a *Auth) cleanupExpiredSessions() {
+func (a *Auth) CleanupExpiredSessions() {
 	if _, err := a.DB.Exec("DELETE FROM sessions WHERE last_active < datetime('now', '-24 hours')"); err != nil {
 		log.Printf("failed to cleanup sessions: %v", err)
 	}
 	if _, err := a.DB.Exec("DELETE FROM login_attempts WHERE attempted_at < datetime('now', '-1 hour')"); err != nil {
 		log.Printf("failed to cleanup login_attempts: %v", err)
 	}
+}
+
+func (a *Auth) StartCleanupRoutine() {
+	a.CleanupExpiredSessions()
+	go func() {
+		ticker := time.NewTicker(1 * time.Hour)
+		defer ticker.Stop()
+		for range ticker.C {
+			a.CleanupExpiredSessions()
+		}
+	}()
 }
 
 func generateSessionID() string {

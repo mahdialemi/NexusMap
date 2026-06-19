@@ -195,6 +195,10 @@
                         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
                         ' JSON' +
                     '</button>' +
+                    '<button class="btn btn-danger btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doExport(\'pdf\')">' +
+                        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="10" y1="13" x2="8" y2="13"/><line x1="16" y1="13" x2="12" y2="13"/><line x1="8" y1="16" x2="16" y2="16"/></svg>' +
+                        ' PDF' +
+                    '</button>' +
                     '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doExport(\'nmap\')" id="export-btn-nmap">' +
                         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M4 10l2 2 2-2"/><path d="M6 12v4"/></svg>' +
                         ' <span>Nmap (.nmap)</span>' +
@@ -623,6 +627,130 @@
             var input = document.getElementById('scan-search');
             if (input) { input.focus(); input.select(); }
         }
+
+        function compareScans() {
+            compareScansAsync();
+        }
+        async function compareScansAsync() {
+            var modal = document.getElementById('compare-modal');
+            var selA = document.getElementById('compare-scan-a');
+            var selB = document.getElementById('compare-scan-b');
+            selA.innerHTML = '';
+            selB.innerHTML = '';
+            var completed = allScans.filter(function(s) { return s.status === 'completed' && s.host_count > 0; });
+            completed.forEach(function(s) {
+                var opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = '#' + s.id + ' ' + s.target + ' (' + s.profile + ')';
+                selA.appendChild(opt.cloneNode(true));
+                selB.appendChild(opt);
+            });
+            if (selB.options.length > 1) { selB.selectedIndex = 1; }
+            document.getElementById('compare-results').style.display = 'none';
+            modal.style.display = 'flex';
+        }
+
+        function hideCompareModal() {
+            document.getElementById('compare-modal').style.display = 'none';
+        }
+        window.hideCompareModal = hideCompareModal;
+
+        async         function runCompare() {
+            runCompareAsync();
+        }
+        async function runCompareAsync() {
+            var selA = document.getElementById('compare-scan-a');
+            var selB = document.getElementById('compare-scan-b');
+            var idA = selA.value;
+            var idB = selB.value;
+            if (!idA || !idB) { showToast('Please select both scans', 'error'); return; }
+            if (idA === idB) { showToast('Please select two different scans', 'error'); return; }
+            var btn = document.querySelector('#compare-modal .btn-primary');
+            if (!btn) return;
+            btn.disabled = true;
+            btn.textContent = 'Comparing...';
+            try {
+                var res = await fetch('/api/scans/compare?scan1=' + idA + '&scan2=' + idB);
+                var data = await res.json();
+                renderCompare(data);
+            } catch (e) {
+                showToast('Compare failed: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Compare';
+            }
+        }
+
+        function renderCompare(data) {
+            var el = document.getElementById('compare-results');
+            var s = data.summary;
+            var html = '<div class="diff-summary">';
+            html += '<div class="diff-summary-item"><div class="ds-val">' + s.hosts_in_scan1 + '</div><div class="ds-label">Hosts (A)</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val">' + s.hosts_in_scan2 + '</div><div class="ds-label">Hosts (B)</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val green">+' + s.hosts_added + '</div><div class="ds-label">Hosts Added</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val red">-' + s.hosts_removed + '</div><div class="ds-label">Hosts Removed</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val">' + s.ports_in_scan1 + '</div><div class="ds-label">Ports (A)</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val">' + s.ports_in_scan2 + '</div><div class="ds-label">Ports (B)</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val green">+' + s.ports_added + '</div><div class="ds-label">Ports Added</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val red">-' + s.ports_removed + '</div><div class="ds-label">Ports Removed</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val yellow">~' + s.ports_changed + '</div><div class="ds-label">Changed</div></div>';
+            html += '</div>';
+
+            if (data.hosts_added && data.hosts_added.length) {
+                html += '<div class="diff-section"><h4>Hosts Added <span class="diff-count">(' + data.hosts_added.length + ')</span></h4>';
+                data.hosts_added.forEach(function(h) {
+                    html += '<div class="diff-host"><span class="diff-ip">' + esc(h.ip) + '</span><span class="diff-meta">' + esc(h.hostname) + ' ' + esc(h.os) + '</span></div>';
+                });
+                html += '</div>';
+            }
+            if (data.hosts_removed && data.hosts_removed.length) {
+                html += '<div class="diff-section"><h4>Hosts Removed <span class="diff-count">(' + data.hosts_removed.length + ')</span></h4>';
+                data.hosts_removed.forEach(function(h) {
+                    html += '<div class="diff-host"><span class="diff-ip">' + esc(h.ip) + '</span><span class="diff-meta">' + esc(h.hostname) + ' ' + esc(h.os) + '</span></div>';
+                });
+                html += '</div>';
+            }
+
+            function portRows(ports, cls) {
+                if (!ports || !ports.length) return '';
+                var tbl = '<table class="diff-table"><tr><th>IP</th><th>Port</th><th>Proto</th><th>State</th><th>Service</th><th>Product</th><th>Version</th></tr>';
+                ports.forEach(function(p) {
+                    tbl += '<tr class="' + cls + '"><td>' + esc(p.ip) + '</td><td>' + p.port + '/' + esc(p.protocol) + '</td><td>' + esc(p.protocol) + '</td>';
+                    tbl += '<td>' + esc(p.state);
+                    if (p.old_state) tbl += '<span class="diff-old">' + esc(p.old_state) + '</span>';
+                    tbl += '</td><td>' + esc(p.service);
+                    if (p.old_service) tbl += '<span class="diff-old">' + esc(p.old_service) + '</span>';
+                    tbl += '</td><td>' + esc(p.product);
+                    if (p.old_product) tbl += '<span class="diff-old">' + esc(p.old_product) + '</span>';
+                    tbl += '</td><td>' + esc(p.version);
+                    if (p.old_version) tbl += '<span class="diff-old">' + esc(p.old_version) + '</span>';
+                    tbl += '</td></tr>';
+                });
+                tbl += '</table>';
+                return tbl;
+            }
+
+            if (data.ports_added && data.ports_added.length) {
+                html += '<div class="diff-section"><h4>Ports Added <span class="diff-count">(' + data.ports_added.length + ')</span></h4>' + portRows(data.ports_added, 'diff-added') + '</div>';
+            }
+            if (data.ports_removed && data.ports_removed.length) {
+                html += '<div class="diff-section"><h4>Ports Removed <span class="diff-count">(' + data.ports_removed.length + ')</span></h4>' + portRows(data.ports_removed, 'diff-removed') + '</div>';
+            }
+            if (data.ports_changed && data.ports_changed.length) {
+                html += '<div class="diff-section"><h4>Ports Changed <span class="diff-count">(' + data.ports_changed.length + ')</span></h4>' + portRows(data.ports_changed, 'diff-changed') + '</div>';
+            }
+
+            html += '<div style="text-align:center;margin-top:12px;font-size:0.78rem;color:var(--text-muted)">';
+            html += 'Scan A: #' + data.scan1.id + ' ' + esc(data.scan1.target) + ' (' + esc(data.scan1.started_at) + ')';
+            html += '<br>';
+            html += 'Scan B: #' + data.scan2.id + ' ' + esc(data.scan2.target) + ' (' + esc(data.scan2.started_at) + ')';
+            html += '</div>';
+
+            el.innerHTML = html;
+            el.style.display = 'block';
+        }
+        window.compareScans = compareScans;
+        window.runCompare = runCompare;
 
         function resetScanFilters() {
             document.getElementById('scan-search').value = '';

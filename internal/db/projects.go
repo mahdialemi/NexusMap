@@ -376,9 +376,54 @@ func (d *DB) GetProjectStats(projectID int) (*ProjectStatsResponse, error) {
 		resp.TopServices = []ServiceCount{}
 	}
 
+	// Top OS
+	rowsOS, err := d.Query(`
+		SELECT h.os, COUNT(DISTINCT h.ip) as cnt
+		FROM hosts h
+		INNER JOIN scans s ON s.id = h.scan_id
+		WHERE s.project_id = ? AND s.confirmed = 1 AND h.os IS NOT NULL AND h.os != ''
+		GROUP BY h.os ORDER BY cnt DESC LIMIT 8
+	`, projectID)
+	if err == nil {
+		defer rowsOS.Close()
+		for rowsOS.Next() {
+			var oc OSCount
+			if err := rowsOS.Scan(&oc.OS, &oc.Count); err == nil {
+				resp.TopOS = append(resp.TopOS, oc)
+			}
+		}
+	}
+	if resp.TopOS == nil {
+		resp.TopOS = []OSCount{}
+	}
+
+	// Top ports
+	rowsTP, err := d.Query(`
+		SELECT CAST(p.port AS INTEGER) as port, p.protocol, p.service, COUNT(DISTINCT h.ip) as cnt
+		FROM ports p
+		INNER JOIN hosts h ON h.id = p.host_id
+		INNER JOIN scans s ON s.id = h.scan_id
+		WHERE s.project_id = ? AND s.confirmed = 1 AND p.state = 'open'
+		GROUP BY p.port, p.protocol, p.service ORDER BY cnt DESC LIMIT 10
+	`, projectID)
+	if err == nil {
+		defer rowsTP.Close()
+		for rowsTP.Next() {
+			var pc PortCount
+			if err := rowsTP.Scan(&pc.Port, &pc.Protocol, &pc.Service, &pc.Count); err == nil {
+				resp.TopPorts = append(resp.TopPorts, pc)
+			}
+		}
+	}
+	if resp.TopPorts == nil {
+		resp.TopPorts = []PortCount{}
+	}
+
 	d.QueryRow(`SELECT COUNT(DISTINCT h.ip) FROM hosts h
 		INNER JOIN scans s ON s.id = h.scan_id
 		WHERE s.project_id = ? AND s.confirmed = 1`, projectID).Scan(&resp.HostCount)
+
+	d.QueryRow(`SELECT COUNT(*) FROM scans WHERE project_id = ?`, projectID).Scan(&resp.TotalScans)
 
 	d.QueryRow(`SELECT COUNT(*) FROM (
 		SELECT h.ip, p.port, p.protocol

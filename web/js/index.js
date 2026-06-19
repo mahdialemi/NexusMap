@@ -123,6 +123,7 @@ function hideAboutModal() {
 }
 
 function goToAdmin() { window.location.href = '/admin'; }
+function goToDashboard() { window.location.href = '/dashboard'; }
 
 async function ensureProjectActionOK(res, fallbackMessage) {
     if (res.ok) return;

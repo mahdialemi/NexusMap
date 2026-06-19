@@ -17,19 +17,25 @@ type cmdInfo struct {
 
 type Runner struct {
 	scansDir string
+	nmapPath string
 	mu       sync.Mutex
 	cmds     map[int]*cmdInfo
 	stopped  map[int]bool
 	phases   map[int]string
 }
 
-func New(scansDir string) *Runner {
+func New(scansDir string, nmapPath string) *Runner {
 	return &Runner{
 		scansDir: scansDir,
+		nmapPath: nmapPath,
 		cmds:     make(map[int]*cmdInfo),
 		stopped:  make(map[int]bool),
 		phases:   make(map[int]string),
 	}
+}
+
+func (r *Runner) NmapPath() string {
+	return r.nmapPath
 }
 
 func (r *Runner) ScansDir() string {
@@ -117,9 +123,13 @@ type NSEScript struct {
 }
 
 func (r *Runner) FindNSEScripts(query string) []NSEScript {
-	nmapPath, err := exec.LookPath("nmap")
-	if err != nil {
-		return nil
+	nmapPath := r.nmapPath
+	if nmapPath == "" {
+		var err error
+		nmapPath, err = exec.LookPath("nmap")
+		if err != nil {
+			return nil
+		}
 	}
 	nmapDir := filepath.Dir(nmapPath)
 	searchDirs := []string{
