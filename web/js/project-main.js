@@ -18,7 +18,7 @@
             try {
                 const projects = await getProjects();
                 currentProject = projects.find(p => p.id == projectId);
-                if (!currentProject) { alert('Project not found'); window.location.href = '/'; return; }
+                if (!currentProject) { alert(t('project.not_found')); window.location.href = '/'; return; }
                 var nameNavEl = document.getElementById('header-project-name-nav');
                 if (nameNavEl) nameNavEl.textContent = currentProject.name;
             } catch (e) {
@@ -61,12 +61,12 @@
                     label.style.background = 'rgba(34,197,94,0.12)';
                     label.style.borderColor = '#22c55e';
                     label.style.color = '#22c55e';
-                    text.textContent = 'Auto-confirm';
+                    text.textContent = t('import.auto_confirm');
                 } else {
                     label.style.background = 'rgba(100,100,100,0.08)';
                     label.style.borderColor = 'var(--border)';
                     label.style.color = 'var(--text-muted)';
-                    text.textContent = 'Manual';
+                    text.textContent = t('import.manual');
                 }
             }
             label.addEventListener('click', update);
@@ -132,32 +132,32 @@
         }
 
         async function confirmScan(id) {
-            if (!confirm('Confirm this scan? Its data will be merged into consolidated results.')) return;
+            if (!confirm(t('project.confirm_scan'))) return;
             var card = document.getElementById('scan-' + id);
             var btn = card && card.querySelector('.btn-confirm');
             if (btn) showLoading(btn);
             try {
                 await confirmScanAPI(id);
-                showToast('Scan confirmed');
+                showToast(t('project.scan_confirmed'));
                 await loadScans();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('app.error') + ': ' + e.message, 'error');
             } finally {
                 if (btn) hideLoading(btn);
             }
         }
 
         async function rejectScan(id) {
-            if (!confirm('Reject this scan? Its data will NOT be merged.')) return;
+            if (!confirm(t('project.confirm_reject_scan'))) return;
             var card = document.getElementById('scan-' + id);
             var btn = card && card.querySelector('.btn-reject');
             if (btn) showLoading(btn);
             try {
                 await rejectScanAPI(id);
-                showToast('Scan rejected');
+                showToast(t('project.scan_rejected'));
                 await loadScans();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('app.error') + ': ' + e.message, 'error');
             } finally {
                 if (btn) hideLoading(btn);
             }
@@ -165,8 +165,8 @@
 
         async function confirmAllScans() {
             const pending = document.querySelectorAll('.scan-card-pending');
-            if (!pending.length) { showToast('No pending scans to confirm', 'info'); return; }
-            if (!confirm('Confirm all ' + pending.length + ' pending scans?')) return;
+            if (!pending.length) { showToast(t('project.no_pending_scans'), 'info'); return; }
+            if (!confirm(t('project.confirm_all_scans').replace('{n}', pending.length))) return;
             var btn = document.getElementById('confirm-all-btn');
             if (btn) showLoading(btn);
             try {
@@ -175,11 +175,11 @@
                     headers: { 'X-CSRF-Token': csrfToken }
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Failed');
-                showToast('Confirmed ' + data.confirmed + ' scans', 'success');
+                if (!res.ok) throw new Error(data.error || t('common.failed'));
+                showToast(t('project.confirmed_scans').replace('{n}', data.confirmed), 'success');
                 await loadScans();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('app.error') + ': ' + e.message, 'error');
             } finally {
                 if (btn) hideLoading(btn);
             }
@@ -205,7 +205,7 @@
             if (!edits || edits.length === 0) return '';
             let html = '';
             for (const e of edits) {
-                html += '<span class="host-edit-revert" onclick="revertHostEdit(' + e.edit_id + ',\'' + esc(ip) + '\')" title="Revert ' + esc(e.field) + ': ' + esc(e.old_value) + ' â†’ ' + esc(e.new_value) + '"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span>';
+                html += '<span class="host-edit-revert" onclick="revertHostEdit(' + e.edit_id + ',\'' + esc(ip) + '\')" title="' + t('project.revert_edit') + ' ' + esc(e.field) + ': ' + esc(e.old_value) + ' â†’ ' + esc(e.new_value) + '"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span>';
             }
             return html;
         }
@@ -235,7 +235,7 @@
         function populateSchedDepScans() {
             const sel = document.getElementById('sched-dep-scan');
             if (!sel) return;
-            sel.innerHTML = '<option value="">Select a scan...</option>';
+            sel.innerHTML = '<option value="">' + t('project.select_scan_placeholder') + '</option>';
             for (const s of allScans) {
                 if (s.status !== 'pending' && s.status !== 'running') continue;
                 const o = document.createElement('option');

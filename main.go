@@ -158,7 +158,18 @@ func main() {
 	})))
 	mux.Handle("/lang/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		http.FileServer(http.FS(webSubFS)).ServeHTTP(w, r)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		name := strings.TrimPrefix(r.URL.Path, "/lang/")
+		if name == "" || strings.Contains(name, "..") {
+			http.NotFound(w, r)
+			return
+		}
+		data, err := fs.ReadFile(webSubFS, "lang/"+name)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Write(data)
 	}))
 
 	mux.HandleFunc("/login", srv.HandlePage("login.html"))

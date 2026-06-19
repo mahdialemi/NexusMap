@@ -1,6 +1,6 @@
         async function createScan() {
             const target = document.getElementById('target').value.trim();
-            if (!target) { showToast('Please enter a target', 'error'); return; }
+            if (!target) { showToast(t('scans.enter_target'), 'error'); return; }
 
             const schedEnabled = document.getElementById('sched-enabled').checked;
             if (schedEnabled) {
@@ -10,28 +10,28 @@
 
             const btn = document.getElementById('create-btn');
             btn.disabled = true;
-            btn.textContent = 'Creating...';
+            btn.textContent = t('scans.creating');
 
             try {
                 const extraArgs = getQuickFlags();
                 const note = document.getElementById('scan-notes').value.trim();
                 await createScanAPI(projectId, selectedProfile, target, extraArgs, note);
-                showToast('Scan created');
+                showToast(t('scans.created'));
                 document.getElementById('target').value = '';
                 document.getElementById('scan-notes').value = '';
                 await loadScans();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('app.error') + ': ' + e.message, 'error');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Create Scan';
+                btn.textContent = t('scans.create');
             }
         }
 
         async function createScheduledScan(target) {
             const btn = document.getElementById('create-btn');
             btn.disabled = true;
-            btn.textContent = 'Scheduling...';
+            btn.textContent = t('scans.scheduling');
 
             try {
                 const triggerType = document.querySelector('input[name="sched-type"]:checked').value;
@@ -41,9 +41,9 @@
                 if (triggerType === 'time') {
                     scheduledAt = document.getElementById('sched-datetime').value;
                     if (!scheduledAt) {
-                        showToast('Please select a date and time', 'error');
+                        showToast(t('scans.select_datetime'), 'error');
                         btn.disabled = false;
-                        btn.textContent = 'Create Scan';
+                        btn.textContent = t('scans.create');
                         return;
                     }
                     // Convert to ISO format (append seconds if not present)
@@ -53,9 +53,9 @@
                     const sel = document.getElementById('sched-dep-scan');
                     dependsOnScanID = parseInt(sel.value);
                     if (!dependsOnScanID) {
-                        showToast('Please select a scan to depend on', 'error');
+                        showToast(t('scans.select_dep_scan'), 'error');
                         btn.disabled = false;
-                        btn.textContent = 'Create Scan';
+                        btn.textContent = t('scans.create');
                         return;
                     }
                 }
@@ -75,59 +75,59 @@
                 });
                 if (!res.ok) {
                     const err = await res.json();
-                    throw new Error(err.error || 'Failed to schedule');
+                    throw new Error(err.error || t('scans.schedule_failed'));
                 }
 
                 const msg = triggerType === 'time'
-                    ? 'Scheduled for ' + scheduledAt
-                    : 'Scheduled after scan #' + dependsOnScanID;
+                    ? t('scans.scheduled_for').replace('{time}', scheduledAt)
+                    : t('scans.scheduled_after').replace('{n}', dependsOnScanID);
                 showToast(msg, 'success');
                 document.getElementById('target').value = '';
                 document.getElementById('scan-notes').value = '';
                 document.getElementById('sched-enabled').checked = false;
                 document.getElementById('sched-options').style.display = 'none';
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('app.error') + ': ' + e.message, 'error');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Create Scan';
+                btn.textContent = t('scans.create');
             }
         }
 
         async function runScan(id) {
             try {
                 await runScanAPI(id);
-                showToast('Scan started');
+                showToast(t('scans.started'));
                 await loadScans();
                 startAutoRefresh();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('app.error') + ': ' + e.message, 'error');
             }
         }
 
         async function stopScan(id) {
             try {
                 await stopScanAPI(id);
-                showToast('Scan stopped');
+                showToast(t('scans.stopped'));
                 await loadScans();
                 stopAutoRefresh();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('app.error') + ': ' + e.message, 'error');
             }
         }
 
         async function viewLog(id) {
-            var body = '<div id="log-tabs" class="log-tabs" style="margin-bottom:8px;"></div><pre id="log-content" class="log-viewer">Loading...</pre>';
-            showModal('log-modal', 'Scan #' + id + ' Log', body, 'modal-large');
+            var body = '<div id="log-tabs" class="log-tabs" style="margin-bottom:8px;"></div><pre id="log-content" class="log-viewer">' + t('app.loading') + '</pre>';
+            showModal('log-modal', t('scans.log_title').replace('{n}', id), body, 'modal-large');
             var content = document.getElementById('log-content');
             var tabsEl = document.getElementById('log-tabs');
 
             tabsEl.innerHTML = '';
             const formats = [
-                { key: 'log', label: 'Log' },
-                { key: 'xml', label: 'XML' },
-                { key: 'nmap', label: 'Nmap' },
-                { key: 'gnmap', label: 'Gnmap' }
+                { key: 'log', label: t('scans.tab_log') },
+                { key: 'xml', label: t('scans.tab_xml') },
+                { key: 'nmap', label: t('scans.tab_nmap') },
+                { key: 'gnmap', label: t('scans.tab_gnmap') }
             ];
             let activeFormat = 'log';
 
@@ -149,16 +149,16 @@
 
         async function loadLogFormat(id, format) {
             const content = document.getElementById('log-content');
-            content.textContent = 'Loading...';
+            content.textContent = t('app.loading');
             try {
                 const data = await getScanLogFormat(id, format);
                 if (data.log) {
                     content.textContent = data.log;
                 } else {
-                    content.textContent = 'No data available.';
+                    content.textContent = t('app.no_data');
                 }
             } catch (e) {
-                content.textContent = 'Error loading: ' + e.message;
+                content.textContent = t('app.error') + ': ' + e.message;
             }
         }
 
@@ -185,37 +185,37 @@
 
         function showExportModal(scanId) {
             exportScanId = Number(scanId);
-            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('scans.select_export_format') + '</p>' +
                 '<div style="display:flex;flex-direction:column;gap:8px;">' +
                     '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doExport(\'xlsx\')">' +
                         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
-                        ' Excel (.xlsx)' +
+                        ' ' + t('scans.export_xlsx') +
                     '</button>' +
                     '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doExport(\'json\')">' +
                         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
-                        ' JSON' +
+                        ' ' + t('scans.export_json') +
                     '</button>' +
                     '<button class="btn btn-danger btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doExport(\'pdf\')">' +
                         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="10" y1="13" x2="8" y2="13"/><line x1="16" y1="13" x2="12" y2="13"/><line x1="8" y1="16" x2="16" y2="16"/></svg>' +
-                        ' PDF' +
+                        ' ' + t('scans.export_pdf') +
                     '</button>' +
                     '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doExport(\'nmap\')" id="export-btn-nmap">' +
                         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M4 10l2 2 2-2"/><path d="M6 12v4"/></svg>' +
-                        ' <span>Nmap (.nmap)</span>' +
-                        ' <span id="export-badge-nmap" class="badge badge-muted" style="margin-left:auto;display:none;font-size:0.7rem;">generated</span>' +
+                        ' <span>' + t('scans.export_nmap') + '</span>' +
+                        ' <span id="export-badge-nmap" class="badge badge-muted" style="margin-left:auto;display:none;font-size:0.7rem;">' + t('scans.generated') + '</span>' +
                     '</button>' +
                     '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doExport(\'xml\')" id="export-btn-xml">' +
                         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><polyline points="4 10 6 12 4 14"/><polyline points="8 14 6 12 8 10"/></svg>' +
-                        ' <span>XML</span>' +
-                        ' <span id="export-badge-xml" class="badge badge-muted" style="margin-left:auto;display:none;font-size:0.7rem;">generated</span>' +
+                        ' <span>' + t('scans.export_xml') + '</span>' +
+                        ' <span id="export-badge-xml" class="badge badge-muted" style="margin-left:auto;display:none;font-size:0.7rem;">' + t('scans.generated') + '</span>' +
                     '</button>' +
                     '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doExport(\'gnmap\')" id="export-btn-gnmap">' +
                         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><line x1="4" y1="11" x2="8" y2="11"/></svg>' +
-                        ' <span>Grepable (.gnmap)</span>' +
-                        ' <span id="export-badge-gnmap" class="badge badge-muted" style="margin-left:auto;display:none;font-size:0.7rem;">generated</span>' +
+                        ' <span>' + t('scans.export_gnmap') + '</span>' +
+                        ' <span id="export-badge-gnmap" class="badge badge-muted" style="margin-left:auto;display:none;font-size:0.7rem;">' + t('scans.generated') + '</span>' +
                     '</button>' +
                 '</div>';
-            showModal('export-modal', 'Export Scan #' + scanId, body, 'modal-small');
+            showModal('export-modal', t('scans.export_title').replace('{n}', scanId), body, 'modal-small');
             fetch(`/api/export/${scanId}/availability`)
                 .then(r => r.json())
                 .then(function(data) {
@@ -308,13 +308,13 @@
         }
 
         async function deleteScan(id) {
-            if (!confirm('Delete this scan?')) return;
+            if (!confirm(t('scans.delete_confirm'))) return;
             try {
                 await deleteScanAPI(id);
-                showToast('Scan deleted');
+                showToast(t('scans.deleted'));
                 await loadScans();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('app.error') + ': ' + e.message, 'error');
             }
         }
 
@@ -347,7 +347,7 @@
                 if (hasRunning) { startScanPolling(); } else { stopScanPolling(); }
             } catch (e) {
                 console.error('loadScans error:', e);
-                list.innerHTML = '<div class="empty-state"><p>Error loading scans: ' + esc(e.message) + '</p></div>';
+                list.innerHTML = '<div class="empty-state"><p>' + t('scans.error_loading') + esc(e.message) + '</p></div>';
             }
         }
 
@@ -436,7 +436,7 @@
             const list = document.getElementById('scans-list');
             const countEl = document.getElementById('scan-count');
             if (!scans || scans.length === 0) {
-                list.innerHTML = '<div class="empty-state"><h3>No scans match your filters</h3><p>Try adjusting the search or filters</p></div>';
+                list.innerHTML = '<div class="empty-state"><h3>' + t('scans.no_filter_matches') + '</h3><p>' + t('scans.adjust_filters') + '</p></div>';
                 if (countEl) countEl.textContent = '';
                 return;
             }
@@ -461,7 +461,7 @@
                 const isPendingConfirm = isCompleted && !isConfirmed && !isRejected;
                 const clickable = isCompleted;
                 const dur = formatDuration(s.started_at, s.completed_at);
-                const stateLine = isRunning ? (s.phase || 'Starting...') : (s.phase || '');
+                const stateLine = isRunning ? (s.phase || t('scans.starting')) : (s.phase || '');
 
                 var cardClass = 'scan-card';
                 if (isPendingConfirm) cardClass += ' scan-card-pending';
@@ -475,35 +475,35 @@
                 html += '</div>';
                 html += '<div class="scan-card-header-actions">';
                 html += '<span class="scan-duration">' + dur + '</span>';
-                if (isPendingConfirm) html += '<span class="badge badge-pending">Pending</span>';
+                if (isPendingConfirm) html += '<span class="badge badge-pending">' + t('scans.pending_badge') + '</span>';
                 if (isConfirmed) html += '<span class="badge badge-confirmed">&#10003;</span>';
                 if (isRejected) html += '<span class="badge badge-rejected">&#10007;</span>';
                 if (window.scheduleDepMap && window.scheduleDepMap[s.id]) {
-                    html += '<span class="badge badge-dep" title="' + window.scheduleDepMap[s.id][0].target + ' - ' + window.scheduleDepMap[s.id].length + ' schedule(s) waiting">&#9203; dep: ' + window.scheduleDepMap[s.id].length + '</span>';
+                    html += '<span class="badge badge-dep" title="' + t('scans.schedules_waiting').replace('{target}', window.scheduleDepMap[s.id][0].target).replace('{n}', window.scheduleDepMap[s.id].length) + '">&#9203; dep: ' + window.scheduleDepMap[s.id].length + '</span>';
                 }
                 if (s.schedule_trigger_type === 'time' && s.schedule_scheduled_at) {
                     html += '<span class="badge badge-sched" title="' + esc(s.schedule_name || '') + '">&#128197; ' + formatSchedDate(s.schedule_scheduled_at) + '</span>';
                 }
                 if (s.schedule_trigger_type === 'dependency' && s.schedule_depends_on) {
-                    html += '<span class="badge badge-sched" title="Waits for scan #' + s.schedule_depends_on + '">&#128279; after #' + s.schedule_depends_on + '</span>';
+                    html += '<span class="badge badge-sched" title="' + t('scans.waits_for_scan').replace('{n}', s.schedule_depends_on) + '">&#128279; after #' + s.schedule_depends_on + '</span>';
                 }
                 html += statusBadge(s.status);
-                if (isPending) html += '<button class="btn btn-sm btn-run" onclick="event.stopPropagation();runScan(' + s.id + ')" title="Run"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></button>';
-                if (isRunning) html += '<button class="btn btn-sm btn-stop" onclick="event.stopPropagation();stopScan(' + s.id + ')" title="Stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button>';
+                if (isPending) html += '<button class="btn btn-sm btn-run" onclick="event.stopPropagation();runScan(' + s.id + ')" title="' + t('scans.run') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></button>';
+                if (isRunning) html += '<button class="btn btn-sm btn-stop" onclick="event.stopPropagation();stopScan(' + s.id + ')" title="' + t('scans.stop') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button>';
                 html += '</div>';
                 html += '</div>';
 
                 html += '<div class="scan-card-target">' + esc(s.target) + '</div>';
 
                 html += '<div class="scan-card-meta">';
-                html += '<span>Hosts: <strong>' + s.host_count + '</strong></span>';
+                html += '<span>' + t('scans.hosts_label') + ': <strong>' + s.host_count + '</strong></span>';
                 html += '<span class="meta-dot"></span>';
-                html += '<span>Ports: <strong>' + s.port_count + '</strong></span>';
+                html += '<span>' + t('scans.ports_label') + ': <strong>' + s.port_count + '</strong></span>';
                 html += '<span class="meta-dot"></span>';
-                html += '<span>Started: ' + formatDate(s.started_at) + '</span>';
+                html += '<span>' + t('scans.started_label') + ': ' + formatDate(s.started_at) + '</span>';
                 if (dur) {
                     html += '<span class="meta-dot"></span>';
-                    html += '<span>Duration: ' + dur + '</span>';
+                    html += '<span>' + t('scans.duration_label') + ': ' + dur + '</span>';
                 }
                 html += '</div>';
 
@@ -518,13 +518,13 @@
 
                 html += '<div class="scan-card-footer">';
                 if (isPendingConfirm) {
-                    html += '<button class="btn btn-sm btn-confirm" onclick="event.stopPropagation();confirmScan(' + s.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Confirm</button>';
-                    html += '<button class="btn btn-sm btn-reject" onclick="event.stopPropagation();rejectScan(' + s.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Reject</button>';
+                    html += '<button class="btn btn-sm btn-confirm" onclick="event.stopPropagation();confirmScan(' + s.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' + t('app.confirm') + '</button>';
+                    html += '<button class="btn btn-sm btn-reject" onclick="event.stopPropagation();rejectScan(' + s.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' + t('scans.reject') + '</button>';
                 }
                 html += '<span class="footer-spacer"></span>';
-                html += '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewLog(' + s.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Logs</button>';
-                if (isCompleted) html += '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showExportModal(' + s.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>';
-                html += '<button class="btn btn-ghost btn-sm btn-delete" onclick="event.stopPropagation();deleteScan(' + s.id + ')" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>';
+                html += '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewLog(' + s.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + t('scans.logs') + '</button>';
+                if (isCompleted) html += '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showExportModal(' + s.id + ')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' + t('app.export') + '</button>';
+                html += '<button class="btn btn-ghost btn-sm btn-delete" onclick="event.stopPropagation();deleteScan(' + s.id + ')" title="' + t('app.delete') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' + t('app.delete') + '</button>';
                 html += '</div>';
 
                 html += '</div>';
@@ -542,7 +542,7 @@
             const sel = document.getElementById('scan-profile-filter');
             const profiles = [...new Set(scans.map(s => s.profile))].sort();
             const current = sel.value;
-            sel.innerHTML = '<option value="">All Profiles</option>';
+            sel.innerHTML = '<option value="">' + t('scans.all_profiles') + '</option>';
             profiles.forEach(p => {
                 sel.innerHTML += '<option value="' + esc(p) + '">' + esc(p) + '</option>';
             });
@@ -663,21 +663,21 @@
             var selB = document.getElementById('compare-scan-b');
             var idA = selA.value;
             var idB = selB.value;
-            if (!idA || !idB) { showToast('Please select both scans', 'error'); return; }
-            if (idA === idB) { showToast('Please select two different scans', 'error'); return; }
+            if (!idA || !idB) { showToast(t('scans.select_both'), 'error'); return; }
+            if (idA === idB) { showToast(t('scans.select_different'), 'error'); return; }
             var btn = document.querySelector('#compare-modal .btn-primary');
             if (!btn) return;
             btn.disabled = true;
-            btn.textContent = 'Comparing...';
+            btn.textContent = t('scans.comparing');
             try {
                 var res = await fetch('/api/scans/compare?scan1=' + idA + '&scan2=' + idB);
                 var data = await res.json();
                 renderCompare(data);
             } catch (e) {
-                showToast('Compare failed: ' + e.message, 'error');
+                showToast(t('scans.compare_failed') + ': ' + e.message, 'error');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Compare';
+                btn.textContent = t('scans.compare');
             }
         }
 
@@ -685,26 +685,26 @@
             var el = document.getElementById('compare-results');
             var s = data.summary;
             var html = '<div class="diff-summary">';
-            html += '<div class="diff-summary-item"><div class="ds-val">' + s.hosts_in_scan1 + '</div><div class="ds-label">Hosts (A)</div></div>';
-            html += '<div class="diff-summary-item"><div class="ds-val">' + s.hosts_in_scan2 + '</div><div class="ds-label">Hosts (B)</div></div>';
-            html += '<div class="diff-summary-item"><div class="ds-val green">+' + s.hosts_added + '</div><div class="ds-label">Hosts Added</div></div>';
-            html += '<div class="diff-summary-item"><div class="ds-val red">-' + s.hosts_removed + '</div><div class="ds-label">Hosts Removed</div></div>';
-            html += '<div class="diff-summary-item"><div class="ds-val">' + s.ports_in_scan1 + '</div><div class="ds-label">Ports (A)</div></div>';
-            html += '<div class="diff-summary-item"><div class="ds-val">' + s.ports_in_scan2 + '</div><div class="ds-label">Ports (B)</div></div>';
-            html += '<div class="diff-summary-item"><div class="ds-val green">+' + s.ports_added + '</div><div class="ds-label">Ports Added</div></div>';
-            html += '<div class="diff-summary-item"><div class="ds-val red">-' + s.ports_removed + '</div><div class="ds-label">Ports Removed</div></div>';
-            html += '<div class="diff-summary-item"><div class="ds-val yellow">~' + s.ports_changed + '</div><div class="ds-label">Changed</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val">' + s.hosts_in_scan1 + '</div><div class="ds-label">' + t('scans.hosts_a') + '</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val">' + s.hosts_in_scan2 + '</div><div class="ds-label">' + t('scans.hosts_b') + '</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val green">+' + s.hosts_added + '</div><div class="ds-label">' + t('scans.hosts_added') + '</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val red">-' + s.hosts_removed + '</div><div class="ds-label">' + t('scans.hosts_removed') + '</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val">' + s.ports_in_scan1 + '</div><div class="ds-label">' + t('scans.ports_a') + '</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val">' + s.ports_in_scan2 + '</div><div class="ds-label">' + t('scans.ports_b') + '</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val green">+' + s.ports_added + '</div><div class="ds-label">' + t('scans.ports_added') + '</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val red">-' + s.ports_removed + '</div><div class="ds-label">' + t('scans.ports_removed') + '</div></div>';
+            html += '<div class="diff-summary-item"><div class="ds-val yellow">~' + s.ports_changed + '</div><div class="ds-label">' + t('scans.changed') + '</div></div>';
             html += '</div>';
 
             if (data.hosts_added && data.hosts_added.length) {
-                html += '<div class="diff-section"><h4>Hosts Added <span class="diff-count">(' + data.hosts_added.length + ')</span></h4>';
+                html += '<div class="diff-section"><h4>' + t('scans.hosts_added') + ' <span class="diff-count">(' + data.hosts_added.length + ')</span></h4>';
                 data.hosts_added.forEach(function(h) {
                     html += '<div class="diff-host"><span class="diff-ip">' + esc(h.ip) + '</span><span class="diff-meta">' + esc(h.hostname) + ' ' + esc(h.os) + '</span></div>';
                 });
                 html += '</div>';
             }
             if (data.hosts_removed && data.hosts_removed.length) {
-                html += '<div class="diff-section"><h4>Hosts Removed <span class="diff-count">(' + data.hosts_removed.length + ')</span></h4>';
+                html += '<div class="diff-section"><h4>' + t('scans.hosts_removed') + ' <span class="diff-count">(' + data.hosts_removed.length + ')</span></h4>';
                 data.hosts_removed.forEach(function(h) {
                     html += '<div class="diff-host"><span class="diff-ip">' + esc(h.ip) + '</span><span class="diff-meta">' + esc(h.hostname) + ' ' + esc(h.os) + '</span></div>';
                 });
@@ -713,7 +713,7 @@
 
             function portRows(ports, cls) {
                 if (!ports || !ports.length) return '';
-                var tbl = '<table class="diff-table"><tr><th>IP</th><th>Port</th><th>Proto</th><th>State</th><th>Service</th><th>Product</th><th>Version</th></tr>';
+                var tbl = '<table class="diff-table"><tr><th>' + t('scans.ip') + '</th><th>' + t('scans.port') + '</th><th>' + t('scans.proto') + '</th><th>' + t('scans.state') + '</th><th>' + t('scans.service') + '</th><th>' + t('scans.product') + '</th><th>' + t('scans.version') + '</th></tr>';
                 ports.forEach(function(p) {
                     tbl += '<tr class="' + cls + '"><td>' + esc(p.ip) + '</td><td>' + p.port + '/' + esc(p.protocol) + '</td><td>' + esc(p.protocol) + '</td>';
                     tbl += '<td>' + esc(p.state);
@@ -731,19 +731,19 @@
             }
 
             if (data.ports_added && data.ports_added.length) {
-                html += '<div class="diff-section"><h4>Ports Added <span class="diff-count">(' + data.ports_added.length + ')</span></h4>' + portRows(data.ports_added, 'diff-added') + '</div>';
+                html += '<div class="diff-section"><h4>' + t('scans.ports_added') + ' <span class="diff-count">(' + data.ports_added.length + ')</span></h4>' + portRows(data.ports_added, 'diff-added') + '</div>';
             }
             if (data.ports_removed && data.ports_removed.length) {
-                html += '<div class="diff-section"><h4>Ports Removed <span class="diff-count">(' + data.ports_removed.length + ')</span></h4>' + portRows(data.ports_removed, 'diff-removed') + '</div>';
+                html += '<div class="diff-section"><h4>' + t('scans.ports_removed') + ' <span class="diff-count">(' + data.ports_removed.length + ')</span></h4>' + portRows(data.ports_removed, 'diff-removed') + '</div>';
             }
             if (data.ports_changed && data.ports_changed.length) {
-                html += '<div class="diff-section"><h4>Ports Changed <span class="diff-count">(' + data.ports_changed.length + ')</span></h4>' + portRows(data.ports_changed, 'diff-changed') + '</div>';
+                html += '<div class="diff-section"><h4>' + t('scans.ports_changed') + ' <span class="diff-count">(' + data.ports_changed.length + ')</span></h4>' + portRows(data.ports_changed, 'diff-changed') + '</div>';
             }
 
             html += '<div style="text-align:center;margin-top:12px;font-size:0.78rem;color:var(--text-muted)">';
-            html += 'Scan A: #' + data.scan1.id + ' ' + esc(data.scan1.target) + ' (' + esc(data.scan1.started_at) + ')';
+            html += t('scans.scan_a') + ' #' + data.scan1.id + ' ' + esc(data.scan1.target) + ' (' + esc(data.scan1.started_at) + ')';
             html += '<br>';
-            html += 'Scan B: #' + data.scan2.id + ' ' + esc(data.scan2.target) + ' (' + esc(data.scan2.started_at) + ')';
+            html += t('scans.scan_b') + ' #' + data.scan2.id + ' ' + esc(data.scan2.target) + ' (' + esc(data.scan2.started_at) + ')';
             html += '</div>';
 
             el.innerHTML = html;

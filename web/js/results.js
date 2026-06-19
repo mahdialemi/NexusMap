@@ -10,20 +10,22 @@ var sortCol = 0;
 var sortAsc = true;
 var searchQuery = '';
 
-var columns = [
-    { label: 'IP', key: 'ip' },
-    { label: 'MAC', key: 'mac' },
-    { label: 'Hostname', key: 'hostname' },
-    { label: 'OS', key: 'os' },
-    { label: 'Status', key: 'host_status' },
-    { label: 'Port', key: 'port' },
-    { label: 'Proto', key: 'protocol' },
-    { label: 'State', key: 'state' },
-    { label: 'Service', key: 'service' },
-    { label: 'Version', key: 'version' },
-    { label: 'Product', key: 'product' },
-    { label: 'Extra', key: 'extra_info' },
-];
+function getColumns() {
+    return [
+        { label: t('results.col_ip'), key: 'ip' },
+        { label: t('results.col_mac'), key: 'mac' },
+        { label: t('results.col_hostname'), key: 'hostname' },
+        { label: t('results.col_os'), key: 'os' },
+        { label: t('results.col_status'), key: 'host_status' },
+        { label: t('results.col_port'), key: 'port' },
+        { label: t('results.col_proto'), key: 'protocol' },
+        { label: t('results.col_state'), key: 'state' },
+        { label: t('results.col_service'), key: 'service' },
+        { label: t('results.col_version'), key: 'version' },
+        { label: t('results.col_product'), key: 'product' },
+        { label: t('results.col_extra'), key: 'extra_info' },
+    ];
+}
 
 document.addEventListener('click', function(e) {
     var el = e.target.closest('#about-modal.modal-overlay');
@@ -44,7 +46,7 @@ async function init() {
 
     document.getElementById('page-size-select').addEventListener('change', function() { changePageSize(this.value); });
 
-    document.getElementById('breadcrumb-scan').textContent = 'Scan #' + scanId;
+    document.getElementById('breadcrumb-scan').textContent = t('results.scan_id').replace('{id}', scanId);
 
     await loadResults(1);
 }
@@ -67,7 +69,7 @@ async function loadResults(page) {
         }
         renderTable();
     } catch (e) {
-        container.innerHTML = '<div class="empty-state"><p>Error loading results</p></div>';
+        container.innerHTML = '<div class="empty-state"><p>' + t('results.error_loading') + '</p></div>';
     }
 }
 
@@ -76,7 +78,8 @@ function renderTable() {
     var data = currentData;
 
     var hasPorts = data.some(function(r) { return r.port > 0 || r.service; });
-    var activeCols = hasPorts ? columns : columns.slice(0, 5);
+    var cols = getColumns();
+    var activeCols = hasPorts ? cols : cols.slice(0, 5);
 
     if (searchQuery) {
         data = currentData.filter(function(r) {
@@ -85,7 +88,7 @@ function renderTable() {
     }
 
     if (data.length === 0) {
-        container.innerHTML = '<div class="empty-state"><h3>No results</h3><p>' + (totalResults > 0 ? 'No matches on this page' : 'Scan returned no data') + '</p></div>';
+        container.innerHTML = '<div class="empty-state"><h3>' + t('results.no_results_header') + '</h3><p>' + (totalResults > 0 ? t('results.no_matches') : t('results.no_data')) + '</p></div>';
     } else {
         var html = '<table id="results-table"><thead><tr>';
         activeCols.forEach(function(col, i) {
@@ -129,8 +132,8 @@ function updatePagination() {
     }
     el.style.display = 'flex';
 
-    document.getElementById('page-info').textContent = 'Page ' + currentPage + ' of ' + totalPages;
-    document.getElementById('total-info').textContent = totalResults + ' total';
+    document.getElementById('page-info').textContent = t('results.page_info').replace('{current}', currentPage).replace('{total}', totalPages);
+    document.getElementById('total-info').textContent = t('results.total_results').replace('{n}', totalResults);
 
     document.getElementById('page-first').disabled = currentPage <= 1;
     document.getElementById('page-prev').disabled = currentPage <= 1;

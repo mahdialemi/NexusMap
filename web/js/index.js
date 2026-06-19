@@ -53,7 +53,7 @@ async function loadProjects() {
         allProjects = await getProjects();
         sortProjects();
     } catch (e) {
-        document.getElementById('projects-list').innerHTML = '<div class="empty-state"><p>Error loading projects</p></div>';
+        document.getElementById('projects-list').innerHTML = '<div class="empty-state"><p>' + t('projects.error_loading') + '</p></div>';
     }
 }
 
@@ -82,9 +82,9 @@ async function populateOwners() {
     try {
         var users = await getUsers();
         var opts = users.map(function(u){ return '<option value="'+u.id+'">'+esc(u.username)+'</option>'; }).join('');
-        document.getElementById('create-owner').innerHTML = '<option value="">Select owner</option>' + opts;
-        document.getElementById('edit-owner').innerHTML = '<option value="">Select owner</option>' + opts;
-        document.getElementById('filter-owner').innerHTML = '<option value="">All Owners</option>' + opts;
+        document.getElementById('create-owner').innerHTML = '<option value="">' + t('projects.select_owner') + '</option>' + opts;
+        document.getElementById('edit-owner').innerHTML = '<option value="">' + t('projects.select_owner') + '</option>' + opts;
+        document.getElementById('filter-owner').innerHTML = '<option value="">' + t('projects.all_owners') + '</option>' + opts;
     } catch(e) {}
 }
 
@@ -104,9 +104,9 @@ async function confirmDeleteProject(e) {
         await deleteProject(id);
         hideDeleteModal();
         await loadProjects();
-        showToast('Project deleted');
+        showToast(t('projects.deleted'));
     } catch (e) {
-        showToast('Failed to delete project');
+        showToast(t('projects.delete_failed'));
     }
 }
 
@@ -169,7 +169,7 @@ async function saveEditProject() {
     var owner = document.getElementById('edit-owner').value;
     var due = document.getElementById('edit-due').value;
     if (!name) {
-        document.getElementById('edit-error').textContent = 'Project name is required';
+        document.getElementById('edit-error').textContent = t('projects.name_required');
         document.getElementById('edit-error').style.display = 'block';
         return;
     }
@@ -177,7 +177,7 @@ async function saveEditProject() {
         await updateProject(id, name, desc, status, priority, tags, client, owner ? parseInt(owner) : null, due || null);
         hideEditProjectModal();
         await loadProjects();
-        showToast('Project updated');
+        showToast(t('projects.updated'));
     } catch (e) {
         document.getElementById('edit-error').textContent = e.message;
         document.getElementById('edit-error').style.display = 'block';
@@ -226,9 +226,9 @@ function renderProjects(projects) {
         if (countEl) countEl.textContent = '';
         var hasFilters = document.getElementById('filter-status').value || document.getElementById('filter-priority').value || document.getElementById('filter-owner').value || document.getElementById('search-projects').value;
         if (hasFilters) {
-            list.innerHTML = '<div class="empty-state"><h3>No projects found</h3><p>Try adjusting your filters</p></div>';
+            list.innerHTML = '<div class="empty-state"><h3>' + t('projects.no_results') + '</h3><p>' + t('projects.adjust_filters') + '</p></div>';
         } else {
-            list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-folder-plus"/></svg></div><h3>No projects yet</h3><p>Create your first project to start scanning</p><div class="empty-state-cta"><button class="btn btn-primary" data-action="showCreateModal"> Create Project</button></div></div>';
+            list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#icon-folder-plus"/></svg></div><h3>' + t('projects.no_projects') + '</h3><p>' + t('projects.create_first') + '</p><div class="empty-state-cta"><button class="btn btn-primary" data-action="showCreateModal"> ' + t('projects.create_project') + '</button></div></div>';
         }
         updateBulkBar();
         return;
@@ -261,7 +261,7 @@ function renderProjects(projects) {
             var key = '';
             if (groupBy === 'status') key = sorted[i].status || 'active';
             else if (groupBy === 'priority') key = sorted[i].priority || 'medium';
-            else if (groupBy === 'owner') key = sorted[i].owner_name || 'Unassigned';
+            else if (groupBy === 'owner') key = sorted[i].owner_name || t('projects.unassigned');
             if (!groups[key]) groups[key] = [];
             groups[key].push(sorted[i]);
         }
@@ -269,7 +269,7 @@ function renderProjects(projects) {
         groups['_all'] = sorted;
     }
     var groupOrder = groupBy === 'priority' ? ['critical','high','medium','low'] : null;
-    var groupLabels = { active: 'Active', archived: 'Archived', completed: 'Completed', critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' };
+    var groupLabels = { active: t('common.active'), archived: t('common.archived'), completed: t('common.completed'), critical: t('common.critical'), high: t('common.high'), medium: t('common.medium'), low: t('common.low') };
     if (groupBy === 'status') {
         groupOrder = ['active', 'archived', 'completed'];
     }
@@ -306,20 +306,21 @@ function renderProjectItem(p, today, threeDaysMs, thirtyDaysMs) {
     var priorityColor = p.priority === 'critical' ? '#ef4444' : p.priority === 'high' ? '#f97316' : p.priority === 'medium' ? '#eab308' : '#64748b';
     var tags = p.tags ? p.tags.split(',').filter(Boolean) : [];
     var tagHtml = tags.map(function(t){ return '<span class="pli-chip" data-tag="'+esc(t.trim())+'">#'+esc(t.trim())+'</span>'; }).join('');
+    // Due
     var dueHtml = '';
     if (p.due_date) {
         var dueStr = p.due_date.split('T')[0];
         var dueDate = new Date(dueStr + 'T00:00:00');
         var diff = dueDate - today;
         if (diff < 0) {
-            dueHtml = '<span>Due: '+dueStr+' <span class="due-badge due-badge-overdue">Overdue</span></span>';
+            dueHtml = '<span class="pli-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + t('common.due') + ': '+dueStr+' <span class="due-badge due-badge-overdue">' + t('common.overdue') + '</span></span>';
         } else if (diff < threeDaysMs) {
-            dueHtml = '<span>Due: '+dueStr+' <span class="due-badge due-badge-soon">Due soon</span></span>';
+            dueHtml = '<span class="pli-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + t('common.due') + ': '+dueStr+' <span class="due-badge due-badge-soon">' + t('common.due_soon') + '</span></span>';
         } else {
-            dueHtml = '<span>Due: '+dueStr+'</span>';
+            dueHtml = '<span class="pli-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + t('common.due') + ': '+dueStr+'</span>';
         }
     }
-    // Health dot
+    // Health
     var healthColor = '#ef4444';
     if (p.scan_count > 0 && p.last_scan_at) {
         var lastScanDate = new Date(p.last_scan_at);
@@ -332,68 +333,69 @@ function renderProjectItem(p, today, threeDaysMs, thirtyDaysMs) {
     } else if (p.scan_count > 0) {
         healthColor = '#eab308';
     }
-    var healthDot = '<span class="pli-health-dot" style="background:'+healthColor+';" title="'+(healthColor==='#22c55e'?'Healthy':healthColor==='#eab308'?'Needs attention':'No scans')+'"></span>';
-    // Last scan info
-    var lastScanHtml = '';
+    var healthTitle = healthColor==='#22c55e'?t('common.healthy'):healthColor==='#eab308'?t('common.needs_attention'):t('common.no_scans');
+    var healthDot = '<span class="pli-health-dot" style="background:'+healthColor+';" title="'+healthTitle+'"></span>';
+    // Meta items
+    var metaItems = [];
+    if (p.client) metaItems.push('<span class="pli-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'+esc(p.client)+'</span>');
+    if (p.owner_name) metaItems.push('<span class="pli-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'+esc(p.owner_name)+'</span>');
     if (p.last_scan_at) {
         var lsDate = formatDate(p.last_scan_at);
         var lsStatus = p.last_scan_status || '';
-        lastScanHtml = '<span>Last scan: '+lsDate+(lsStatus ? ' ('+esc(lsStatus)+')' : '')+'</span>';
+        metaItems.push('<span class="pli-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + t('common.scan') + ': '+lsDate+(lsStatus ? ' ('+esc(lsStatus)+')' : '')+'</span>');
     }
+    var metaHtml = metaItems.length > 0 ? '<div class="pli-meta-row" data-action="goToProject" data-id="'+p.id+'">'+metaItems.join('')+dueHtml+'</div>' : (dueHtml ? '<div class="pli-meta-row" data-action="goToProject" data-id="'+p.id+'">'+dueHtml+'</div>' : '');
     // Progress
     var progressHtml = '';
     if (p.scan_count > 0) {
         var pct = Math.round((p.confirmed_count||0)/p.scan_count*100);
-        progressHtml = '<div class="pli-progress"><div class="scan-progress scan-progress-sm"><div class="scan-progress-bar" style="width:'+pct+'%"></div></div><span class="pli-progress-label">'+(p.confirmed_count||0)+'/'+p.scan_count+' confirmed</span></div>';
+        progressHtml = '<div class="pli-progress"><div class="scan-progress scan-progress-sm"><div class="scan-progress-bar" style="width:'+pct+'%"></div></div><span class="pli-progress-label">'+(p.confirmed_count||0)+'/'+p.scan_count+' ' + t('projects.confirmed') + '</span></div>';
     }
-    // Pin button
+    // Pin
     var pinClass = p.is_pinned ? 'pinned' : '';
     var pinIcon = p.is_pinned ? '\u2605' : '\u2606';
-    var pinBtn = currentUser.role === 'admin' ? '<button class="pli-pin-btn '+pinClass+'" data-action="handleTogglePin" data-id="'+p.id+'" title="'+(p.is_pinned?'Unpin':'Pin')+'">'+pinIcon+'</button>' : '';
-    // Action buttons
-    var archiveBtn = '';
-    var duplicateBtn = '';
-    var editBtn = '';
-    var deleteBtn = '';
+    var pinBtn = currentUser.role === 'admin' ? '<button class="pli-pin-btn '+pinClass+'" data-action="handleTogglePin" data-id="'+p.id+'" title="'+(p.is_pinned?t('projects.unpin'):t('projects.pin'))+'">'+pinIcon+'</button>' : '';
+    // Actions
+    var archiveBtn = '', duplicateBtn = '', editBtn = '', deleteBtn = '';
     if (currentUser.role === 'admin') {
-        var archiveLabel = p.status === 'archived' ? 'Activate' : 'Archive';
+        var archiveLabel = p.status === 'archived' ? t('common.activate') : t('common.archive');
         var newStatus = p.status === 'archived' ? 'active' : 'archived';
         archiveBtn = '<button class="btn btn-ghost btn-sm" data-action="handleQuickArchive" data-id="'+p.id+'" data-status="'+newStatus+'" title="'+archiveLabel+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><line x1="10" y1="12" x2="14" y2="12"/></svg></button>';
-        duplicateBtn = '<button class="btn btn-ghost btn-sm" data-action="handleDuplicateProject" data-id="'+p.id+'" data-name="'+esc(p.name)+'" title="Duplicate"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
-        editBtn = '<button class="btn btn-ghost btn-sm" data-action="showEditProjectModal" data-id="'+p.id+'" data-name="'+esc(p.name)+'" data-desc="'+esc(p.description||'')+'" data-status="'+esc(p.status||'active')+'" data-priority="'+esc(p.priority||'medium')+'" data-tags="'+esc(p.tags||'')+'" data-client="'+esc(p.client||'')+'" data-owner-id="'+(p.owner_id!=null?p.owner_id:'')+'" data-due="'+(p.due_date?p.due_date.split('T')[0]:'')+'" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
-        deleteBtn = '<button class="btn btn-ghost btn-sm btn-delete" data-action="handleDeleteProject" data-id="'+p.id+'" data-name="'+esc(p.name)+'" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+        duplicateBtn = '<button class="btn btn-ghost btn-sm" data-action="handleDuplicateProject" data-id="'+p.id+'" data-name="'+esc(p.name)+'" title="' + t('common.duplicate') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
+        editBtn = '<button class="btn btn-ghost btn-sm" data-action="showEditProjectModal" data-id="'+p.id+'" data-name="'+esc(p.name)+'" data-desc="'+esc(p.description||'')+'" data-status="'+esc(p.status||'active')+'" data-priority="'+esc(p.priority||'medium')+'" data-tags="'+esc(p.tags||'')+'" data-client="'+esc(p.client||'')+'" data-owner-id="'+(p.owner_id!=null?p.owner_id:'')+'" data-due="'+(p.due_date?p.due_date.split('T')[0]:'')+'" title="' + t('common.edit') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+        deleteBtn = '<button class="btn btn-ghost btn-sm btn-delete" data-action="handleDeleteProject" data-id="'+p.id+'" data-name="'+esc(p.name)+'" title="' + t('common.delete') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
     }
     var selected = selectedIds.indexOf(p.id) !== -1;
     var checked = selected ? ' checked' : '';
-    return '<div class="project-list-item" style="border-left-color:'+priorityColor+';" data-id="'+p.id+'">' +
-        '<div class="pli-header">' +
-            '<input type="checkbox" class="pli-checkbox" data-id="'+p.id+'"'+checked+'>' +
-            '<div class="pli-header-left" data-action="goToProject" data-id="'+p.id+'">' +
-                healthDot +
-                '<span class="pli-name">'+esc(p.name)+'</span>' +
+    return '<div class="project-list-item" data-id="'+p.id+'">' +
+        '<div class="pli-priority-bar" style="background:'+priorityColor+';"></div>' +
+        '<div class="pli-body">' +
+            '<div class="pli-header">' +
+                '<input type="checkbox" class="pli-checkbox" data-id="'+p.id+'"'+checked+'>' +
+                '<div class="pli-header-left" data-action="goToProject" data-id="'+p.id+'">' +
+                    healthDot +
+                    '<span class="pli-name">'+esc(p.name)+'</span>' +
+                '</div>' +
+                '<div class="pli-header-right">' +
+                    '<span class="pli-badge" style="background:'+statusColor+'22;color:'+statusColor+';">'+esc(p.status||'active')+'</span>' +
+                    '<span class="pli-badge" style="background:'+priorityColor+'22;color:'+priorityColor+';">'+esc(p.priority||'medium')+'</span>' +
+                    pinBtn +
+                '</div>' +
             '</div>' +
-            '<div class="pli-header-right">' +
-                '<span class="pli-badge" style="background:'+statusColor+'22;color:'+statusColor+';">'+esc(p.status||'active')+'</span>' +
-                '<span class="pli-badge" style="background:'+priorityColor+'22;color:'+priorityColor+';">'+esc(p.priority||'medium')+'</span>' +
-                (tagHtml ? '<div class="pli-tags">'+tagHtml+'</div>' : '') +
-                pinBtn +
-            '</div>' +
-        '</div>' +
-        (p.description ? '<div class="pli-desc" data-action="goToProject" data-id="'+p.id+'">'+esc(p.description)+'</div>' : '') +
-        '<div class="pli-meta" data-action="goToProject" data-id="'+p.id+'">' +
-            (p.client ? '<span>Client: '+esc(p.client)+'</span>' : '') +
-            (p.owner_name ? '<span>Owner: '+esc(p.owner_name)+'</span>' : '') +
-            dueHtml +
-            lastScanHtml +
-        '</div>' +
-        progressHtml +
-        '<div class="pli-footer">' +
-            '<div class="pli-footer-left" data-action="goToProject" data-id="'+p.id+'">Scans: '+(p.scan_count||0)+' &middot; Created: '+formatDate(p.created_at)+'</div>' +
-            '<div class="pli-actions">' +
-                archiveBtn +
-                duplicateBtn +
-                editBtn +
-                deleteBtn +
+            (tagHtml ? '<div class="pli-tags">'+tagHtml+'</div>' : '') +
+            (p.description ? '<div class="pli-desc" data-action="goToProject" data-id="'+p.id+'">'+esc(p.description)+'</div>' : '') +
+            metaHtml +
+            '<div class="pli-bottom">' +
+                '<div class="pli-bottom-left">' +
+                    progressHtml +
+                    '<span class="pli-bottom-meta" data-action="goToProject" data-id="'+p.id+'">'+(p.scan_count||0)+' ' + t('common.scans') + ' &middot; '+formatDate(p.created_at)+'</span>' +
+                '</div>' +
+                '<div class="pli-actions">' +
+                    archiveBtn +
+                    duplicateBtn +
+                    editBtn +
+                    deleteBtn +
+                '</div>' +
             '</div>' +
         '</div>' +
     '</div>';
@@ -407,7 +409,7 @@ function updateBulkBar() {
     var deleteBtn = document.getElementById('bulk-delete-btn');
     if (!bar) return;
     var count = selectedIds.length;
-    countEl.textContent = count + ' selected';
+    countEl.textContent = count + ' ' + t('common.selected');
     if (count > 0) {
         bar.classList.add('visible');
         archiveBtn.style.display = '';
@@ -438,18 +440,18 @@ function handleBulkArchive() { bulkStatusAction('archived'); }
 function handleBulkActivate() { bulkStatusAction('active'); }
 function handleBulkDelete() {
     if (!selectedIds.length) return;
-    if (!confirm('Delete ' + selectedIds.length + ' projects? This cannot be undone.')) return;
+    if (!confirm(t('projects.bulk_delete_confirm').replace('{n}', selectedIds.length))) return;
     (async function() {
         try {
             var res = await fetch('/api/projects/bulk/delete', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }, body: JSON.stringify({ ids: selectedIds }) });
-            await ensureProjectActionOK(res, 'Failed to delete projects');
-            showToast(selectedIds.length + ' projects deleted');
+            await ensureProjectActionOK(res, t('projects.bulk_delete_failed'));
+            showToast(selectedIds.length + ' ' + t('projects.projects_deleted'));
             selectedIds = [];
             selectAllMode = false;
             document.getElementById('bulk-select-all').checked = false;
             await loadProjects();
         } catch(e) {
-            showToast(e.message || 'Failed to delete projects');
+            showToast(e.message || t('projects.bulk_delete_failed'));
         }
     })();
 }
@@ -459,14 +461,14 @@ function bulkStatusAction(status) {
     (async function() {
         try {
             var res = await fetch('/api/projects/bulk/status', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }, body: JSON.stringify({ ids: selectedIds, status: status }) });
-            await ensureProjectActionOK(res, 'Failed to update projects');
-            showToast(selectedIds.length + ' projects updated');
+            await ensureProjectActionOK(res, t('projects.bulk_update_failed'));
+            showToast(selectedIds.length + ' ' + t('projects.projects_updated'));
             selectedIds = [];
             selectAllMode = false;
             document.getElementById('bulk-select-all').checked = false;
             await loadProjects();
         } catch(e) {
-            showToast(e.message || 'Failed to update projects');
+            showToast(e.message || t('projects.bulk_update_failed'));
         }
     })();
 }
@@ -480,7 +482,7 @@ function handleTogglePin(e) {
             if (!res.ok) throw new Error('Failed');
             await loadProjects();
         } catch(e) {
-            showToast('Failed to toggle pin');
+            showToast(t('projects.pin_failed'));
         }
     })();
 }
@@ -492,11 +494,11 @@ function handleQuickArchive(e) {
     (async function() {
         try {
             var res = await fetch('/api/projects/' + id + '/status', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }, body: JSON.stringify({ status: status }) });
-            await ensureProjectActionOK(res, 'Failed to update project');
-            showToast('Project ' + (status === 'archived' ? 'archived' : 'activated'));
+            await ensureProjectActionOK(res, t('projects.update_failed'));
+            showToast(status === 'archived' ? t('projects.project_archived') : t('projects.project_activated'));
             await loadProjects();
         } catch(e) {
-            showToast(e.message || 'Failed to update project');
+            showToast(e.message || t('projects.update_failed'));
         }
     })();
 }
@@ -505,16 +507,16 @@ function handleDuplicateProject(e) {
     e.stopPropagation();
     var id = parseInt(this.getAttribute('data-id'));
     var name = this.getAttribute('data-name');
-    var newName = prompt('Duplicate project name:', name + ' (Copy)');
+    var newName = prompt(t('projects.duplicate_prompt'), name + t('projects.copy_suffix'));
     if (!newName) return;
     (async function() {
         try {
             var res = await fetch('/api/projects/' + id + '/duplicate', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }, body: JSON.stringify({ name: newName }) });
-            await ensureProjectActionOK(res, 'Failed to duplicate project');
-            showToast('Project duplicated');
+            await ensureProjectActionOK(res, t('projects.duplicate_failed'));
+            showToast(t('projects.duplicated'));
             await loadProjects();
         } catch(e) {
-            showToast(e.message || 'Failed to duplicate project');
+            showToast(e.message || t('projects.duplicate_failed'));
         }
     })();
 }
@@ -568,24 +570,24 @@ async function showTagCloud() {
     try {
         var tags = await getTagCloud();
         if (!tags.length) {
-            document.getElementById('tag-cloud-body').innerHTML = '<div class="empty-state"><p>No tags found</p></div>';
+            document.getElementById('tag-cloud-body').innerHTML = '<div class="empty-state"><p>' + t('projects.no_tags') + '</p></div>';
             return;
         }
         renderTagCloud(tags);
     } catch(e) {
-        document.getElementById('tag-cloud-body').innerHTML = '<div class="empty-state"><p>Error loading tags</p></div>';
+        document.getElementById('tag-cloud-body').innerHTML = '<div class="empty-state"><p>' + t('projects.error_loading_tags') + '</p></div>';
     }
 }
 
 function renderTagCloud(tags) {
-    var html = '<div style="margin-bottom:12px;text-align:center;font-size:0.8rem;color:var(--text-muted);" id="tag-cloud-status">'+(selectedTags.length ? 'Selected: '+selectedTags.length : 'Click tags to select')+'</div>';
+    var html = '<div style="margin-bottom:12px;text-align:center;font-size:0.8rem;color:var(--text-muted);" id="tag-cloud-status">'+(selectedTags.length ? t('projects.tags_selected_count').replace('{n}', selectedTags.length) : t('projects.click_tags'))+'</div>';
     html += '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px;" id="tag-cloud-list">';
     tags.forEach(function(t, i) {
         var c = tagColors[i % tagColors.length];
         var safeTag = esc(t.name);
         var sel = selectedTags.indexOf(t.name) !== -1;
         html += '<div class="tag-chip" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.15s;box-shadow:'+(sel?'0 2px 6px rgba(0,0,0,0.15)':'0 1px 2px rgba(0,0,0,0.05)')+';user-select:none;'+(sel?'background:'+c.fg+';color:#fff;border:2px solid '+c.fg:'background:'+c.bg+';color:'+c.fg+';border:2px solid '+c.border)+';"'+
-            ' data-tag="'+safeTag+'" data-raw="'+(t.name||'').replace(/"/g,'&quot;')+'" title="Click to toggle">' +
+            ' data-tag="'+safeTag+'" data-raw="'+(t.name||'').replace(/"/g,'&quot;')+'" title="' + t('common.click_to_toggle') + '">' +
             (sel?'<span style="font-size:0.65rem;">&#10003;</span> ':'') +
             '<span>#'+safeTag+'</span>' +
             '<span style="font-size:0.65rem;margin-left:2px;">'+t.count+'</span>' +
@@ -593,8 +595,8 @@ function renderTagCloud(tags) {
     });
     html += '</div>';
     html += '<div style="display:flex;gap:10px;justify-content:center;">';
-    html += '<button class="btn btn-secondary btn-sm" id="tag-cloud-clear-btn" style="padding:7px 24px;border-radius:8px;">Show All</button>';
-    html += '<button class="btn btn-primary btn-sm" id="tag-cloud-apply-btn" style="padding:7px 24px;border-radius:8px;">Apply Filter</button>';
+    html += '<button class="btn btn-secondary btn-sm" id="tag-cloud-clear-btn" style="padding:7px 24px;border-radius:8px;">' + t('projects.show_all') + '</button>';
+    html += '<button class="btn btn-primary btn-sm" id="tag-cloud-apply-btn" style="padding:7px 24px;border-radius:8px;">' + t('projects.apply_filter') + '</button>';
     html += '</div>';
     document.getElementById('tag-cloud-body').innerHTML = html;
 }
@@ -630,7 +632,7 @@ function toggleTagCloudTag(tagEl) {
             }
         });
         var status = document.getElementById('tag-cloud-status');
-        if (status) status.textContent = selectedTags.length ? 'Selected: '+selectedTags.length : 'Click tags to select';
+        if (status) status.textContent = selectedTags.length ? t('projects.tags_selected_count').replace('{n}', selectedTags.length) : t('projects.click_tags');
     } catch(e) {}
 }
 
@@ -688,7 +690,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 await createProject(name, desc, status, priority, tags, client, owner ? parseInt(owner) : null, due || null);
                 hideCreateModal();
                 await loadProjects();
-                showToast('Project created');
+                showToast(t('projects.created'));
             } catch (e) {
                 document.getElementById('create-error').textContent = e.message;
                 document.getElementById('create-error').style.display = 'block';

@@ -55,7 +55,7 @@ async function loadAdminStats() {
         document.getElementById('stat-rows').textContent = formatNum(stats.total_rows || 0);
         document.getElementById('stat-size').textContent = stats.db_size_pretty || '-';
     } catch (e) {
-        document.getElementById('kpi-grid').innerHTML = '<div class="empty-state"><p>Error loading stats: ' + esc(e.message) + '</p></div>';
+        document.getElementById('kpi-grid').innerHTML = '<div class="empty-state"><p>' + t('admin.error_loading_stats') + esc(e.message) + '</p></div>';
     }
 }
 
@@ -65,32 +65,32 @@ async function loadUsers() {
         allUsers = await getUsers();
         renderUsers(allUsers);
     } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-cell" style="color:#ef4444;">Error loading users: ' + esc(e.message) + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-cell" style="color:#ef4444;">' + t('admin.error_loading_users') + esc(e.message) + '</td></tr>';
     }
 }
 
 function renderUsers(users) {
     var tbody = document.getElementById('users-tbody');
     if (users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No users found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">' + t('admin.no_users_found') + '</td></tr>';
         return;
     }
     tbody.innerHTML = users.map(function(u) {
         var row = '<tr><td>' + u.id + '</td><td><strong>' + esc(u.username) + '</strong></td><td><span class="role-badge">' + u.role + '</span></td><td style="color:var(--text-muted);font-size:0.85rem;">' + formatDate(u.created_at) + '</td><td>';
         if (u.username !== 'admin') {
             row += '<div style="display:flex;gap:4px;">' +
-                '<button class="btn btn-secondary btn-sm" data-action="showEditModal" data-user-id="' + u.id + '" data-username="' + esc(u.username) + '" data-role="' + u.role + '" title="Edit">' +
+                '<button class="btn btn-secondary btn-sm" data-action="showEditModal" data-user-id="' + u.id + '" data-username="' + esc(u.username) + '" data-role="' + u.role + '" title="' + t('common.edit') + '">' +
                 '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
                 '</button>' +
-                '<button class="btn btn-warning btn-sm" data-action="showResetModal" data-user-id="' + u.id + '" data-username="' + esc(u.username) + '" title="Reset Password">' +
+                '<button class="btn btn-warning btn-sm" data-action="showResetModal" data-user-id="' + u.id + '" data-username="' + esc(u.username) + '" title="' + t('admin.reset_password') + '">' +
                 '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>' +
                 '</button>' +
-                '<button class="btn btn-danger btn-sm" data-action="deleteUserConfirm" data-user-id="' + u.id + '" data-username="' + esc(u.username) + '" title="Delete">' +
+                '<button class="btn btn-danger btn-sm" data-action="deleteUserConfirm" data-user-id="' + u.id + '" data-username="' + esc(u.username) + '" title="' + t('app.delete') + '">' +
                 '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
                 '</button>' +
                 '</div>';
         } else {
-            row += '<span style="color:#64748b;font-size:0.8rem;">Protected</span>';
+            row += '<span style="color:#64748b;font-size:0.8rem;">' + t('admin.protected') + '</span>';
         }
         row += '</td></tr>';
         return row;
@@ -148,9 +148,9 @@ async function saveEditUser() {
         await updateUser(id, role);
         hideEditModal();
         await loadUsers();
-        showToast('User updated');
+        showToast(t('admin.user_updated'));
     } catch (e) {
-        showToast('Error: ' + e.message, 'error');
+        showToast(t('app.error') + ': ' + e.message, 'error');
     }
 }
 
@@ -173,16 +173,16 @@ async function doResetPassword() {
     var id = parseInt(document.getElementById('reset-user-id').value);
     var password = document.getElementById('reset-password').value;
     if (password.length < 6) {
-        document.getElementById('reset-error').textContent = 'Password must be at least 6 characters';
+        document.getElementById('reset-error').textContent = t('admin.password_min_length');
         document.getElementById('reset-error').style.display = 'block';
         return;
     }
     try {
         await resetUserPassword(id, password);
         hideResetModal();
-        showToast('Password reset successfully');
+        showToast(t('admin.password_reset_success'));
     } catch (e) {
-        showToast('Error: ' + e.message, 'error');
+        showToast(t('app.error') + ': ' + e.message, 'error');
     }
 }
 
@@ -194,12 +194,12 @@ document.getElementById('create-form').addEventListener('submit', async function
     var errorEl = document.getElementById('create-error');
 
     if (!username || username.length < 3) {
-        errorEl.textContent = 'Username must be at least 3 characters';
+        errorEl.textContent = t('admin.username_min_length');
         errorEl.style.display = 'block';
         return;
     }
     if (!password || password.length < 6) {
-        errorEl.textContent = 'Password must be at least 6 characters';
+        errorEl.textContent = t('admin.password_min_length');
         errorEl.style.display = 'block';
         return;
     }
@@ -208,7 +208,7 @@ document.getElementById('create-form').addEventListener('submit', async function
         await createUser(username, password, role);
         hideCreateModal();
         await loadUsers();
-        showToast('User "' + username + '" created');
+        showToast(t('admin.user_created').replace('{name}', username));
     } catch (err) {
         errorEl.textContent = err.message;
         errorEl.style.display = 'block';
@@ -218,11 +218,11 @@ document.getElementById('create-form').addEventListener('submit', async function
 async function deleteUserConfirm(e) {
     var id = parseInt(this.getAttribute('data-user-id'));
     var name = this.getAttribute('data-username');
-    if (confirm('Delete user "' + name + '"? This cannot be undone.')) {
+    if (confirm(t('admin.confirm_delete_user').replace('{name}', name))) {
         try {
             await deleteUser(id);
             await loadUsers();
-            showToast('User "' + name + '" deleted');
+            showToast(t('admin.user_deleted').replace('{name}', name));
         } catch (err) {
             showToast(err.message, 'error');
         }
@@ -237,38 +237,38 @@ document.addEventListener('tab:switch', function() {});
 
 function loadActivityLog() {
     var container = document.getElementById('activity-log-container');
-    container.innerHTML = '<div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>';
+    container.innerHTML = '<div class="empty-state"><div class="spinner"></div><p>' + t('app.loading') + '</p></div>';
     fetch('/api/db/activity?action=activity')
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            if (data.error) { container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">' + esc(data.error) + '</p></div>'; return; }
+        if (data.error) { container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">' + t('app.error') + ': ' + esc(data.error) + '</p></div>'; return; }
             var entries = data.entries || [];
-            if (!entries.length) { container.innerHTML = '<div class="empty-state"><p>No activity recorded yet</p></div>'; return; }
-            var html = '<div class="table-container"><table class="table"><thead><tr><th style="width:50px;">#</th><th style="width:100px;">Action</th><th>Details</th><th style="width:100px;">User</th><th style="width:160px;">Time</th></tr></thead><tbody>';
+            if (!entries.length) { container.innerHTML = '<div class="empty-state"><p>' + t('admin.no_activity') + '</p></div>'; return; }
+            var html = '<div class="table-container"><table class="table"><thead><tr><th style="width:50px;">#</th><th style="width:100px;">' + t('table.action') + '</th><th>' + t('table.details') + '</th><th style="width:100px;">' + t('table.user') + '</th><th style="width:160px;">' + t('table.time') + '</th></tr></thead><tbody>';
             entries.forEach(function(e) {
                 var color = e.action === 'vacuum' || e.action === 'prune' ? '#22c55e' : e.action.indexOf('delete') >= 0 || e.action.indexOf('reset') >= 0 ? '#ef4444' : e.action.indexOf('create') >= 0 ? '#3b82f6' : 'var(--text)';
                 html += '<tr><td style="color:var(--text-muted);font-size:0.8rem;">' + e.id + '</td><td><span style="color:' + color + ';font-size:0.8rem;font-weight:500;">' + esc(e.action) + '</span></td><td style="font-size:0.85rem;">' + esc(e.details) + '</td><td style="font-size:0.8rem;color:var(--text-muted);">' + esc(e.username || '-') + '</td><td style="font-size:0.8rem;color:var(--text-muted);">' + e.created_at + '</td></tr>';
             });
-            html += '</tbody></table></div><p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Total: ' + data.total + ' entries</p>';
+            html += '</tbody></table></div><p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">' + t('admin.total_entries').replace('{count}', data.total) + '</p>';
             container.innerHTML = html;
         })
-        .catch(function(err) { container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">Error: ' + esc(err.message) + '</p></div>'; });
+        .catch(function(err) { container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">' + t('app.error') + ': ' + esc(err.message) + '</p></div>'; });
 }
 
 function doPrune() {
     var days = parseInt(document.getElementById('prune-days').value);
-    if (!days || days < 1) { showToast('Enter a valid number of days', 'error'); return; }
-    if (!confirm('Delete ALL completed scans older than ' + days + ' days? This cannot be undone.')) return;
+    if (!days || days < 1) { showToast(t('admin.enter_valid_days'), 'error'); return; }
+    if (!confirm(t('admin.confirm_prune').replace('{days}', days))) return;
     var el = document.getElementById('prune-result');
-    el.innerHTML = '<div style="padding:10px;background:rgba(59,130,246,0.1);border-radius:8px;color:#3b82f6;font-size:0.85rem;">Pruning...</div>';
+    el.innerHTML = '<div style="padding:10px;background:rgba(59,130,246,0.1);border-radius:8px;color:#3b82f6;font-size:0.85rem;">' + t('admin.pruning') + '</div>';
     fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'prune', days: days }) })
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            if (data.error) { el.innerHTML = '<div style="padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;">Error: ' + esc(data.error) + '</div>'; return; }
-            el.innerHTML = '<div style="padding:10px;background:rgba(34,197,94,0.1);border-radius:8px;color:#22c55e;font-size:0.85rem;">Deleted ' + data.deleted + ' scans older than ' + days + ' days.</div>';
+            if (data.error) { el.innerHTML = '<div style="padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;">' + t('app.error') + ': ' + esc(data.error) + '</div>'; return; }
+            el.innerHTML = '<div style="padding:10px;background:rgba(34,197,94,0.1);border-radius:8px;color:#22c55e;font-size:0.85rem;">' + t('admin.prune_result').replace('{deleted}', data.deleted).replace('{days}', days) + '</div>';
             loadAdminStats();
         })
-        .catch(function(err) { el.innerHTML = '<div style="padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;">Error: ' + esc(err.message) + '</div>'; });
+        .catch(function(err) { el.innerHTML = '<div style="padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;">' + t('app.error') + ': ' + esc(err.message) + '</div>'; });
 }
 
 async function loadSystemHealth() {
@@ -276,12 +276,12 @@ async function loadSystemHealth() {
     try {
         var res = await fetch('/api/db/health');
         var data = await res.json();
-        if (data.error) { container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">' + esc(data.error) + '</p></div>'; return; }
+        if (data.error) { container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">' + t('app.error') + ': ' + esc(data.error) + '</p></div>'; return; }
         var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">';
         var cards = [
-            { label: 'Status', value: data.status, color: data.status === 'ok' ? '#22c55e' : '#ef4444' },
-            { label: 'Version', value: data.version, color: 'var(--cyan)' },
-            { label: 'SQLite', value: data.sqlite_version, color: 'var(--text)' }
+            { label: t('admin.status'), value: data.status, color: data.status === 'ok' ? '#22c55e' : '#ef4444' },
+            { label: t('admin.version'), value: data.version, color: 'var(--cyan)' },
+            { label: t('admin.sqlite_version'), value: data.sqlite_version, color: 'var(--text)' }
         ];
         cards.forEach(function(c) {
             html += '<div class="db-stat-card"><div class="db-stat-value" style="color:' + c.color + ';">' + c.value + '</div><div class="db-stat-label">' + c.label + '</div></div>';
@@ -289,7 +289,7 @@ async function loadSystemHealth() {
         html += '</div>';
         container.innerHTML = html;
     } catch (e) {
-        container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">Error: ' + esc(e.message) + '</p></div>';
+        container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">' + t('app.error') + ': ' + esc(e.message) + '</p></div>';
     }
 }
 
@@ -315,7 +315,7 @@ loadAdminStats = function() {
                     rec.style.display = 'flex';
                     rec.style.background = 'rgba(251,191,36,0.08)';
                     rec.style.border = '1px solid rgba(251,191,36,0.2)';
-                    text.innerHTML = '&#9888; Database fragmentation: ~<strong>' + pct.toFixed(1) + '%</strong> reclaimable (<strong>' + formatFileSize(stats.vacuum_size) + '</strong>). <a href="#" data-action="vacuumDB" style="color:var(--accent);">Vacuum now</a>';
+                    text.innerHTML = '&#9888; ' + t('admin.database_fragmentation') + ': ~<strong>' + pct.toFixed(1) + '%</strong> ' + t('admin.reclaimable') + ' (<strong>' + formatFileSize(stats.vacuum_size) + '</strong>). <a href="#" data-action="vacuumDB" style="color:var(--accent);">' + t('admin.vacuum_now') + '</a>';
                     return;
                 }
             }
@@ -325,16 +325,16 @@ loadAdminStats = function() {
 };
 
 async function vacuumDB() {
-    if (!confirm('Vacuum the database? This will optimize storage.')) return;
-    showDBResult('Vacuuming...', 'info');
+    if (!confirm(t('admin.confirm_vacuum'))) return;
+    showDBResult(t('admin.vacuuming'), 'info');
     try {
         const res = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'vacuum' }) });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const result = await res.json();
-        showDBResult('Vacuum complete! Before: ' + result.before + ' \u2192 After: ' + result.after + ' (saved ' + result.saved + ', ' + result.saved_pct.toFixed(1) + '%)', 'success');
+        showDBResult(t('admin.vacuum_complete').replace('{before}', result.before).replace('{after}', result.after).replace('{saved}', result.saved).replace('{pct}', result.saved_pct.toFixed(1)), 'success');
         loadAdminStats();
     } catch (e) {
-        showDBResult('Error: ' + e.message, 'error');
+        showDBResult(t('app.error') + ': ' + e.message, 'error');
     }
 }
 
@@ -343,31 +343,31 @@ async function backupDB() {
 }
 
 async function resetDB() {
-    if (!confirm('\u26a0\ufe0f This will DELETE ALL DATA including scans, hosts, ports, and projects.\nOnly the admin user will be preserved.\n\nAre you absolutely sure?')) return;
-    if (!confirm('This is your LAST CHANCE. Confirm database reset?')) return;
-    showDBResult('Resetting database...', 'info');
+    if (!confirm(t('admin.confirm_reset_db'))) return;
+    if (!confirm(t('admin.confirm_reset_last_chance'))) return;
+    showDBResult(t('admin.resetting_db'), 'info');
     try {
         const res = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'reset' }) });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        showDBResult('Database reset complete. Redirecting to projects...', 'success');
+        showDBResult(t('admin.reset_db_complete'), 'success');
         setTimeout(function() { window.location.href = '/'; }, 1500);
     } catch (e) {
-        showDBResult('Error: ' + e.message, 'error');
+        showDBResult(t('app.error') + ': ' + e.message, 'error');
     }
 }
 
 async function factoryReset() {
-    if (!confirm('\u26a0\ufe0f FACTORY RESET will DELETE EVERYTHING:\n\u2022 All users, projects, scans, hosts, ports\n\u2022 All consolidated data and sessions\n\nA new admin user will be created with a random password.\nOnly proceed if you want to start completely fresh.\n\nAre you absolutely sure?')) return;
-    if (!confirm('This is your LAST CHANCE.\nThe admin password will be printed to the server console.\nConfirm factory reset?')) return;
-    showDBResult('Factory resetting... Check server console for new admin password.', 'info');
+    if (!confirm(t('admin.confirm_factory_reset'))) return;
+    if (!confirm(t('admin.confirm_factory_reset_last'))) return;
+    showDBResult(t('admin.factory_resetting'), 'info');
     try {
         const res = await fetch('/api/db/factory-reset', { method: 'POST' });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
-        showDBResult('Factory reset complete. New admin password printed to server console. Redirecting to login...', 'success');
+        showDBResult(t('admin.factory_reset_complete'), 'success');
         setTimeout(function() { window.location.href = '/login'; }, 2000);
     } catch (e) {
-        showDBResult('Error: ' + e.message, 'error');
+        showDBResult(t('app.error') + ': ' + e.message, 'error');
     }
 }
 
@@ -431,7 +431,7 @@ function onDBImportFileSelect(input) {
 async function previewDBImport() {
     if (!dbImportFile) return;
     document.getElementById('db-import-preview').style.display = '';
-    document.getElementById('db-import-preview').innerHTML = '<div style="text-align:center;padding:20px;"><div class="spinner" style="margin:0 auto;"></div><p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Reading database...</p></div>';
+    document.getElementById('db-import-preview').innerHTML = '<div style="text-align:center;padding:20px;"><div class="spinner" style="margin:0 auto;"></div><p style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">' + t('admin.reading_db') + '</p></div>';
     document.getElementById('db-import-error').style.display = 'none';
     try {
         var fd = new FormData();
@@ -443,10 +443,10 @@ async function previewDBImport() {
         }
         dbImportPreviewData = await res.json();
         var html = '<div class="import-preview-bar">';
-        html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.projects || 0) + '</div><div class="import-preview-label">Projects</div></div>';
-        html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.scans || 0) + '</div><div class="import-preview-label">Scans</div></div>';
-        html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.hosts || 0) + '</div><div class="import-preview-label">Hosts</div></div>';
-        html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.ports || 0) + '</div><div class="import-preview-label">Ports</div></div>';
+        html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.projects || 0) + '</div><div class="import-preview-label">' + t('admin.import_projects') + '</div></div>';
+        html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.scans || 0) + '</div><div class="import-preview-label">' + t('admin.import_scans') + '</div></div>';
+        html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.hosts || 0) + '</div><div class="import-preview-label">' + t('admin.import_hosts') + '</div></div>';
+        html += '<div class="import-preview-item"><div class="import-preview-value">' + formatNum(dbImportPreviewData.ports || 0) + '</div><div class="import-preview-label">' + t('admin.import_ports') + '</div></div>';
         html += '</div>';
         document.getElementById('db-import-preview').innerHTML = html;
         document.getElementById('btn-do-db-import').disabled = false;
@@ -459,8 +459,8 @@ async function previewDBImport() {
 
 async function doDBImport() {
     if (!dbImportFile) return;
-    if (!confirm('Merge data from this database into the current one?\nDuplicate entries will be skipped.')) return;
-    document.getElementById('db-import-result').innerHTML = '<div style="padding:10px;background:rgba(59,130,246,0.1);border-radius:8px;color:#3b82f6;font-size:0.85rem;">Importing...</div>';
+    if (!confirm(t('admin.confirm_import'))) return;
+    document.getElementById('db-import-result').innerHTML = '<div style="padding:10px;background:rgba(59,130,246,0.1);border-radius:8px;color:#3b82f6;font-size:0.85rem;">' + t('admin.importing') + '</div>';
     try {
         var fd = new FormData();
         fd.append('file', dbImportFile);
@@ -470,7 +470,7 @@ async function doDBImport() {
             throw new Error('HTTP ' + res.status + ': ' + txt);
         }
         var result = await res.json();
-        document.getElementById('db-import-result').innerHTML = '<div style="padding:10px;background:rgba(34,197,94,0.1);border-radius:8px;color:#22c55e;font-size:0.85rem;">Done! ' + formatNum(result.imported) + ' rows merged.</div>';
+        document.getElementById('db-import-result').innerHTML = '<div style="padding:10px;background:rgba(34,197,94,0.1);border-radius:8px;color:#22c55e;font-size:0.85rem;">' + t('admin.import_result').replace('{count}', formatNum(result.imported)) + '</div>';
         loadAdminStats();
         dbImportFile = null;
         document.getElementById('db-import-file').value = '';
@@ -480,7 +480,7 @@ async function doDBImport() {
         document.getElementById('btn-preview-db-import').disabled = true;
         document.getElementById('btn-do-db-import').disabled = true;
     } catch (e) {
-        document.getElementById('db-import-result').innerHTML = '<div style="padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;">Error: ' + e.message + '</div>';
+        document.getElementById('db-import-result').innerHTML = '<div style="padding:10px;background:rgba(239,68,68,0.1);border-radius:8px;color:#ef4444;font-size:0.85rem;">' + t('app.error') + ': ' + e.message + '</div>';
     }
 }
 

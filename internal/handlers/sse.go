@@ -9,6 +9,7 @@ import (
 type SSEBroker struct {
 	mu      sync.RWMutex
 	clients map[chan string]struct{}
+	closed  bool
 }
 
 func NewSSEBroker() *SSEBroker {
@@ -27,12 +28,15 @@ func (b *SSEBroker) Unsubscribe(ch chan string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	delete(b.clients, ch)
-	close(ch)
+	if !b.closed {
+		close(ch)
+	}
 }
 
 func (b *SSEBroker) Close() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
+	b.closed = true
 	for ch := range b.clients {
 		close(ch)
 	}

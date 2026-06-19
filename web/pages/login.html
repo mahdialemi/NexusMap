@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - NexusMap</title>
+    <title data-i18n="login.title">Login - NexusMap</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/static/css/login.css">
 </head>
@@ -13,27 +13,28 @@
             <div class="login-logo">
                 <svg width="48" height="48" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
             </div>
-            <h2>NexusMap</h2>
+            <h2 data-i18n="app.name">NexusMap</h2>
             <form id="login-form">
                 <div class="form-group">
-                    <label>Username</label>
+                    <label data-i18n="login.username">Username</label>
                     <input type="text" id="username" class="form-control" required autofocus>
                 </div>
                 <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" class="form-control" required>
+                    <label data-i18n="login.password">Password</label>
+                    <input type="password" id="password" class="form-control" required placeholder="Password" data-i18n-placeholder="login.password_placeholder">
                 </div>
                 <div id="login-error" class="login-error"></div>
-                <button type="submit" class="btn btn-primary btn-login">Login</button>
+                <button type="submit" class="btn btn-primary btn-login" data-i18n="login.login_btn">Login</button>
             </form>
         </div>
     </div>
 
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/app.js"></script>
     <script src="/static/js/login.js"></script>
 
     <div class="footer">
-        NexusMap <span class="app-version">v0.9.4</span> &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        <span data-i18n="app.name">NexusMap</span> <span class="app-version" data-i18n="app.version">v0.9.4</span> &middot; <span data-i18n="footer.made_with">Made with</span> <span class="footer-accent" data-i18n="footer.vibe">vibe coding</span> <span data-i18n="footer.by">by</span> <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

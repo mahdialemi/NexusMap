@@ -1,0 +1,55 @@
+## Goal
+- تکمیل i18n دو زبانه (fa/en) در تمام صفحات و هندلرهای NexusMap
+
+## Constraints & Preferences
+- تمام متن‌های static HTML و dynamic JS باید دو زبانه شوند
+- زبان پیش‌فرض از localStorage و fallback به navigator.language
+- تغییر زبان از Settings > Language dropdown live اعمال شود
+- فایل‌های ترجمه در `/lang/{en,fa}.json` سرو شوند
+- layout همیشه LTR بماند (بدون تغییر جهت)
+
+## Progress
+### Done
+- **i18n Engine**: `web/js/i18n.js` با `t()`, `initI18n()`, `loadLocale()`, `translateDOM()` — تشخیص خودکار زبان + fallback به انگلیسی
+- **t() در تمام JS**: تمام stringهای user-visible با `t()` پیچیده شدند
+- **app.js**: تمام خطاهای API با `t('errors.*')` جایگزین شدند
+- **SHORTCUTS**: تمام برچسب‌های `SHORTCUTS[]` و `showShortcutsHelp` با `t('shortcuts.*')` پیچیده شدند
+- **data-i18n HTML**: تمام صفحات (۸ فایل) کامل شدند
+- **فایل‌های ترجمه**: en.json (970 کلید) + fa.json (961 کلید) — همگام کامل
+- **رفع encoding فارسی fa.json**: با اسکریپت Python (هیبرید cp1252 + Latin-1) تعمیر شد
+- **رفع BOM**: از fa.json و en.json حذف شد
+- **رفع RTL**: تمام کدهای RTL حذف شدند. layout همیشه LTR
+- **Backend**: هندلر `/lang/` در main.go با `fs.ReadFile` بازنویسی شد
+- **رفع `LABEL_OPTIONS`**: به تابع `getLabelOptions()` تبدیل شد
+- **رفع fallback label**: `t(raw)` برای labelهای ذخیره‌شده
+- **Settings page**: بهبود UI + dropdown زبان فارسی + تغییر زبان live
+- **version v0.9.4**: همه فایل‌ها به v0.9.4 آپدیت
+- **UI پروژه‌ها**: CSS بازنویسی + `renderProjectItem()` بازنویسی
+- **اضافه شدن ۵۲ کلید JS به en.json/fa.json**: `live.*`, `import.*`, `profiles.*`, `change_password.*`, `login.*`
+- **اضافه شدن ۱۵۵ کلید data-i18n به en.json + ترجمه فارسی آنها**: `admin.*`, `about.*`, `advanced_filter.*`, `assets.*`, `compare.*`, `filter.*`, `import.*`, `live.*`, `notes.*`, `nse.*`, `profiles.*`, `scans.*`, `topology.*`, `change_password.*`, `common.*`
+- **آخرین بیلد**: `nexusmap.exe` (26.6 MB) بدون خطا
+
+### In Progress
+- (none)
+
+### Blocked
+- (none)
+
+## Key Decisions
+- فایل‌های ترجمه در `/lang/` سرو می‌شوند
+- `i18n.js` قبل از `app.js` لود می‌شود
+- `app.js` در DOMContentLoaded `initI18n()` را صدا می‌زند
+- تغییر زبان از dropdown بلافاصله `loadLocale()` را صدا می‌زند (live)
+- layout همیشه LTR
+- `LABEL_OPTIONS` از const به `getLabelOptions()` تابع تبدیل شد
+
+## Next Steps
+- تست میدانی فارسی/انگلیسی
+- کامیت و پوش v0.9.5
+
+## Critical Context
+- `t(key, fallback)` تابع global در i18n.js
+- `translateDOM(root)` برای ترجمه عناصر `data-i18n`
+- `loadLocale(locale, callback)` زبان را عوض می‌کند
+- هندلر `/lang/` در main.go از `fs.ReadFile(webSubFS, "lang/"+name)` استفاده می‌کند
+- بیلد با `go build -o nexusmap.exe .` بدون خطا است

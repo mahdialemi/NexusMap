@@ -20,11 +20,7 @@ function t(key, fallback) {
 }
 
 function applyRTL(locale) {
-    if (locale === 'fa') {
-        document.documentElement.setAttribute('dir', 'rtl');
-    } else {
-        document.documentElement.setAttribute('dir', 'ltr');
-    }
+    // no layout changes — always LTR
 }
 
 function translateDOM(root) {

@@ -9,7 +9,7 @@
             selectedProfile = el.dataset.profile;
             selectedProfileId = parseInt(el.dataset.id);
             updateCmdPreview(el.dataset.cmd || '');
-            document.getElementById('cmd-source').textContent = 'profile';
+            document.getElementById('cmd-source').textContent = t('profiles.source_profile');
             showProfileInfo(el.dataset.profile, el.dataset.desc, parseInt(el.dataset.id));
         }
 
@@ -17,7 +17,7 @@
             const info = document.getElementById('profile-info');
             if (!name) { info.style.display = 'none'; return; }
             document.getElementById('profile-info-name').textContent = name;
-            document.getElementById('profile-info-desc').textContent = desc || 'nmap command profile';
+            document.getElementById('profile-info-desc').textContent = desc || t('profiles.nmap_command_profile');
             document.getElementById('profile-info-edit-btn').onclick = function() {
                 showProfileManager(id);
             };
@@ -133,13 +133,13 @@
                     selectedProfile = firstCard.name;
                     selectedProfileId = firstCard.id;
                     updateCmdPreview(firstCard.command);
-                    document.getElementById('cmd-source').textContent = 'profile';
+                    document.getElementById('cmd-source').textContent = t('profiles.source_profile');
                     showProfileInfo(firstCard.name, firstCard.description, firstCard.id);
                     const firstEl = container.querySelector('.profile-card');
                     if (firstEl) firstEl.classList.add('selected');
                 }
             } catch (e) {
-                document.getElementById('profiles-container').innerHTML = '<div class="empty-state"><p style="color:var(--red);">Failed to load profiles</p></div>';
+                document.getElementById('profiles-container').innerHTML = '<div class="empty-state"><p style="color:var(--red);">' + t('profiles.failed_to_load') + '</p></div>';
             }
         }
 
@@ -152,7 +152,7 @@
                 sel.innerHTML = '';
                 const def = document.createElement('option');
                 def.value = 'imported';
-                def.textContent = 'Imported';
+                def.textContent = t('profiles.imported');
                 def.selected = true;
                 sel.appendChild(def);
                 (data.profiles || []).forEach(p => {
@@ -200,10 +200,10 @@
                 });
                 let html = '<div style="padding:12px;border-bottom:1px solid var(--border);">';
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-                html += '<span style="font-size:0.85rem;color:var(--text-muted);">' + profileManagerData.length + ' profiles</span>';
+                html += '<span style="font-size:0.85rem;color:var(--text-muted);">' + t('profiles.profiles_count').replace('{count}', profileManagerData.length) + '</span>';
                 html += '<button class="btn btn-primary btn-sm" onclick="newProfile()">';
                 html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
-                html += ' New</button></div></div>';
+                html += ' ' + t('profiles.new') + '</button></div></div>';
                 html += '<div style="overflow-y:auto;flex:1;min-height:0;padding:8px;">';
                 cats.forEach(cat => {
                     html += '<div style="margin-bottom:12px;">';
@@ -212,7 +212,7 @@
                         html += '<div class="profile-list-item" onclick="selectProfileToEdit(' + p.id + ')" data-id="' + p.id + '" style="display:block;padding:8px 10px;border-radius:var(--radius-input);cursor:pointer;transition:background 0.15s;margin-bottom:2px;">';
                         html += '<div style="display:flex;align-items:center;justify-content:space-between;">';
                         html += '<div style="font-size:0.85rem;font-weight:500;display:flex;align-items:center;gap:6px;">' + esc(p.name);
-                        if (p.is_builtin) html += '<span class="badge badge-filtered" style="font-size:0.6rem;padding:1px 5px;">built-in</span>';
+                        if (p.is_builtin) html += '<span class="badge badge-filtered" style="font-size:0.6rem;padding:1px 5px;">' + t('profiles.built_in') + '</span>';
                         html += '</div>';
                         html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><polyline points="9 18 15 12 9 6"/></svg>';
                         html += '</div>';
@@ -224,7 +224,7 @@
                 html += '</div>';
                 list.innerHTML = html;
             } catch (e) {
-                document.getElementById('profile-manager-list').innerHTML = '<p style="color:var(--red);padding:20px;">Failed to load</p>';
+                document.getElementById('profile-manager-list').innerHTML = '<p style="color:var(--red);padding:20px;">' + t('profiles.failed_to_load_list') + '</p>';
             }
         }
 
@@ -589,12 +589,12 @@
         }
 
         function newProfile() {
-            document.getElementById('profile-form-title').textContent = 'New Profile';
+            document.getElementById('profile-form-title').textContent = t('profiles.new_profile');
             document.getElementById('profile-edit-id').value = '';
             document.getElementById('profile-form-name').value = '';
             document.getElementById('profile-form-desc').value = '';
             document.getElementById('profile-form-cat').value = 'Custom';
-            document.getElementById('profile-save-btn').textContent = 'Create';
+            document.getElementById('profile-save-btn').textContent = t('profiles.create');
             document.getElementById('profile-delete-area').style.display = 'none';
             document.querySelectorAll('.profile-list-item').forEach(el => el.style.background = '');
 
@@ -642,7 +642,7 @@
                 catSelect.options[catSelect.options.length] = new Option(p.category, p.category);
                 catSelect.value = p.category;
             }
-            document.getElementById('profile-save-btn').textContent = 'Update';
+            document.getElementById('profile-save-btn').textContent = t('profiles.update');
             document.getElementById('profile-delete-area').style.display = '';
 
             parseProfileCommand(p.command);
@@ -660,7 +660,7 @@
                     const data = await res.json();
                     const container = document.getElementById('pf-nse-results');
                     if (!data.scripts || data.scripts.length === 0) {
-                        container.innerHTML = '<div style="padding:6px;color:var(--text-muted);font-size:0.75rem;">No scripts</div>';
+                        container.innerHTML = '<div style="padding:6px;color:var(--text-muted);font-size:0.75rem;">' + t('profiles.no_scripts') + '</div>';
                         return;
                     }
                     container.innerHTML = data.scripts.map(s =>
@@ -710,13 +710,13 @@
             const desc = document.getElementById('profile-form-desc').value.trim();
             const cmd = document.getElementById('profile-form-cmd-hidden').value.trim();
             const cat = document.getElementById('profile-form-cat').value.trim();
-            if (!name || !cmd || !cat) { showToast('Name, command, and category are required', 'error'); return; }
+            if (!name || !cmd || !cat) { showToast(t('profiles.name_cmd_cat_required'), 'error'); return; }
             try {
                 const method = id ? 'PUT' : 'POST';
                 const body = JSON.stringify({ id: id ? parseInt(id) : 0, name, description: desc, command: cmd, category: cat });
                 const res = await fetch('/api/scan/profiles', { method, headers: { 'Content-Type': 'application/json' }, body });
                 if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Failed'); }
-                showToast(id ? 'Profile updated' : 'Profile created');
+                showToast(id ? t('profiles.profile_updated') : t('profiles.profile_created'));
                 resetProfileForm();
                 await loadProfileManagerList();
             } catch (e) { showToast(e.message, 'error'); }
@@ -727,11 +727,11 @@
             if (!id) return;
             const p = profileManagerData.find(x => x.id === id);
             if (!p) return;
-            if (!confirm('Delete profile "' + p.name + '"?')) return;
+            if (!confirm(t('profiles.confirm_delete').replace('{name}', p.name))) return;
             try {
                 const res = await fetch('/api/scan/profiles', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
                 if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Failed'); }
-                showToast('Profile deleted');
+                showToast(t('profiles.profile_deleted'));
                 resetProfileForm();
                 await loadProfileManagerList();
             } catch (e) { showToast(e.message, 'error'); }
@@ -743,7 +743,7 @@
             try {
                 const res = await fetch(`/api/projects/${projectId}/scans`);
                 const scans = await res.json();
-                sel.innerHTML = '<option value="">Create new scan</option>';
+                sel.innerHTML = '<option value="">' + t('profiles.create_new_scan') + '</option>';
                 (scans || []).forEach(s => {
                     if (s.status === 'completed') {
                         const label = esc(s.target || '#') + ' (' + esc(s.profile) + ' - ' + new Date(s.created_at).toLocaleDateString() + ')';

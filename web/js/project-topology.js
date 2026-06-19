@@ -25,13 +25,13 @@ function topoStrokeColor() {
 }
 function osLabel(os) {
     const o = (os || '').toLowerCase();
-    if (o.includes('linux')) return 'Linux';
-    if (o.includes('windows')) return 'Windows';
-    if (o.includes('darwin') || o.includes('mac')) return 'macOS';
-    if (o.includes('freebsd') || o.includes('bsd')) return 'BSD';
-    if (o.includes('cisco') || o.includes('ios')) return 'Cisco';
-    if (o.includes('solaris') || o.includes('sun')) return 'Solaris';
-    return os || 'Unknown';
+    if (o.includes('linux')) return t('topology.os_linux');
+    if (o.includes('windows')) return t('topology.os_windows');
+    if (o.includes('darwin') || o.includes('mac')) return t('topology.os_macos');
+    if (o.includes('freebsd') || o.includes('bsd')) return t('topology.os_bsd');
+    if (o.includes('cisco') || o.includes('ios')) return t('topology.os_cisco');
+    if (o.includes('solaris') || o.includes('sun')) return t('topology.os_solaris');
+    return os || t('topology.os_unknown');
 }
 
 async function loadTopology() {
@@ -47,16 +47,16 @@ async function loadTopology() {
     try {
         const res = await fetch('/api/projects/' + projectId + '/topology');
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed');
+        if (!res.ok) throw new Error(data.error || t('topology.failed'));
         if ((!data.nodes || data.nodes.length === 0) && (!data.clusters || data.clusters.length === 0)) {
-            empty.innerHTML = '<h3>No topology data</h3><p>Confirm scans to populate topology</p>';
+            empty.innerHTML = '<h3>' + t('topology.no_data') + '</h3><p>' + t('topology.confirm_scans') + '</p>';
             return;
         }
         empty.style.display = 'none';
         renderTopology(data, graphEl, tooltip, legend, detail);
     } catch (e) {
         empty.style.display = '';
-        empty.innerHTML = '<h3>Error loading topology</h3><p>' + esc(e.message) + '</p>';
+        empty.innerHTML = '<h3>' + t('topology.error_loading') + '</h3><p>' + esc(e.message) + '</p>';
     }
 }
 
@@ -83,24 +83,24 @@ function renderPortTable(ports, detailEl, d, osStr, hasHighRisk) {
         '<td>' + esc(p.service || '\u2014') + '</td>' +
         '<td style="font-size:0.72rem;color:var(--text-muted);">' + esc(p.version || '\u2014') + '</td>' +
         '<td style="font-size:0.72rem;color:var(--text-muted);">' + esc(p.product || '\u2014') + '</td>' +
-        '</tr>'; }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:12px;">No open ports</td></tr>';
+        '</tr>'; })        .join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:12px;">' + t('topology.no_open_ports') + '</td></tr>';
     var arrow = function(f) { return f === _topoPortSortField ? (_topoPortSortDir === 1 ? ' \u25B2' : ' \u25BC') : ''; };
     var body = detailEl.querySelector('.detail-body');
     if (body) {
         body.innerHTML = '<div class="info-line">' +
-            '<span>' + d.ports + ' open</span>' +
+            '<span>' + d.ports + ' ' + t('topology.open') + '</span>' +
             '<span>' + d.subnet + '</span>' +
-            (hasHighRisk ? '<span style="color:#f06262;">\u26a0 Risk</span>' : '') +
+            (hasHighRisk ? '<span style="color:#f06262;">\u26a0 ' + t('topology.risk') + '</span>' : '') +
             (d.mac ? '<span>' + esc(d.mac) + '</span>' : '') +
-            (d.os_inferred ? '<span style="font-style:italic;">* inferred</span>' : '') +
+            (d.os_inferred ? '<span style="font-style:italic;">* ' + t('topology.inferred') + '</span>' : '') +
             '</div>' +
             '<table class="tp-table"><thead><tr>' +
-            '<th style="width:48px;cursor:pointer;" data-sort="port">Port' + arrow('port') + '</th>' +
-            '<th style="width:38px;cursor:pointer;" data-sort="protocol">Proto' + arrow('protocol') + '</th>' +
-            '<th style="width:50px;cursor:pointer;" data-sort="state">State' + arrow('state') + '</th>' +
-            '<th style="cursor:pointer;" data-sort="service">Service' + arrow('service') + '</th>' +
-            '<th style="width:80px;cursor:pointer;" data-sort="version">Version' + arrow('version') + '</th>' +
-            '<th style="width:80px;cursor:pointer;" data-sort="product">Product' + arrow('product') + '</th>' +
+            '<th style="width:48px;cursor:pointer;" data-sort="port">' + t('topology.port') + arrow('port') + '</th>' +
+            '<th style="width:38px;cursor:pointer;" data-sort="protocol">' + t('topology.proto') + arrow('protocol') + '</th>' +
+            '<th style="width:50px;cursor:pointer;" data-sort="state">' + t('topology.state') + arrow('state') + '</th>' +
+            '<th style="cursor:pointer;" data-sort="service">' + t('topology.service') + arrow('service') + '</th>' +
+            '<th style="width:80px;cursor:pointer;" data-sort="version">' + t('topology.version') + arrow('version') + '</th>' +
+            '<th style="width:80px;cursor:pointer;" data-sort="product">' + t('topology.product') + arrow('product') + '</th>' +
             '</tr></thead><tbody>' + rows + '</tbody></table>';
         body.querySelectorAll('[data-sort]').forEach(function(th) {
             th.addEventListener('click', function() {
@@ -156,23 +156,23 @@ function showClusterDetail(c, detailEl) {
         <div class="detail-header">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                 <strong style="font-size:0.88rem;color:var(--accent);font-family:monospace;">${esc(c.subnet)}</strong>
-                <span class="badge badge-info" style="font-size:0.65rem;">${c.host_count} hosts</span>
-                <span class="badge badge-open" style="font-size:0.65rem;">${c.port_count} ports</span>
+                <span class="badge badge-info" style="font-size:0.65rem;">${c.host_count} ${t('topology.hosts')}</span>
+                <span class="badge badge-open" style="font-size:0.65rem;">${c.port_count} ${t('topology.ports')}</span>
             </div>
             <div style="display:flex;align-items:center;gap:4px;">
-                <button class="detail-close" onclick="collapseTopoCluster('${esc(c.subnet)}');this.closest('#topology-detail').style.display='none'" title="Collapse & close">\u2212</button>
+                <button class="detail-close" onclick="collapseTopoCluster('${esc(c.subnet)}');this.closest('#topology-detail').style.display='none'" title="${t('topology.collapse_and_close')}">\u2212</button>
                 <button class="detail-close" onclick="this.closest('#topology-detail').style.display='none'">\u2715</button>
             </div>
         </div>
         <div class="detail-body">
-            ${svcs ? '<div style="margin-bottom:6px;font-size:0.72rem;color:var(--text-muted);">Services: ' + esc(svcs) + '</div>' : ''}
+            ${svcs ? '<div style="margin-bottom:6px;font-size:0.72rem;color:var(--text-muted);">' + t('topology.services_label') + ' ' + esc(svcs) + '</div>' : ''}
             <table class="tp-table">
                 <thead><tr>
-                    <th>IP</th>
-                    <th>Hostname</th>
-                    <th>OS</th>
-                    <th style="width:40px;">Ports</th>
-                    <th>Key Ports</th>
+                    <th>${t('topology.ip')}</th>
+                    <th>${t('topology.hostname')}</th>
+                    <th>${t('topology.os')}</th>
+                    <th style="width:40px;">${t('topology.ports')}</th>
+                    <th>${t('topology.key_ports')}</th>
                 </tr></thead>
                 <tbody>${hostRows}</tbody>
             </table>
@@ -377,7 +377,7 @@ function toggleTopoPathMode() {
         document.getElementById('topology-tooltip').style.display = 'none';
     } else {
         const tooltip = document.getElementById('topology-tooltip');
-        tooltip.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">Click first host node to start path</div>';
+        tooltip.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">' + t('topology.path_click_first') + '</div>';
         tooltip.style.display = '';
         const rect = document.getElementById('topology-graph').getBoundingClientRect();
         tooltip.style.left = '14px';
@@ -439,7 +439,7 @@ function highlightTopoPath(node1Id, node2Id) {
     }
     if (!found) {
         const tooltip = document.getElementById('topology-tooltip');
-        tooltip.innerHTML = '<div style="color:#f06262;font-size:0.75rem;">No path found between selected hosts</div>';
+        tooltip.innerHTML = '<div style="color:#f06262;font-size:0.75rem;">' + t('topology.path_no_path') + '</div>';
         return;
     }
     const pathNodes = [];
@@ -467,7 +467,7 @@ function highlightTopoPath(node1Id, node2Id) {
     });
     if (edgeUpdates.length > 0) _topoEdges.update(edgeUpdates);
     const tooltip = document.getElementById('topology-tooltip');
-    tooltip.innerHTML = '<div style="color:#4caf50;font-size:0.75rem;">Path found: ' + pathNodes.length + ' hops</div>';
+    tooltip.innerHTML = '<div style="color:#4caf50;font-size:0.75rem;">' + t('topology.path_found') + ' ' + pathNodes.length + ' ' + t('topology.hops') + '</div>';
 }
 
 function highlightTopoNeighbors(nodeId) {
@@ -642,7 +642,7 @@ function setTopoNotes(notes) {
 function promptTopoNote(ip) {
     var notes = getTopoNotes();
     var existing = notes[ip] || '';
-    var val = prompt('Note for ' + ip + ':', existing);
+    var val = prompt(t('topology.note_for') + ' ' + ip + ':', existing);
     if (val === null) return;
     if (val.trim()) { notes[ip] = val.trim(); } else { delete notes[ip]; }
     setTopoNotes(notes);
@@ -673,7 +673,7 @@ function populateTopoAdvancedFilters() {
     var subnetSel = document.getElementById('topo-filter-subnet');
     if (subnetSel) {
         var cur = subnetSel.value;
-        subnetSel.innerHTML = '<option value="">All Subnets</option>';
+        subnetSel.innerHTML = '<option value="">' + t('topology.all_subnets') + '</option>';
         Array.from(subnets).sort().forEach(function(s) {
             subnetSel.innerHTML += '<option value="' + esc(s) + '">' + esc(s) + '</option>';
         });
@@ -682,7 +682,7 @@ function populateTopoAdvancedFilters() {
     var osSel = document.getElementById('topo-filter-os');
     if (osSel) {
         var curOs = osSel.value;
-        osSel.innerHTML = '<option value="">All OS</option>';
+        osSel.innerHTML = '<option value="">' + t('topology.all_os') + '</option>';
         Array.from(oses).sort().forEach(function(o) {
             osSel.innerHTML += '<option value="' + esc(o) + '">' + esc(o) + '</option>';
         });
@@ -691,7 +691,7 @@ function populateTopoAdvancedFilters() {
     var svcSel = document.getElementById('topo-filter-service');
     if (svcSel) {
         var curSvc = svcSel.value;
-        svcSel.innerHTML = '<option value="">All Services</option>';
+        svcSel.innerHTML = '<option value="">' + t('topology.all_services') + '</option>';
         Array.from(svcs).sort().forEach(function(s) {
             svcSel.innerHTML += '<option value="' + esc(s) + '">' + esc(s) + '</option>';
         });
@@ -783,7 +783,7 @@ function toggleTopoAnalysisPanel(name) {
 }
 
 function renderTopoRiskRanking(body) {
-    if (!_topoHostsByIP) { body.innerHTML = '<p style="color:var(--text-muted);">No data</p>'; return; }
+    if (!_topoHostsByIP) { body.innerHTML = '<p style="color:var(--text-muted);">' + t('topology.no_data') + '</p>'; return; }
     var highRiskPorts = [21, 23, 25, 53, 110, 135, 139, 143, 445, 993, 995, 1433, 1521, 3306, 3389, 5432, 5900, 6379, 8080, 8443, 27017];
     var scores = [];
     var totalPorts = 0;
@@ -798,8 +798,8 @@ function renderTopoRiskRanking(body) {
         scores.push({ ip: ip, hostname: h.hostname || '', os: h.os, ports: openPorts, highRisk: highRisk, score: score });
     }
     scores.sort(function(a, b) { return b.score - a.score; });
-    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong>Host Risk Ranking</strong><button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'topology-analysis-panels\').style.display=\'none\';_topoAnalysisPanel=null;">\u2715</button></div>';
-    html += '<div style="margin-bottom:8px;font-size:0.72rem;color:var(--text-muted);">' + Object.keys(_topoHostsByIP).length + ' hosts, ' + totalPorts + ' open ports</div>';
+    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong>' + t('topology.host_risk_ranking') + '</strong><button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'topology-analysis-panels\').style.display=\'none\';_topoAnalysisPanel=null;">\u2715</button></div>';
+    html += '<div style="margin-bottom:8px;font-size:0.72rem;color:var(--text-muted);">' + Object.keys(_topoHostsByIP).length + ' ' + t('topology.hosts') + ', ' + totalPorts + ' ' + t('topology.open_ports') + '</div>';
     var maxScore = scores.length > 0 ? scores[0].score : 1;
     scores.forEach(function(s) {
         var pct = Math.round(s.score / maxScore * 100);
@@ -816,8 +816,8 @@ function renderTopoRiskRanking(body) {
             '<div style="margin-top:3px;height:4px;background:var(--bg-card);border-radius:2px;overflow:hidden;">' +
             '<div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:2px;"></div></div>' +
             '<div style="display:flex;gap:8px;margin-top:2px;font-size:0.65rem;color:var(--text-muted);">' +
-            '<span>' + s.ports + ' ports</span>' +
-            (s.highRisk > 0 ? '<span style="color:#f06262;">\u26a0 ' + s.highRisk + ' high-risk</span>' : '') +
+            '<span>' + s.ports + ' ' + t('topology.ports') + '</span>' +
+            (s.highRisk > 0 ? '<span style="color:#f06262;">\u26a0 ' + s.highRisk + ' ' + t('topology.high_risk') + '</span>' : '') +
             '<span>' + osLabel(s.os) + '</span>' +
             '</div></div>';
     });
@@ -825,7 +825,7 @@ function renderTopoRiskRanking(body) {
 }
 
 function renderTopoPortHeatMap(body) {
-    if (!_topoHostsByIP) { body.innerHTML = '<p style="color:var(--text-muted);">No data</p>'; return; }
+    if (!_topoHostsByIP) {     body.innerHTML = '<p style="color:var(--text-muted);">' + t('topology.no_data') + '</p>'; return; }
     var portCounts = {}, portServices = {};
     for (var ip in _topoHostsByIP) {
         var h = _topoHostsByIP[ip];
@@ -837,8 +837,8 @@ function renderTopoPortHeatMap(body) {
         });
     }
     var sorted = Object.keys(portCounts).map(Number).sort(function(a, b) { return portCounts[b] - portCounts[a]; });
-    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong>Port Heat Map</strong><button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'topology-analysis-panels\').style.display=\'none\';_topoAnalysisPanel=null;">\u2715</button></div>';
-    html += '<div style="margin-bottom:8px;font-size:0.72rem;color:var(--text-muted);">' + sorted.length + ' unique ports across ' + Object.keys(_topoHostsByIP).length + ' hosts</div>';
+    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong>' + t('topology.port_heat_map') + '</strong><button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'topology-analysis-panels\').style.display=\'none\';_topoAnalysisPanel=null;">\u2715</button></div>';
+    html += '<div style="margin-bottom:8px;font-size:0.72rem;color:var(--text-muted);">' + sorted.length + ' ' + t('topology.unique_ports_across') + ' ' + Object.keys(_topoHostsByIP).length + ' ' + t('topology.hosts') + '</div>';
     var maxCount = sorted.length > 0 ? portCounts[sorted[0]] : 1;
     sorted.forEach(function(port) {
         var count = portCounts[port];
@@ -849,9 +849,9 @@ function renderTopoPortHeatMap(body) {
             '<div style="display:flex;justify-content:space-between;align-items:center;">' +
             '<div style="display:flex;align-items:center;gap:6px;">' +
             '<span style="font-weight:600;font-size:0.8rem;' + (highRisk ? 'color:#f06262;' : '') + '">' + port + '</span>' +
-            (highRisk ? '<span style="font-size:0.6rem;background:#f0626222;color:#f06262;padding:1px 5px;border-radius:3px;">HIGH</span>' : '') +
+            (highRisk ? '<span style="font-size:0.6rem;background:#f0626222;color:#f06262;padding:1px 5px;border-radius:3px;">' + t('topology.high') + '</span>' : '') +
             '</div>' +
-            '<span style="font-size:0.75rem;color:var(--text-muted);">' + count + ' host' + (count > 1 ? 's' : '') + '</span>' +
+            '<span style="font-size:0.75rem;color:var(--text-muted);">' + count + ' ' + (count > 1 ? t('topology.hosts') : t('topology.host')) + '</span>' +
             '</div>' +
             '<div style="margin-top:2px;height:3px;background:var(--bg-card);border-radius:2px;overflow:hidden;">' +
             '<div style="height:100%;width:' + pct + '%;background:' + (highRisk ? '#f06262' : '#4caf50') + ';border-radius:2px;"></div></div>' +
@@ -862,7 +862,7 @@ function renderTopoPortHeatMap(body) {
 }
 
 function renderTopoSubnetAnalysis(body) {
-    if (!_topoHostsByIP) { body.innerHTML = '<p style="color:var(--text-muted);">No data</p>'; return; }
+    if (!_topoHostsByIP) {     body.innerHTML = '<p style="color:var(--text-muted);">' + t('topology.no_data') + '</p>'; return; }
     var subnets = {};
     for (var ip in _topoHostsByIP) {
         var h = _topoHostsByIP[ip];
@@ -876,7 +876,7 @@ function renderTopoSubnetAnalysis(body) {
         var ol = osLabel(h.os);
         subnets[sn].osTypes[ol] = (subnets[sn].osTypes[ol] || 0) + 1;
     }
-    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong>Subnet Analysis</strong><button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'topology-analysis-panels\').style.display=\'none\';_topoAnalysisPanel=null;">\u2715</button></div>';
+    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong>' + t('topology.subnet_analysis') + '</strong><button class="btn btn-sm btn-secondary" onclick="document.getElementById(\'topology-analysis-panels\').style.display=\'none\';_topoAnalysisPanel=null;">\u2715</button></div>';
     var sorted = Object.keys(subnets).sort();
     sorted.forEach(function(sn) {
         var s = subnets[sn];
@@ -890,8 +890,8 @@ function renderTopoSubnetAnalysis(body) {
             '<span style="font-size:0.7rem;padding:1px 6px;border-radius:3px;background:' + riskLevel + '22;color:' + riskLevel + ';">' + (s.highRisk > 0 ? '\u26a0 ' + s.highRisk : '\u2713') + '</span>' +
             '</div>' +
             '<div style="display:flex;gap:10px;margin-top:3px;font-size:0.7rem;color:var(--text-muted);">' +
-            '<span>' + s.hosts.length + ' hosts</span>' +
-            '<span>' + s.totalPorts + ' ports</span>' +
+            '<span>' + s.hosts.length + ' ' + t('topology.hosts') + '</span>' +
+            '<span>' + s.totalPorts + ' ' + t('topology.ports') + '</span>' +
             '</div>' +
             '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;">' + osHtml + '</div>' +
             '</div>';
@@ -900,8 +900,8 @@ function renderTopoSubnetAnalysis(body) {
 }
 
 function showTopoExportModal() {
-    var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Generating export options...</p>';
-    var m = showModal('topo-export-modal', 'Export Topology', body, 'modal-small');
+    var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('topology.generating_export') + '</p>';
+    var m = showModal('topo-export-modal', t('topology.export_title'), body, 'modal-small');
     var fmt = function(size) {
         if (size < 1024) return size + ' B';
         if (size < 1024*1024) return (size/1024).toFixed(1) + ' KB';
@@ -921,36 +921,36 @@ function showTopoExportModal() {
             if (_topoHostsByIP) {
                 jsonSize = new Blob([JSON.stringify({ nodes: _topoHostsByIP }, null, 2)]).size;
             }
-            body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+            body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('topology.select_export_format') + '</p>' +
                 '<div style="display:flex;flex-direction:column;gap:8px;">' +
                 (canvas ? '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoPNG();">' +
                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
-                ' PNG Image' +
+                ' ' + t('topology.export_png') +
                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(pngSize) + '</span>' +
                 '</button>' : '') +
                 (canvas ? '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoSVG();">' +
                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
-                ' SVG (wrapped PNG)' +
+                ' ' + t('topology.export_svg') +
                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(svgSize) + '</span>' +
                 '</button>' : '') +
                 '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoJSON();">' +
                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
-                ' JSON Data' +
+                ' ' + t('topology.export_json') +
                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(jsonSize) + '</span>' +
                 '</button>' +
                 '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoReport();">' +
                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
-                ' HTML Report (Analysis)' +
+                ' ' + t('topology.export_html') +
                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">~' + fmt(jsonSize * 3) + '</span>' +
                 '</button>' +
                 '</div>';
         } catch(e) {
-            body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+            body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('topology.select_export_format') + '</p>' +
                 '<div style="display:flex;flex-direction:column;gap:8px;">' +
-                '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoPNG();">PNG Image</button>' +
-                '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoSVG();">SVG</button>' +
-                '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoJSON();">JSON Data</button>' +
-                '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoReport();">HTML Report</button>' +
+                '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoPNG();">' + t('topology.export_png') + '</button>' +
+                '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoSVG();">' + t('topology.export_svg') + '</button>' +
+                '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoJSON();">' + t('topology.export_json') + '</button>' +
+                '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="closeModal(\'topo-export-modal\');exportTopoReport();">' + t('topology.export_html') + '</button>' +
                 '</div>';
         }
         m.querySelector('.modal-body').innerHTML = body;
@@ -962,12 +962,12 @@ function exportTopoReport() {
     var hosts = _topoHostsByIP;
     var highRiskPortsList = [21, 23, 25, 53, 110, 135, 139, 143, 445, 993, 995, 1433, 1521, 3306, 3389, 5432, 5900, 6379, 8080, 8443, 27017];
     var now = new Date().toISOString().split('T')[0];
-    var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Topology Report - ' + now + '</title>' +
+    var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + t('topology.report_title') + ' - ' + now + '</title>' +
         '<style>body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:900px;margin:0 auto;padding:20px;color:#222;background:#fff;}h1{font-size:1.5rem;}h2{font-size:1.2rem;margin-top:24px;border-bottom:1px solid #ddd;padding-bottom:4px;}table{width:100%;border-collapse:collapse;margin:8px 0;}th,td{text-align:left;padding:6px 8px;border:1px solid #ddd;font-size:0.85rem;}th{background:#f5f5f5;}.risk-h{background:#fff0f0;}.badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:0.75rem;}</style></head><body>' +
-        '<h1>Topology Analysis Report</h1>' +
-        '<p>Generated: ' + now + ' | Hosts: ' + Object.keys(hosts).length + '</p>';
+        '<h1>' + t('topology.report_title') + '</h1>' +
+        '<p>' + t('topology.report_generated') + ' ' + now + ' | ' + t('topology.report_hosts') + ' ' + Object.keys(hosts).length + '</p>';
 
-    html += '<h2>Host List</h2><table><thead><tr><th>IP</th><th>Hostname</th><th>OS</th><th>Ports</th><th>Subnet</th><th>Status</th><th>Risk</th></tr></thead><tbody>';
+    html += '<h2>' + t('topology.host_list') + '</h2><table><thead><tr><th>' + t('topology.ip') + '</th><th>' + t('topology.hostname') + '</th><th>' + t('topology.os') + '</th><th>' + t('topology.ports_heading') + '</th><th>' + t('topology.subnet') + '</th><th>' + t('topology.status') + '</th><th>' + t('topology.risk') + '</th></tr></thead><tbody>';
     Object.keys(hosts).sort().forEach(function(ip) {
         var h = hosts[ip];
         if (!h) return;
@@ -985,7 +985,7 @@ function exportTopoReport() {
     });
     html += '</tbody></table>';
 
-    html += '<h2>Open Ports</h2><table><thead><tr><th>Port</th><th>Protocol</th><th>Service</th><th>Version</th><th>Hosts</th></tr></thead><tbody>';
+    html += '<h2>' + t('topology.open_ports') + '</h2><table><thead><tr><th>' + t('topology.port') + '</th><th>' + t('topology.proto') + '</th><th>' + t('topology.service') + '</th><th>' + t('topology.version') + '</th><th>' + t('topology.hosts') + '</th></tr></thead><tbody>';
     var portHosts = {};
     Object.keys(hosts).forEach(function(ip) {
         var h = hosts[ip];
@@ -1003,7 +1003,7 @@ function exportTopoReport() {
     });
     html += '</tbody></table>';
 
-    html += '<h2>Risk Summary</h2><table><thead><tr><th>High-Risk Port</th><th>Service</th><th>Hosts</th></tr></thead><tbody>';
+    html += '<h2>' + t('topology.risk_summary') + '</h2><table><thead><tr><th>' + t('topology.high_risk_port') + '</th><th>' + t('topology.service') + '</th><th>' + t('topology.hosts') + '</th></tr></thead><tbody>';
     var riskPortHosts = {};
     Object.keys(hosts).forEach(function(ip) {
         var h = hosts[ip];
@@ -1123,19 +1123,19 @@ function updateTopoStats() {
         statusHtml += '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.7rem;margin-right:8px;"><span style="width:6px;height:6px;border-radius:50%;background:' + color + ';"></span>' + st + ':' + statusCounts[st] + '</span>';
     }
 
-    statsEl.innerHTML = '<div style="font-weight:600;font-size:0.78rem;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>Statistics</div>' +
+    statsEl.innerHTML = '<div style="font-weight:600;font-size:0.78rem;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>' + t('topology.statistics') + '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;margin-bottom:6px;">' +
-        '<div><span class="stat-label">Hosts</span><div class="stat-value">' + totalHosts + '</div></div>' +
-        '<div><span class="stat-label">Open Ports</span><div class="stat-value">' + totalPorts + '</div></div>' +
-        '<div><span class="stat-label">High Risk</span><div class="stat-value" style="color:' + (totalRisk > 0 ? '#f06262' : 'inherit') + ';">' + totalRisk + '</div></div>' +
-        '<div><span class="stat-label">Avg Ports</span><div class="stat-value">' + avgPorts + '</div></div>' +
-        '<div><span class="stat-label">Services</span><div class="stat-value">' + uniqueServices + '</div></div>' +
-        '<div><span class="stat-label">Unique Ports</span><div class="stat-value">' + uniquePorts + '</div></div>' +
-        '<div><span class="stat-label">Subnets</span><div class="stat-value">' + clusterCount + '</div></div>' +
-        '<div><span class="stat-label">Expanded</span><div class="stat-value">' + expandedCount + '/' + clusterCount + '</div></div>' +
+        '<div><span class="stat-label">' + t('topology.hosts') + '</span><div class="stat-value">' + totalHosts + '</div></div>' +
+        '<div><span class="stat-label">' + t('topology.open_ports_stat') + '</span><div class="stat-value">' + totalPorts + '</div></div>' +
+        '<div><span class="stat-label">' + t('topology.high_risk') + '</span><div class="stat-value" style="color:' + (totalRisk > 0 ? '#f06262' : 'inherit') + ';">' + totalRisk + '</div></div>' +
+        '<div><span class="stat-label">' + t('topology.avg_ports') + '</span><div class="stat-value">' + avgPorts + '</div></div>' +
+        '<div><span class="stat-label">' + t('topology.services') + '</span><div class="stat-value">' + uniqueServices + '</div></div>' +
+        '<div><span class="stat-label">' + t('topology.unique_ports') + '</span><div class="stat-value">' + uniquePorts + '</div></div>' +
+        '<div><span class="stat-label">' + t('topology.subnets') + '</span><div class="stat-value">' + clusterCount + '</div></div>' +
+        '<div><span class="stat-label">' + t('topology.expanded') + '</span><div class="stat-value">' + expandedCount + '/' + clusterCount + '</div></div>' +
         '</div>' +
         (statusHtml ? '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:4px;margin-bottom:4px;">' + statusHtml + '</div>' : '') +
-        (osHtml ? '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:4px;"><div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:2px;">OS Distribution</div>' + osHtml + '</div>' : '');
+        (osHtml ? '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:4px;"><div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:2px;">' + t('topology.os_distribution') + '</div>' + osHtml + '</div>' : '');
     statsEl.style.display = '';
 }
 
@@ -1145,12 +1145,12 @@ function promptTopoLabel(nodeId) {
     const overlay = document.createElement('div');
     overlay.className = 'topo-label-prompt-overlay';
     overlay.innerHTML = '<div class="topo-label-prompt-box">' +
-        '<h3>Custom Label</h3>' +
-        '<p style="font-size:0.75rem;color:var(--text-muted);margin:0 0 4px 0;">For ' + esc(nodeId) + '</p>' +
-        '<input type="text" id="topo-label-input" value="' + esc(node.label || '') + '" placeholder="Enter custom label\u2026" autofocus>' +
+        '<h3>' + t('topology.custom_label') + '</h3>' +
+        '<p style="font-size:0.75rem;color:var(--text-muted);margin:0 0 4px 0;">' + t('topology.for_label') + ' ' + esc(nodeId) + '</p>' +
+        '<input type="text" id="topo-label-input" value="' + esc(node.label || '') + '" placeholder="' + t('topology.custom_label_placeholder') + '" autofocus>' +
         '<div class="prompt-actions">' +
-        '<button onclick="this.closest(\'.topo-label-prompt-overlay\').remove()">Cancel</button>' +
-        '<button class="btn-primary" id="topo-label-save">Save</button>' +
+        '<button onclick="this.closest(\'.topo-label-prompt-overlay\').remove()">' + t('common.cancel') + '</button>' +
+        '<button class="btn-primary" id="topo-label-save">' + t('topology.save') + '</button>' +
         '</div></div>';
     document.body.appendChild(overlay);
     const input = overlay.querySelector('#topo-label-input');
@@ -1181,21 +1181,21 @@ function showTopoContextMenu(e, nodeId) {
     const isCluster = nodeId && nodeId.startsWith && nodeId.startsWith('cluster:');
     if (isCluster) {
         const subnet = node ? node.label.split('\n')[0] : nodeId;
-        menu.innerHTML = '<div class="ctx-item" data-action="copy" data-value="' + esc(subnet) + '">\u{1F4CB} Copy Subnet</div>' +
+        menu.innerHTML = '<div class="ctx-item" data-action="copy" data-value="' + esc(subnet) + '">\u{1F4CB} ' + t('topology.ctx_copy_subnet') + '</div>' +
             '<div class="ctx-divider"></div>' +
-            '<div class="ctx-item close-menu">\u2715 Close</div>';
+            '<div class="ctx-item close-menu">\u2715 ' + t('common.close') + '</div>';
     } else if (node && node.ip) {
-        menu.innerHTML = '<div class="ctx-item" data-action="copy" data-value="' + esc(node.ip) + '">\u{1F4CB} Copy IP</div>' +
-            (node.hostname ? '<div class="ctx-item" data-action="copy" data-value="' + esc(node.hostname) + '">\u{1F4CB} Copy Hostname</div>' : '') +
+        menu.innerHTML = '<div class="ctx-item" data-action="copy" data-value="' + esc(node.ip) + '">\u{1F4CB} ' + t('topology.ctx_copy_ip') + '</div>' +
+            (node.hostname ? '<div class="ctx-item" data-action="copy" data-value="' + esc(node.hostname) + '">\u{1F4CB} ' + t('topology.ctx_copy_hostname') + '</div>' : '') +
             '<div class="ctx-divider"></div>' +
-            '<div class="ctx-item" data-action="label" data-node="' + esc(node.ip) + '">\u270F\u200B Set Label</div>' +
-            '<div class="ctx-item" data-action="pin" data-node="' + esc(node.ip) + '">' + (isTopoPinned(node.ip) ? '\u2B50 Unpin' : '\u{1F4CC} Pin') + '</div>' +
-            '<div class="ctx-item" data-action="note" data-node="' + esc(node.ip) + '">\u{1F4DD} Set Note</div>' +
-            '<div class="ctx-item" data-action="detail" data-node="' + esc(node.ip) + '">\u{1F50D} Show Details</div>' +
+            '<div class="ctx-item" data-action="label" data-node="' + esc(node.ip) + '">\u270F\u200B ' + t('topology.ctx_set_label') + '</div>' +
+            '<div class="ctx-item" data-action="pin" data-node="' + esc(node.ip) + '">' + (isTopoPinned(node.ip) ? '\u2B50 ' + t('topology.ctx_unpin') : '\u{1F4CC} ' + t('topology.ctx_pin')) + '</div>' +
+            '<div class="ctx-item" data-action="note" data-node="' + esc(node.ip) + '">\u{1F4DD} ' + t('topology.ctx_set_note') + '</div>' +
+            '<div class="ctx-item" data-action="detail" data-node="' + esc(node.ip) + '">\u{1F50D} ' + t('topology.ctx_show_details') + '</div>' +
             '<div class="ctx-divider"></div>' +
-            '<div class="ctx-item close-menu">\u2715 Close</div>';
+            '<div class="ctx-item close-menu">\u2715 ' + t('common.close') + '</div>';
     } else {
-        menu.innerHTML = '<div class="ctx-item close-menu">\u2715 Close</div>';
+        menu.innerHTML = '<div class="ctx-item close-menu">\u2715 ' + t('common.close') + '</div>';
     }
     const rect = document.getElementById('topology-graph').getBoundingClientRect();
     let x = e.clientX - rect.left;
@@ -1313,7 +1313,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
             color: color,
             borderWidth: 2, borderWidthSelected: 3,
             font: { size: 9, face: 'Inter, system-ui, -apple-system, sans-serif', color: fCol, strokeWidth: 3, strokeColor: sCol },
-            title: h.ip + (h.hostname ? '\n' + h.hostname : '') + (h.os_inferred ? '\n(inferred OS)' : '')
+            title: h.ip + (h.hostname ? '\n' + h.hostname : '') + (h.os_inferred ? '\n' + t('topology.inferred_os') : '')
         });
     }
 
@@ -1338,7 +1338,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
                 color: color,
                 borderWidth: 2, borderWidthSelected: 3,
                 font: { size: 9, face: 'Inter, system-ui, -apple-system, sans-serif', color: fCol, strokeWidth: 3, strokeColor: sCol },
-                title: h.ip + (h.hostname ? '\n' + h.hostname : '') + (h.os_inferred ? '\n(inferred OS)' : ''),
+                title: h.ip + (h.hostname ? '\n' + h.hostname : '') + (h.os_inferred ? '\n' + t('topology.inferred_os') : ''),
                 hidden: true
             });
             edges.add({
@@ -1350,7 +1350,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
         const cc = '#e6952e';
         nodes.add({
             id: cid,
-            label: cluster.subnet + '\n' + cluster.host_count + ' hosts \u00B7 ' + cluster.port_count + ' ports',
+            label: cluster.subnet + '\n' + cluster.host_count + ' ' + t('topology.hosts') + ' \u00B7 ' + cluster.port_count + ' ' + t('topology.ports'),
             shape: 'hexagon', size: 40, opacity: 1.0,
             color: {
                 background: 'rgba(230,149,46,0.1)', border: 'rgba(230,149,46,0.6)',
@@ -1491,17 +1491,17 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
                     var subnet = fromNode.subnet || 'unknown';
                     detailEl.innerHTML = '<div class="detail-header">' +
                         '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
-                        '<strong style="font-size:0.88rem;color:var(--accent);">Connection</strong>' +
+                        '<strong style="font-size:0.88rem;color:var(--accent);">' + t('topology.connection') + '</strong>' +
                         '<span class="badge badge-info" style="font-size:0.65rem;">' + esc(subnet) + '</span>' +
                         '</div>' +
                         '<button class="detail-close" onclick="this.closest(\'#topology-detail\').style.display=\'none\'">\u2715</button>' +
                         '</div><div class="detail-body">' +
                         '<div class="info-line"><span>' + esc(edge.from) + '</span> <span style="color:var(--text-muted);">\u2194</span> <span>' + esc(edge.to) + '</span></div>' +
-                        '<table class="tp-table"><thead><tr><th>Property</th><th>' + esc(edge.from) + '</th><th>' + esc(edge.to) + '</th></tr></thead><tbody>' +
-                        '<tr><td>OS</td><td>' + osLabel(fromNode.os) + '</td><td>' + osLabel(toNode.os) + '</td></tr>' +
-                        '<tr><td>Hostname</td><td>' + esc(fromNode.hostname || '\u2014') + '</td><td>' + esc(toNode.hostname || '\u2014') + '</td></tr>' +
-                        '<tr><td>Ports</td><td>' + fromNode.ports + '</td><td>' + toNode.ports + '</td></tr>' +
-                        '<tr><td>Status</td><td>' + esc(fromNode.status || '\u2014') + '</td><td>' + esc(toNode.status || '\u2014') + '</td></tr>' +
+                        '<table class="tp-table"><thead><tr><th>' + t('topology.property') + '</th><th>' + esc(edge.from) + '</th><th>' + esc(edge.to) + '</th></tr></thead><tbody>' +
+                        '<tr><td>' + t('topology.os') + '</td><td>' + osLabel(fromNode.os) + '</td><td>' + osLabel(toNode.os) + '</td></tr>' +
+                        '<tr><td>' + t('topology.hostname') + '</td><td>' + esc(fromNode.hostname || '\u2014') + '</td><td>' + esc(toNode.hostname || '\u2014') + '</td></tr>' +
+                        '<tr><td>' + t('topology.ports') + '</td><td>' + fromNode.ports + '</td><td>' + toNode.ports + '</td></tr>' +
+                        '<tr><td>' + t('topology.status') + '</td><td>' + esc(fromNode.status || '\u2014') + '</td><td>' + esc(toNode.status || '\u2014') + '</td></tr>' +
                         '</tbody></table></div>';
                     detailEl.style.display = '';
                 }
@@ -1517,7 +1517,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
                     if (!_topoPathFirst) {
                         _topoPathFirst = nodeId;
                         const tooltip = document.getElementById('topology-tooltip');
-                        tooltip.innerHTML = '<div style="color:var(--accent);font-size:0.75rem;">First host selected. Click a second host.</div>';
+                        tooltip.innerHTML = '<div style="color:var(--accent);font-size:0.75rem;">' + t('topology.path_click_second') + '</div>';
                         if (visNode.color) {
                             nodes.update({ id: nodeId, color: { background: '#e6952e44', border: '#e6952e', highlight: { background: '#e6952e66', border: '#e6952e' } }, borderWidth: 3 });
                         }
@@ -1598,16 +1598,16 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
             if (!_topoPathMode) highlightTopoNeighbors(node.ip);
             const d = _topoHostsByIP[node.ip] || node;
             const osStr = osLabel(d.os);
-            const svcs = d.services && d.services.length > 0 ? (Array.isArray(d.services) ? d.services : d.services.split(',')).slice(0, 8).join(', ') : 'none';
+            const svcs = d.services && d.services.length > 0 ? (Array.isArray(d.services) ? d.services : d.services.split(',')).slice(0, 8).join(', ') : t('topology.none');
             const ports = d.port_detail || [];
             const riskCount = ports.filter(p => _topoHighRiskPorts.includes(p.port)).length;
             tooltipEl.innerHTML = '<div style="font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px;">' + esc(d.ip) + (d.hostname ? ' (' + esc(d.hostname) + ')' : '') +
                 (d.status ? '<span class="badge badge-' + d.status + '">' + d.status + '</span>' : '') + '</div>' +
                 (d.mac ? '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:2px;">' + esc(d.mac) + '</div>' : '') +
                 '<div style="display:flex;gap:8px;margin-top:2px;flex-wrap:wrap;">' +
-                '<span style="color:' + osColor(d.os) + ';">\u25cf</span> ' + esc(osStr) + (d.os_inferred ? ' <span style="font-size:0.65rem;color:var(--text-muted);font-style:italic;">(inferred)</span>' : '') +
-                ' <span>|</span> <span>' + d.ports + ' open ports</span>' +
-                (riskCount > 0 ? ' <span style="color:#f06262;">\u26a0 ' + riskCount + ' risk</span>' : '') +
+                '<span style="color:' + osColor(d.os) + ';">\u25cf</span> ' + esc(osStr)                 + (d.os_inferred ? ' <span style="font-size:0.65rem;color:var(--text-muted);font-style:italic;">' + t('topology.inferred') + '</span>' : '') +
+                ' <span>|</span> <span>' + d.ports + ' ' + t('topology.open_ports') + '</span>' +
+                (riskCount > 0 ? ' <span style="color:#f06262;">\u26a0 ' + riskCount + ' ' + t('topology.risk') + '</span>' : '') +
                 '</div>' +
                 (svcs !== 'none' ? '<div style="margin-top:4px;font-size:0.75rem;color:var(--text-muted);">' + esc(svcs) + '</div>' : '');
             tooltipEl.style.display = '';
@@ -1632,9 +1632,9 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
             tooltipEl.style.display = 'none';
         } else {
             if (_topoPathFirst) {
-                tooltipEl.innerHTML = '<div style="color:var(--accent);font-size:0.75rem;">First host selected. Click a second host.</div>';
+                tooltipEl.innerHTML = '<div style="color:var(--accent);font-size:0.75rem;">' + t('topology.path_click_second') + '</div>';
             } else {
-                tooltipEl.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">Click first host node to start path</div>';
+                tooltipEl.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">' + t('topology.path_click_first') + '</div>';
             }
             tooltipEl.style.display = '';
         }
@@ -1653,7 +1653,7 @@ function renderTopology(data, container, tooltipEl, legendEl, detailEl) {
             if (pct < 100) {
                 const empty = document.getElementById('topology-empty');
                 if (empty && empty.style.display !== 'none') {
-                    empty.innerHTML = '<div class="spinner"></div><p>Laying out graph... ' + pct + '%</p>';
+                    empty.innerHTML = '<div class="spinner"></div><p>' + t('topology.laying_out_graph') + ' ' + pct + '%</p>';
                 }
             }
         }
@@ -1700,7 +1700,7 @@ function buildLegend(data, legendEl) {
     if (hasInferred) {
         html += '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;padding-top:4px;border-top:1px solid var(--border);">' +
             '<span style="width:12px;height:12px;border-radius:3px;background:rgba(230,149,46,0.08);border:1.5px dashed rgba(230,149,46,0.4);display:inline-block;"></span>' +
-            '<span style="font-size:0.75rem;">Inferred</span></div>';
+            '<span style="font-size:0.75rem;">' + t('topology.inferred') + '</span></div>';
     }
     legendEl.innerHTML = html;
     legendEl.style.display = '';

@@ -44,7 +44,7 @@ document.getElementById('change-form').addEventListener('submit', async function
     errorEl.style.display = 'none';
 
     if (newPass !== confirm) {
-        errorEl.textContent = 'Passwords do not match';
+        errorEl.textContent = t('change_password.do_not_match');
         errorEl.style.display = 'block';
         return;
     }
@@ -55,7 +55,7 @@ document.getElementById('change-form').addEventListener('submit', async function
     var digit = /\d/.test(newPass);
     var special = /[^A-Za-z0-9]/.test(newPass);
     if (!length || !upper || !lower || !digit || !special) {
-        errorEl.textContent = 'Password must meet all complexity requirements';
+        errorEl.textContent = t('change_password.complexity_required');
         errorEl.style.display = 'block';
         return;
     }

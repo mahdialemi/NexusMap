@@ -11,12 +11,12 @@
                     label.style.background = 'rgba(34,197,94,0.12)';
                     label.style.borderColor = '#22c55e';
                     label.style.color = '#22c55e';
-                    text.textContent = 'Auto-confirm';
+                    text.textContent = t('import.auto_confirm');
                 } else {
                     label.style.background = 'rgba(100,100,100,0.08)';
                     label.style.borderColor = 'var(--border)';
                     label.style.color = 'var(--text-muted)';
-                    text.textContent = 'Manual';
+                    text.textContent = t('import.manual');
                 }
             }
             label.addEventListener('click', update);
@@ -110,10 +110,10 @@
             const fmt = detectRawFormat(text);
             detect.style.display = 'inline';
             if (fmt) {
-                detect.textContent = fmt + ' detected';
+                detect.textContent = fmt + ' ' + t('import.detected');
                 detect.style.color = 'var(--accent)';
             } else {
-                detect.textContent = 'Unknown format';
+                detect.textContent = t('import.unknown_format');
                 detect.style.color = '#ef4444';
             }
             updateImportButtons();
@@ -155,12 +155,12 @@
         }
 
         async function doImport() {
-            if (!hasImportContent()) { showToast('Select at least one file or paste raw output', 'error'); return; }
+            if (!hasImportContent()) { showToast(t('import.select_file_or_paste'), 'error'); return; }
 
             const btn = document.getElementById('btn-do-import');
             btn.disabled = true;
             btn.classList.add('btn-loading');
-            btn.textContent = 'Importing...';
+            btn.textContent = t('import.importing');
 
             const progressDiv = document.getElementById('import-progress');
             const progressFill = document.getElementById('import-progress-fill');
@@ -168,49 +168,49 @@
             progressDiv.style.display = 'block';
             progressFill.style.width = '0%';
             progressFill.classList.remove('complete');
-            progressText.textContent = 'Preparing...';
+            progressText.textContent = t('import.preparing');
 
             try {
                 const formData = getImportData();
                 progressFill.style.width = '10%';
-                progressText.textContent = 'Uploading...';
+                progressText.textContent = t('import.uploading');
 
                 const res = await fetch(`/api/import/${projectId}`, { method: 'POST', body: formData });
                 progressFill.style.width = '80%';
-                progressText.textContent = 'Processing...';
+                progressText.textContent = t('import.processing');
 
                 const data = await res.json();
 
                 if (data.error) {
-                    showToast('Import failed: ' + data.error, 'error');
-                    progressText.textContent = 'Failed: ' + data.error;
+                    showToast(t('import.import_failed') + data.error, 'error');
+                    progressText.textContent = t('import.failed') + data.error;
                     progressDiv.style.display = 'none';
                 } else {
                     progressFill.style.width = '100%';
                     progressFill.classList.add('complete');
-                    progressText.textContent = 'Complete!';
-                    showToast('Import successful' + (data.auto_confirmed ? ' (auto-confirmed)' : ''));
+                    progressText.textContent = t('import.complete');
+                    showToast(t('import.successful') + (data.auto_confirmed ? t('import.auto_confirmed_suffix') : ''));
                     setTimeout(() => { progressDiv.style.display = 'none'; }, 1500);
                     resetImportUI();
                     await loadScans();
                 }
             } catch (e) {
-                showToast('Import failed: ' + e.message, 'error');
+                showToast(t('import.import_failed') + e.message, 'error');
                 document.getElementById('import-progress').style.display = 'none';
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('btn-loading');
-                btn.textContent = 'Import';
+                btn.textContent = t('import.import_btn');
             }
         }
 
         async function previewImport() {
-            if (!hasImportContent()) { showToast('Select at least one file or paste raw output', 'error'); return; }
+            if (!hasImportContent()) { showToast(t('import.select_file_or_paste'), 'error'); return; }
 
             const btn = document.getElementById('btn-preview-import');
             btn.disabled = true;
             btn.classList.add('btn-loading');
-            btn.textContent = 'Parsing...';
+            btn.textContent = t('import.parsing');
 
             const errDiv = document.getElementById('import-error');
             errDiv.style.display = 'none';
@@ -255,17 +255,17 @@
                     previewDiv.style.display = 'block';
                     document.getElementById('btn-do-import').disabled = false;
                     if (data.hosts === 0 && data.ports === 0) {
-                        errDiv.textContent = 'Warning: No hosts or ports found in file';
+                        errDiv.textContent = t('import.no_hosts_or_ports');
                         errDiv.style.display = 'block';
                     }
                 }
             } catch (e) {
-                errDiv.textContent = 'Preview failed: ' + e.message;
+                errDiv.textContent = t('import.preview_failed') + e.message;
                 errDiv.style.display = 'block';
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('btn-loading');
-                btn.textContent = 'Preview';
+                btn.textContent = t('import.preview');
             }
         }
 

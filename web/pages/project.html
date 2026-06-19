@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project - NexusMap</title>
+    <title data-i18n="project.title">Project - NexusMap</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/static/css/project.css">
 </head>
@@ -11,7 +11,7 @@
     <div class="header">
         <a href="/" class="header-link">
             <svg width="28" height="28" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
-            <h1>NexusMap <span class="version-badge"><span class="app-version">v0.9.4</span></span></h1>
+            <h1><span data-i18n="app.name">NexusMap</span> <span class="version-badge"><span class="app-version" data-i18n="app.version">v0.9.4</span></span></h1>
         </a>
         <div class="header-nav">
             <span id="header-project-name-nav" class="project-badge"></span>
@@ -22,71 +22,71 @@
 
     <div class="project-body">
         <nav class="sidebar">
-            <button class="sidebar-btn" title="Projects" data-action="backToProjects">
+            <button class="sidebar-btn" title="Projects" data-i18n-attr="title" data-i18n="nav.projects" data-action="backToProjects">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-chevron-left"/></svg>
             </button>
             <div class="sidebar-separator"></div>
-            <button class="sidebar-btn" data-tab="new-scan" data-action="showTab" title="New Scan">
+            <button class="sidebar-btn" data-tab="new-scan" data-action="showTab" title="New Scan" data-i18n-attr="title" data-i18n="project.new_scan">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-plus"/></svg>
             </button>
-            <button class="sidebar-btn active sidebar-btn-rel" data-tab="scans" data-action="showTab" title="Scans">
+            <button class="sidebar-btn active sidebar-btn-rel" data-tab="scans" data-action="showTab" title="Scans" data-i18n-attr="title" data-i18n="project.scans">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-task"/></svg>
                 <span id="scans-badge" class="scans-badge">0</span>
             </button>
-                <button class="sidebar-btn" data-tab="live" data-action="showTab" title="Live Hosts">
+                <button class="sidebar-btn" data-tab="live" data-action="showTab" title="Live Hosts" data-i18n-attr="title" data-i18n="project.live_hosts">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-signal"/></svg>
                 </button>
-                <button class="sidebar-btn" data-tab="consolidated" data-action="showTab" title="Assets">
+                <button class="sidebar-btn" data-tab="consolidated" data-action="showTab" title="Assets" data-i18n-attr="title" data-i18n="project.consolidated">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-database"/></svg>
                 </button>
-                <button class="sidebar-btn" data-tab="scripts" data-action="showTab" title="Scripts">
+                <button class="sidebar-btn" data-tab="scripts" data-action="showTab" title="Scripts" data-i18n-attr="title" data-i18n="project.scripts">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-code"/></svg>
                 </button>
-                <button class="sidebar-btn" data-tab="notes" data-action="showTab" title="Notes">
+                <button class="sidebar-btn" data-tab="notes" data-action="showTab" title="Notes" data-i18n-attr="title" data-i18n="project.notes">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-edit"/></svg>
                 </button>
-                <button class="sidebar-btn" data-tab="topology" data-action="showTab" title="Topology">
+                <button class="sidebar-btn" data-tab="topology" data-action="showTab" title="Topology" data-i18n-attr="title" data-i18n="project.topology">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-expand"/></svg>
                 </button>
-                <button class="sidebar-btn" data-tab="dashboard" data-action="showTab" title="Dashboard">
+                <button class="sidebar-btn" data-tab="dashboard" data-action="showTab" title="Dashboard" data-i18n-attr="title" data-i18n="project.overview">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 </button>
-                <button class="sidebar-btn" data-tab="import" data-action="showTab" title="Import">
+                <button class="sidebar-btn" data-tab="import" data-action="showTab" title="Import" data-i18n-attr="title" data-i18n="project.import">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-upload"/></svg>
                 </button>
                 <div class="sidebar-spacer"></div>
                 <div class="sidebar-separator"></div>
                 <div class="notif-wrap">
-                    <button class="sidebar-btn" data-action="toggleNotifications" title="Notifications">
+                    <button class="sidebar-btn" data-action="toggleNotifications" title="Notifications" data-i18n-attr="title" data-i18n="nav.notifications">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-bell"/></svg>
                         <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
                     </button>
                     <div class="notif-dropdown" id="notif-dropdown" style="display:none;">
                         <div class="notif-dropdown-header">
-                            <span>Notifications</span>
-                            <button class="notif-mark-btn" data-action="markNotifsRead">Mark all read</button>
+                            <span data-i18n="notifications.header">Notifications</span>
+                            <button class="notif-mark-btn" data-action="markNotifsRead" data-i18n="notifications.mark_all_read">Mark all read</button>
                         </div>
                         <div class="notif-list" id="notif-list">
-                            <div class="notif-empty">No notifications</div>
+                            <div class="notif-empty" data-i18n="notifications.empty">No notifications</div>
                         </div>
                     </div>
                 </div>
-                <button class="sidebar-btn" title="Shortcuts (?)" data-action="showShortcutsHelp">
+                <button class="sidebar-btn" title="Shortcuts (?)" data-i18n-attr="title" data-i18n="nav.shortcuts" data-action="showShortcutsHelp">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 </button>
-                <button class="sidebar-btn" title="Settings" data-action="goToSettings">
+                <button class="sidebar-btn" title="Settings" data-i18n-attr="title" data-i18n="nav.settings" data-action="goToSettings">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-settings"/></svg>
                 </button>
-                <button class="sidebar-btn" title="About" data-action="showAboutModal">
+                <button class="sidebar-btn" title="About" data-i18n-attr="title" data-i18n="nav.about" data-action="showAboutModal">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-info"/></svg>
                 </button>
-                <button class="sidebar-btn" title="Toggle Theme" data-action="toggleTheme">
+                <button class="sidebar-btn" title="Toggle Theme" data-i18n-attr="title" data-i18n="nav.toggle_theme" data-action="toggleTheme">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-moon"/></svg>
                 </button>
-                <button class="sidebar-btn" id="admin-link" title="Admin" data-action="goToAdmin" style="display:none;">
+                <button class="sidebar-btn" id="admin-link" title="Admin" data-i18n-attr="title" data-i18n="nav.admin" data-action="goToAdmin" style="display:none;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-shield"/></svg>
                 </button>
-                <button class="sidebar-btn" title="Logout" data-action="logout">
+                <button class="sidebar-btn" title="Logout" data-i18n-attr="title" data-i18n="nav.logout" data-action="logout">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-logout"/></svg>
                 </button>
             </nav>
@@ -96,44 +96,44 @@
         <!-- Scans Tab -->
         <div id="tab-scans">
             <div class="asset-actions">
-                <h2 class="card-title">Scans <span id="scan-count" class="title-count"></span></h2>
+                <h2 class="card-title" data-i18n="scans.title">Scans <span id="scan-count" class="title-count"></span></h2>
                 <div class="filter-chips" id="filter-chips">
-                    <button class="chip chip-active" data-status="" data-action="setStatusFilter">All</button>
-                    <button class="chip" data-status="pending" data-action="setStatusFilter">Pending</button>
-                    <button class="chip" data-status="running" data-action="setStatusFilter">Running</button>
-                    <button class="chip" data-status="completed" data-action="setStatusFilter">Completed</button>
-                    <button class="chip" data-status="stopped" data-action="setStatusFilter">Stopped</button>
-                    <button class="chip" data-status="error" data-action="setStatusFilter">Error</button>
+                    <button class="chip chip-active" data-status="" data-action="setStatusFilter" data-i18n="filter.all">All</button>
+                    <button class="chip" data-status="pending" data-action="setStatusFilter" data-i18n="filter.pending">Pending</button>
+                    <button class="chip" data-status="running" data-action="setStatusFilter" data-i18n="filter.running">Running</button>
+                    <button class="chip" data-status="completed" data-action="setStatusFilter" data-i18n="filter.completed">Completed</button>
+                    <button class="chip" data-status="stopped" data-action="setStatusFilter" data-i18n="filter.stopped">Stopped</button>
+                    <button class="chip" data-status="error" data-action="setStatusFilter" data-i18n="filter.error">Error</button>
                     <span class="filter-sep">|</span>
-                    <button class="chip" data-action="setConfirmFilter" data-confirm="unconfirmed">Unconfirmed only</button>
-                    <button class="chip" data-action="setConfirmFilter" data-confirm="confirmed">Confirmed only</button>
-                    <button class="chip" data-action="setConfirmFilter" data-confirm="rejected">Rejected only</button>
+                    <button class="chip" data-action="setConfirmFilter" data-confirm="unconfirmed" data-i18n="filter.unconfirmed">Unconfirmed only</button>
+                    <button class="chip" data-action="setConfirmFilter" data-confirm="confirmed" data-i18n="filter.confirmed">Confirmed only</button>
+                    <button class="chip" data-action="setConfirmFilter" data-confirm="rejected" data-i18n="filter.rejected">Rejected only</button>
                 </div>
                 <div class="asset-toolbar-right">
-                    <button class="btn btn-secondary btn-sm" id="scan-search-toggle" data-action="toggleScanSearch" title="Search">
+                    <button class="btn btn-secondary btn-sm" id="scan-search-toggle" data-action="toggleScanSearch" title="Search" data-i18n-attr="title" data-i18n="common.search">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
                     </button>
                     <div class="search-wrapper" id="scan-search-wrap" style="display:none;">
                         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
-                        <input type="text" id="scan-search" class="search-input" placeholder="Search..." data-action="onSearchInput" autocomplete="off">
-                        <button class="search-close" data-action="clearScanSearch" title="Close (Esc)">&#10005;</button>
+                        <input type="text" id="scan-search" class="search-input" placeholder="Search..." data-i18n-placeholder="app.search_dot" data-action="onSearchInput" autocomplete="off">
+                        <button class="search-close" data-action="clearScanSearch" title="Close (Esc)" data-i18n-attr="title" data-i18n="common.close_esc">&#10005;</button>
                     </div>
                     <select id="scan-profile-filter" class="form-control" data-action="applyScanFilters">
-                        <option value="">All Profiles</option>
+                        <option value="" data-i18n="scans.all_profiles">All Profiles</option>
                     </select>
                     <select id="scan-sort" class="form-control" data-action="applyScanFilters">
-                        <option value="newest">Newest first</option>
-                        <option value="oldest">Oldest first</option>
-                        <option value="target">By target</option>
-                        <option value="profile">By profile</option>
+                        <option value="newest" data-i18n="scans.sort_newest">Newest first</option>
+                        <option value="oldest" data-i18n="scans.sort_oldest">Oldest first</option>
+                        <option value="target" data-i18n="scans.sort_target">By target</option>
+                        <option value="profile" data-i18n="scans.sort_profile">By profile</option>
                     </select>
-                    <button class="btn btn-sm btn-primary" id="confirm-all-btn" style="display:none;" data-action="confirmAllScans" title="Confirm all pending scans">
+                    <button class="btn btn-sm btn-primary" id="confirm-all-btn" style="display:none;" data-action="confirmAllScans" title="Confirm all pending scans" data-i18n-attr="title" data-i18n="scans.confirm_all">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><use href="#icon-check"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="compareScans" title="Compare scans">
+                    <button class="btn btn-secondary btn-sm" data-action="compareScans" title="Compare scans" data-i18n-attr="title" data-i18n="scans.compare">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="loadScans" title="Refresh">
+                    <button class="btn btn-secondary btn-sm" data-action="loadScans" title="Refresh" data-i18n-attr="title" data-i18n="common.refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
                 </div>
@@ -141,7 +141,7 @@
             <div id="scans-list" class="scans-list-mt">
                 <div class="empty-state">
                     <div class="spinner"></div>
-                    <p>Loading scans...</p>
+                    <p data-i18n="scans.loading">Loading scans...</p>
                 </div>
             </div>
         </div>
@@ -151,12 +151,12 @@
             <div class="card ns-card">
                 <!-- Left: Form Panel -->
                 <div id="new-scan-form" class="ns-form">
-                    <h2 class="card-title ns-form-title">New Scan</h2>
+                    <h2 class="card-title ns-form-title" data-i18n="project.new_scan">New Scan</h2>
 
                     <div class="ns-scroll">
                         <div class="ns-mb">
-                            <label>Target</label>
-                            <input type="text" id="target" class="form-control" placeholder="192.168.1.0/24 or scanme.nmap.org">
+                            <label data-i18n="scans.target">Target</label>
+                            <input type="text" id="target" class="form-control" placeholder="192.168.1.0/24 or scanme.nmap.org" data-i18n-placeholder="scans.target_placeholder">
                         </div>
 
                         <div class="sidebar-divider"></div>
@@ -164,10 +164,10 @@
                         <div id="profile-info" class="ns-profile-info" style="display:none;">
                             <div class="ns-profile-row">
                                 <div>
-                                    <span class="ns-label-upper-m0">Profile</span>
+                                    <span class="ns-label-upper-m0" data-i18n="profiles.profile_label">Profile</span>
                                     <div id="profile-info-name" class="ns-profile-name"></div>
                                 </div>
-                                <button class="pf-edit-btn" id="profile-info-edit-btn">
+                                <button class="pf-edit-btn" id="profile-info-edit-btn" data-i18n="profiles.edit">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-edit"/></svg>
                                     Edit
                                 </button>
@@ -179,7 +179,7 @@
 
                         <div class="ns-mb">
                             <div class="ns-cmd-header">
-                                <label class="ns-cmd-label">Command</label>
+                                <label class="ns-cmd-label" data-i18n="scans.command">Command</label>
                                 <span id="cmd-source" class="ns-cmd-src"></span>
                             </div>
                             <div class="cmd-preview ns-cmd-preview" id="cmd-preview">
@@ -188,7 +188,7 @@
                         </div>
 
                         <div class="ns-mb">
-                            <div class="ns-label-upper">Quick Flags</div>
+                            <div class="ns-label-upper" data-i18n="scans.quick_flags">Quick Flags</div>
                             <div class="ns-flags-wrap">
                                 <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="-v" data-action="updateQuickFlags"> -v</label>
                                 <label class="qf-checkbox-label"><input type="checkbox" class="qf-checkbox" data-flag="--open" data-action="updateQuickFlags"> --open</label>
@@ -202,13 +202,13 @@
                         <div class="sidebar-divider"></div>
 
                         <div id="recent-targets-container" class="ns-recent-wrap" style="display:none;">
-                            <div class="ns-label-upper">Recent Targets</div>
+                            <div class="ns-label-upper" data-i18n="scans.recent_targets">Recent Targets</div>
                             <div id="recent-targets-list" class="ns-recent-list"></div>
                         </div>
 
                         <div class="ns-mb">
-                            <div class="ns-label-upper">Notes</div>
-                            <textarea id="scan-notes" class="form-control ns-notes-ta" placeholder="Optional notes..." rows="2"></textarea>
+                            <div class="ns-label-upper" data-i18n="scans.notes_label">Notes</div>
+                            <textarea id="scan-notes" class="form-control ns-notes-ta" placeholder="Optional notes..." rows="2" data-i18n-placeholder="scans.notes_placeholder"></textarea>
                         </div>
 
                         <div class="sidebar-divider"></div>
@@ -217,15 +217,15 @@
                             <div class="sidebar-divider" style="margin-bottom:8px;"></div>
                             <label class="ns-sched-label">
                                 <input type="checkbox" id="sched-enabled" onchange="toggleSchedOptions()" class="ns-sched-cb">
-                                Schedule for later
+                                <span data-i18n="project.schedules">Schedule for later</span>
                             </label>
                             <div id="sched-options" class="ns-sched-options" style="display:none;">
                                 <div class="ns-sched-type-row">
                                     <label class="ns-sched-type-label" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''" id="sched-type-time-label">
-                                        <input type="radio" name="sched-type" value="time" checked onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-clock"/></svg> Time
+                                        <input type="radio" name="sched-type" value="time" checked onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-clock"/></svg> <span data-i18n="scans.sched_time">Time</span>
                                     </label>
                                     <label class="ns-sched-type-label" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''" id="sched-type-dep-label">
-                                        <input type="radio" name="sched-type" value="dependency" onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg> After scan
+                                        <input type="radio" name="sched-type" value="dependency" onchange="toggleSchedType()"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg> <span data-i18n="scans.sched_after_scan">After scan</span>
                                     </label>
                                 </div>
                                 <div id="sched-time-options">
@@ -233,7 +233,7 @@
                                 </div>
                                 <div id="sched-dep-options" style="display:none;">
                                     <select id="sched-dep-scan" class="form-control ns-sched-ti">
-                                        <option value="">Select a scan...</option>
+                                        <option value="" data-i18n="scans.select_scan">Select a scan...</option>
                                     </select>
                                 </div>
                             </div>
@@ -243,7 +243,7 @@
                     <div class="sidebar-divider"></div>
 
                     <div class="ns-btn-pad">
-                        <button class="btn btn-primary ns-create-btn" id="create-btn" data-action="createScan" title="Create Scan">
+                        <button class="btn btn-primary ns-create-btn" id="create-btn" data-action="createScan" title="Create Scan" data-i18n-attr="title" data-i18n="scans.create_scan">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-play"/></svg>
                             Create Scan
                         </button>
@@ -253,8 +253,8 @@
                 <!-- Right: Profiles Panel -->
                 <div id="new-scan-profiles" class="ns-form-right">
                     <div class="ns-prof-header">
-                        <input type="text" id="profile-search" class="form-control ns-prof-search" placeholder="Search profiles..." data-action="filterProfiles">
-                        <button class="btn btn-secondary ns-prof-mgr-btn" data-action="showProfileManager" title="Manage Profiles">
+                        <input type="text" id="profile-search" class="form-control ns-prof-search" placeholder="Search profiles..." data-i18n-placeholder="app.search_dot" data-action="filterProfiles">
+                        <button class="btn btn-secondary ns-prof-mgr-btn" data-action="showProfileManager" title="Manage Profiles" data-i18n-attr="title" data-i18n="profiles.manage">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-edit-sm"/></svg>
                             Manage Profiles
                         </button>
@@ -267,24 +267,24 @@
         <!-- Consolidated Tab -->
         <div id="tab-consolidated" style="display:none;">
             <div class="asset-actions">
-                <h2 class="card-title">Assets <span id="asset-stat" class="title-count"></span></h2>
+                <h2 class="card-title" data-i18n="assets.title">Assets <span id="asset-stat" class="title-count"></span></h2>
                 <div class="asset-toolbar-right">
-                    <button class="btn btn-secondary btn-sm" id="consolidated-bulk-delete-btn" data-action="bulkDeleteConsolidatedPorts" title="Delete selected" style="display:none;">
+                    <button class="btn btn-secondary btn-sm" id="consolidated-bulk-delete-btn" data-action="bulkDeleteConsolidatedPorts" title="Delete selected" data-i18n-attr="title" data-i18n="assets.delete_selected" style="display:none;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="consolidated-search-toggle" data-action="toggleConsolidatedSearch" title="Search">
+                    <button class="btn btn-secondary btn-sm" id="consolidated-search-toggle" data-action="toggleConsolidatedSearch" title="Search" data-i18n-attr="title" data-i18n="common.search">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
                     </button>
                     <div class="search-wrapper" id="consolidated-search-wrap" style="display:none;">
                         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
-                        <input type="text" id="consolidated-search" class="search-input" placeholder="Search..." data-action="debounceSearchConsolidated" autocomplete="off">
-                        <button class="search-close" data-action="clearConsolidatedSearch" title="Close (Esc)">&#10005;</button>
+                        <input type="text" id="consolidated-search" class="search-input" placeholder="Search..." data-i18n-placeholder="app.search_dot" data-action="debounceSearchConsolidated" autocomplete="off">
+                        <button class="search-close" data-action="clearConsolidatedSearch" title="Close (Esc)" data-i18n-attr="title" data-i18n="common.close_esc">&#10005;</button>
                     </div>
                     <select id="consolidated-filter-state" class="form-control" data-action="filterAssets">
-                        <option value="">State</option>
+                        <option value="" data-i18n="assets.filter_state">State</option>
                     </select>
                     <select id="consolidated-filter-service" class="form-control" data-action="filterAssets">
-                        <option value="">Service</option>
+                        <option value="" data-i18n="assets.filter_service">Service</option>
                     </select>
                     <span class="live-sep">|</span>
                     <select id="consolidated-limit" class="form-control" data-action="changeConsolidatedLimit">
@@ -294,24 +294,24 @@
                         <option value="100">100</option>
                         <option value="200">200</option>
                         <option value="500">500</option>
-                        <option value="100000">All</option>
+                        <option value="100000" data-i18n="common.all">All</option>
                     </select>
-                    <button class="btn btn-secondary btn-sm" id="hide-closed-toggle" data-action="toggleHideClosed" title="Hide closed ports">
+                    <button class="btn btn-secondary btn-sm" id="hide-closed-toggle" data-action="toggleHideClosed" title="Hide closed ports" data-i18n-attr="title" data-i18n="assets.hide_closed">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye-off"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="consolidated-group-btn" data-action="toggleConsolidatedGroup" title="Group by host">
+                    <button class="btn btn-secondary btn-sm" id="consolidated-group-btn" data-action="toggleConsolidatedGroup" title="Group by host" data-i18n-attr="title" data-i18n="assets.group_by_host">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-grid"/></svg>
                     </button>
-                    <button class="btn btn-primary btn-sm" data-action="copyConsolidatedIPs" title="Copy IPs">
+                    <button class="btn btn-primary btn-sm" data-action="copyConsolidatedIPs" title="Copy IPs" data-i18n-attr="title" data-i18n="assets.copy_ips">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-copy"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="toggleAdvancedFilterModal" title="Advanced Search">
+                    <button class="btn btn-secondary btn-sm" data-action="toggleAdvancedFilterModal" title="Advanced Search" data-i18n-attr="title" data-i18n="assets.advanced_search">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-filter"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="loadConsolidated" title="Refresh">
+                    <button class="btn btn-secondary btn-sm" data-action="loadConsolidated" title="Refresh" data-i18n-attr="title" data-i18n="common.refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="showAssetExportModal" title="Download">
+                    <button class="btn btn-secondary btn-sm" data-action="showAssetExportModal" title="Download" data-i18n-attr="title" data-i18n="common.download">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
                     </button>
                 </div>
@@ -319,7 +319,7 @@
             <div class="card cs-card">
                 <div id="consolidated-filter-badges" class="filter-badges cs-filter-badges" style="display:none;"></div>
                 <div id="cports-table" class="table-container">
-                    <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
+                    <div class="empty-state"><div class="spinner"></div><p data-i18n="common.loading">Loading...</p></div>
                 </div>
                 <div id="cports-pagination" class="cs-pagination"></div>
             </div>
@@ -330,7 +330,7 @@
             <div id="topology-container">
                 <div class="empty-state" id="topology-empty">
                     <div class="spinner"></div>
-                    <p>Loading topology...</p>
+                    <p data-i18n="topology.loading">Loading topology...</p>
                 </div>
                 <div id="topology-graph"></div>
                 <div id="topology-tooltip" class="topo-tooltip" style="display:none;"></div>
@@ -339,76 +339,76 @@
                 <div id="topology-toolbar" style="display:none;">
                     <div class="topo-tb-row">
                         <div class="topo-tb-search">
-                            <input type="text" id="topology-filter" placeholder="Search IP, hostname, OS, port&hellip;">
-                            <button class="btn btn-secondary" id="topology-filter-btn" title="Search">
+                            <input type="text" id="topology-filter" placeholder="Search IP, hostname, OS, port&hellip;" data-i18n-placeholder="topology.search_placeholder">
+                            <button class="btn btn-secondary" id="topology-filter-btn" title="Search" data-i18n-attr="title" data-i18n="common.search">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
                             </button>
                         </div>
                         <span id="topology-filter-count"></span>
                         <select id="topo-filter-service" class="topo-sel topo-sel-w100">
-                            <option value="">All Services</option>
+                            <option value="" data-i18n="topology.all_services">All Services</option>
                         </select>
                         <span class="topo-sep"></span>
                         <select id="topo-filter-subnet" class="topo-sel">
-                            <option value="">Subnet</option>
+                            <option value="" data-i18n="topology.subnet">Subnet</option>
                         </select>
                         <select id="topo-filter-os" class="topo-sel">
-                            <option value="">OS</option>
+                            <option value="" data-i18n="topology.os">OS</option>
                         </select>
-                        <input type="number" id="topo-filter-min-ports" class="topo-sel topo-sel-w92" placeholder="Min ports" min="0">
-                        <select id="topo-layout-mode" class="topo-sel" title="Layout mode">
-                            <option value="force">Force</option>
-                            <option value="hierarchical">Hierarchical</option>
-                            <option value="radial">Radial</option>
+                        <input type="number" id="topo-filter-min-ports" class="topo-sel topo-sel-w92" placeholder="Min ports" min="0" data-i18n-placeholder="topology.min_ports">
+                        <select id="topo-layout-mode" class="topo-sel" title="Layout mode" data-i18n-attr="title" data-i18n="topology.layout_mode">
+                            <option value="force" data-i18n="topology.layout_force">Force</option>
+                            <option value="hierarchical" data-i18n="topology.layout_hierarchical">Hierarchical</option>
+                            <option value="radial" data-i18n="topology.layout_radial">Radial</option>
                         </select>
                     </div>
                 </div>
                 <!-- Floating bottom toolbar -->
                 <div id="topo-actions" class="topo-actions" style="display:none;">
-                    <button class="act-btn" id="topo-btn-risk" data-active="0" title="Toggle high-risk host highlighting">
+                    <button class="act-btn" id="topo-btn-risk" data-active="0" title="Toggle high-risk host highlighting" data-i18n-attr="title" data-i18n="topology.toggle_risk">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-alert"/></svg>
                     </button>
-                    <button class="act-btn" id="topo-btn-path" data-active="0" title="Find shortest path">
+                    <button class="act-btn" id="topo-btn-path" data-active="0" title="Find shortest path" data-i18n-attr="title" data-i18n="topology.shortest_path">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-route"/></svg>
                     </button>
                     <span class="act-sep"></span>
-                    <button class="act-btn" data-action="expandAllTopo" title="Expand all clusters">
+                    <button class="act-btn" data-action="expandAllTopo" title="Expand all clusters" data-i18n-attr="title" data-i18n="topology.expand_all">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg>
                     </button>
-                    <button class="act-btn" data-action="collapseAllTopo" title="Collapse all clusters">
+                    <button class="act-btn" data-action="collapseAllTopo" title="Collapse all clusters" data-i18n-attr="title" data-i18n="topology.collapse_all">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-collapse"/></svg>
                     </button>
                     <span class="act-sep"></span>
-                    <button class="act-btn" data-action="topoZoomIn" title="Zoom in">
+                    <button class="act-btn" data-action="topoZoomIn" title="Zoom in" data-i18n-attr="title" data-i18n="topology.zoom_in">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-zoom-in"/></svg>
                     </button>
-                    <input type="range" id="topo-zoom-slider" min="0.1" max="3" step="0.01" value="1" title="Zoom level">
-                    <button class="act-btn" data-action="topoZoomOut" title="Zoom out">
+                    <input type="range" id="topo-zoom-slider" min="0.1" max="3" step="0.01" value="1" title="Zoom level" data-i18n-attr="title" data-i18n="topology.zoom_level">
+                    <button class="act-btn" data-action="topoZoomOut" title="Zoom out" data-i18n-attr="title" data-i18n="topology.zoom_out">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-zoom-out"/></svg>
                     </button>
-                    <button class="act-btn" data-action="topoFitView" title="Fit view">
+                    <button class="act-btn" data-action="topoFitView" title="Fit view" data-i18n-attr="title" data-i18n="topology.fit_view">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-expand"/></svg>
                     </button>
                     <span class="act-sep"></span>
-                    <button class="act-btn" id="topo-btn-fullscreen" title="Fullscreen">
+                    <button class="act-btn" id="topo-btn-fullscreen" title="Fullscreen" data-i18n-attr="title" data-i18n="topology.fullscreen">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-fullscreen"/></svg>
                     </button>
-                    <button class="act-btn" id="topo-btn-export" title="Export">
+                    <button class="act-btn" id="topo-btn-export" title="Export" data-i18n-attr="title" data-i18n="topology.export">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
                     </button>
                     <span class="act-sep"></span>
                     <div class="act-dropdown" id="topo-analysis-dropdown">
-                        <button class="act-btn" id="topo-btn-analysis" title="Analysis panels">
+                        <button class="act-btn" id="topo-btn-analysis" title="Analysis panels" data-i18n-attr="title" data-i18n="topology.analysis_panels">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>
                         </button>
                         <div class="act-menu" id="topo-analysis-menu" style="display:none;bottom:100%;left:0;margin-bottom:6px;">
-                            <div class="act-item" data-panel="risk-rank">&#x26A0; Risk Ranking</div>
-                            <div class="act-item" data-panel="port-heat">&#x1F4CA; Port Heat Map</div>
-                            <div class="act-item" data-panel="subnet-ana">&#x1F4E1; Subnet Analysis</div>
+                            <div class="act-item" data-panel="risk-rank" data-i18n="topology.risk_ranking">&#x26A0; Risk Ranking</div>
+                            <div class="act-item" data-panel="port-heat" data-i18n="topology.port_heat_map">&#x1F4CA; Port Heat Map</div>
+                            <div class="act-item" data-panel="subnet-ana" data-i18n="topology.subnet_analysis">&#x1F4E1; Subnet Analysis</div>
                         </div>
                     </div>
                     <span class="act-sep"></span>
-                    <button class="act-btn" data-action="loadTopology" title="Refresh">
+                    <button class="act-btn" data-action="loadTopology" title="Refresh" data-i18n-attr="title" data-i18n="common.refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
                 </div>
@@ -423,21 +423,21 @@
         <!-- Live Hosts Tab -->
         <div id="tab-live" style="display:none;">
             <div class="live-actions">
-                <h2 class="card-title">Live Hosts</h2>
+                <h2 class="card-title" data-i18n="live.title">Live Hosts</h2>
                 <div class="live-toolbar-right">
-                    <button class="btn btn-secondary btn-sm" id="live-search-toggle" data-action="toggleLiveSearch" title="Search">
+                    <button class="btn btn-secondary btn-sm" id="live-search-toggle" data-action="toggleLiveSearch" title="Search" data-i18n-attr="title" data-i18n="common.search">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
                     </button>
                     <div class="search-wrapper" id="live-search-wrap" style="display:none;">
                         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
-                        <input type="text" id="live-search" class="search-input" placeholder="Search..." data-action="filterLiveHosts" autocomplete="off">
-                        <button class="search-close" data-action="closeLiveSearch" title="Close (Esc)">&#10005;</button>
+                        <input type="text" id="live-search" class="search-input" placeholder="Search..." data-i18n-placeholder="app.search_dot" data-action="filterLiveHosts" autocomplete="off">
+                        <button class="search-close" data-action="closeLiveSearch" title="Close (Esc)" data-i18n-attr="title" data-i18n="common.close_esc">&#10005;</button>
                     </div>
                     <select id="live-filter-os" class="form-control" data-action="applyLiveFilterOS">
-                        <option value="">OS</option>
+                        <option value="" data-i18n="live.filter_os">OS</option>
                     </select>
                     <select id="live-filter-method" class="form-control" data-action="applyLiveFilterMethod">
-                        <option value="">Method</option>
+                        <option value="" data-i18n="live.filter_method">Method</option>
                     </select>
                     <span class="live-sep">|</span>
                     <select id="live-limit" class="form-control" data-action="changeLiveLimit">
@@ -447,16 +447,16 @@
                         <option value="200">200</option>
                         <option value="500">500</option>
                     </select>
-                    <button class="btn btn-secondary btn-sm" data-action="loadLiveHosts" title="Refresh">
+                    <button class="btn btn-secondary btn-sm" data-action="loadLiveHosts" title="Refresh" data-i18n-attr="title" data-i18n="common.refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="live-subnet-btn" data-action="toggleLiveSubnetGroup" title="Group by subnet">
+                    <button class="btn btn-secondary btn-sm" id="live-subnet-btn" data-action="toggleLiveSubnetGroup" title="Group by subnet" data-i18n-attr="title" data-i18n="live.group_by_subnet">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-grid"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" id="live-compare-btn" data-action="toggleLiveCompareMode" title="Compare hosts">
+                    <button class="btn btn-secondary btn-sm" id="live-compare-btn" data-action="toggleLiveCompareMode" title="Compare hosts" data-i18n-attr="title" data-i18n="live.compare_hosts">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="showLiveExportModal" title="Download">
+                    <button class="btn btn-secondary btn-sm" data-action="showLiveExportModal" title="Download" data-i18n-attr="title" data-i18n="common.download">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
                     </button>
                 </div>
@@ -464,21 +464,21 @@
             <div class="card live-card">
                 <div id="live-bulk-bar" class="live-bulk-bar" style="display:none;">
                     <span class="bulk-count bulk-count-style"></span>
-                    <button class="btn btn-danger btn-sm" data-action="bulkDeleteLiveHosts">
+                    <button class="btn btn-danger btn-sm" data-action="bulkDeleteLiveHosts" data-i18n="live.delete_selected">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
                         Delete Selected
                     </button>
-                    <button class="btn btn-warning btn-sm" data-action="bulkChangeLiveStatus">
+                    <button class="btn btn-warning btn-sm" data-action="bulkChangeLiveStatus" data-i18n="live.change_status">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-status"/></svg>
                         Change Status
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="compareSelectedHosts" id="live-compare-action-btn" style="display:none;">
+                    <button class="btn btn-secondary btn-sm" data-action="compareSelectedHosts" id="live-compare-action-btn" style="display:none;" data-i18n="live.compare">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bar-chart"/></svg>
                         Compare
                     </button>
                 </div>
                 <div id="live-table" class="table-container">
-                    <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
+                    <div class="empty-state"><div class="spinner"></div><p data-i18n="live.loading">Loading...</p></div>
                 </div>
                 <div id="live-pagination" class="live-pagination"></div>
             </div>
@@ -487,34 +487,34 @@
         <!-- Scripts Tab -->
         <div id="tab-scripts" style="display:none;">
             <div class="asset-actions">
-                <h2 class="card-title script-title-m0">NSE Scripts</h2>
+                <h2 class="card-title script-title-m0" data-i18n="nse.title">NSE Scripts</h2>
                 <div class="asset-toolbar-right">
-                    <button class="btn btn-secondary btn-sm" id="script-search-toggle" style="display:none;" data-action="toggleScriptSearch" title="Search">
+                    <button class="btn btn-secondary btn-sm" id="script-search-toggle" style="display:none;" data-action="toggleScriptSearch" title="Search" data-i18n-attr="title" data-i18n="common.search">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
                     </button>
                     <div class="search-wrapper" id="script-search-wrap">
                         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
-                        <input type="text" id="script-search-tab" class="search-input" placeholder="Search..." data-action="applyScriptFilters" autocomplete="off">
-                        <button class="search-close" data-action="clearScriptSearch" title="Close (Esc)">&#10005;</button>
+                        <input type="text" id="script-search-tab" class="search-input" placeholder="Search..." data-i18n-placeholder="app.search_dot" data-action="applyScriptFilters" autocomplete="off">
+                        <button class="search-close" data-action="clearScriptSearch" title="Close (Esc)" data-i18n-attr="title" data-i18n="common.close_esc">&#10005;</button>
                     </div>
                     <div class="btn-group btn-group-gap">
-                        <button class="btn btn-sm btn-primary" data-action="toggleScriptGroup" data-mode="flat" title="Flat view">
+                        <button class="btn btn-sm btn-primary" data-action="toggleScriptGroup" data-mode="flat" title="Flat view" data-i18n-attr="title" data-i18n="nse.flat_view">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-list"/></svg>
                         </button>
-                        <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="script" title="Group by script">
+                        <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="script" title="Group by script" data-i18n-attr="title" data-i18n="nse.group_by_script">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-code"/></svg>
                         </button>
-                        <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="host" title="Group by host">
+                        <button class="btn btn-sm btn-secondary" data-action="toggleScriptGroup" data-mode="host" title="Group by host" data-i18n-attr="title" data-i18n="nse.group_by_host">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-monitor"/></svg>
                         </button>
                     </div>
                     <select id="script-filter-proto" class="form-control" data-action="applyScriptFilters">
-                        <option value="">Proto</option>
-                        <option value="tcp">TCP</option>
-                        <option value="udp">UDP</option>
+                        <option value="" data-i18n="nse.filter_proto">Proto</option>
+                        <option value="tcp" data-i18n="nse.proto_tcp">TCP</option>
+                        <option value="udp" data-i18n="nse.proto_udp">UDP</option>
                     </select>
-                    <select id="script-filter-service" class="form-control" data-action="applyScriptFilters"><option value="">Service</option></select>
-                    <select id="script-filter" class="form-control" data-action="applyScriptFilters"><option value="">All Scripts</option></select>
+                    <select id="script-filter-service" class="form-control" data-action="applyScriptFilters"><option value="" data-i18n="nse.filter_service">Service</option></select>
+                    <select id="script-filter" class="form-control" data-action="applyScriptFilters"><option value="" data-i18n="nse.all_scripts">All Scripts</option></select>
                     <span class="live-sep">|</span>
                     <select id="scripts-limit" class="form-control" data-action="changeScriptsLimit">
                         <option value="25">25</option>
@@ -522,22 +522,22 @@
                         <option value="100">100</option>
                         <option value="200">200</option>
                         <option value="500">500</option>
-                        <option value="100000">All</option>
+                        <option value="100000" data-i18n="common.all">All</option>
                     </select>
-                    <button class="btn btn-secondary btn-sm" data-action="copyScriptIPs" title="Copy IPs">
+                    <button class="btn btn-secondary btn-sm" data-action="copyScriptIPs" title="Copy IPs" data-i18n-attr="title" data-i18n="nse.copy_ips">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-copy"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="loadScriptsTab" title="Refresh">
+                    <button class="btn btn-secondary btn-sm" data-action="loadScriptsTab" title="Refresh" data-i18n-attr="title" data-i18n="common.refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="showScriptExportModal" title="Download">
+                    <button class="btn btn-secondary btn-sm" data-action="showScriptExportModal" title="Download" data-i18n-attr="title" data-i18n="common.download">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
                     </button>
                 </div>
             </div>
             <div class="card script-card">
                 <div id="scripts-table" class="table-container">
-                    <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
+                    <div class="empty-state"><div class="spinner"></div><p data-i18n="nse.loading">Loading...</p></div>
                 </div>
                 <div id="scripts-pagination" class="scripts-pagination"></div>
             </div>
@@ -546,15 +546,15 @@
         <!-- Notes Tab -->
         <div id="tab-notes" style="display:none;">
             <div class="asset-actions">
-                <h2 class="card-title script-title-m0">Port Notes</h2>
+                <h2 class="card-title script-title-m0" data-i18n="notes.title">Port Notes</h2>
                 <div class="asset-toolbar-right">
-                    <button class="btn btn-secondary btn-sm" id="notes-search-toggle" style="display:none;" data-action="toggleNotesSearch" title="Search">
+                    <button class="btn btn-secondary btn-sm" id="notes-search-toggle" style="display:none;" data-action="toggleNotesSearch" title="Search" data-i18n-attr="title" data-i18n="common.search">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
                     </button>
                     <div class="search-wrapper" id="notes-search-wrap">
                         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-search"/></svg>
-                        <input type="text" id="notes-search-tab" class="search-input" placeholder="Search..." data-action="applyNotesFilters" autocomplete="off">
-                        <button class="search-close" data-action="clearNotesSearch" title="Close (Esc)">&#10005;</button>
+                        <input type="text" id="notes-search-tab" class="search-input" placeholder="Search..." data-i18n-placeholder="app.search_dot" data-action="applyNotesFilters" autocomplete="off">
+                        <button class="search-close" data-action="clearNotesSearch" title="Close (Esc)" data-i18n-attr="title" data-i18n="common.close_esc">&#10005;</button>
                     </div>
                     <select id="notes-limit" class="form-control" data-action="changeNotesLimit">
                         <option value="25">25</option>
@@ -562,16 +562,16 @@
                         <option value="100">100</option>
                         <option value="200">200</option>
                         <option value="500">500</option>
-                        <option value="100000">All</option>
+                        <option value="100000" data-i18n="common.all">All</option>
                     </select>
-                    <button class="btn btn-secondary btn-sm" data-action="loadNotesTab" title="Refresh">
+                    <button class="btn btn-secondary btn-sm" data-action="loadNotesTab" title="Refresh" data-i18n-attr="title" data-i18n="common.refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
                 </div>
             </div>
             <div class="card notes-card">
                 <div id="notes-table" class="table-container">
-                    <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
+                    <div class="empty-state"><div class="spinner"></div><p data-i18n="notes.loading">Loading...</p></div>
                 </div>
                 <div id="notes-pagination" class="notes-pagination"></div>
             </div>
@@ -580,15 +580,15 @@
         <!-- Import Tab -->
         <div id="tab-import" style="display:none;">
             <div class="asset-actions">
-                <h2 class="card-title script-title-m0">Import Scan Results</h2>
+                <h2 class="card-title script-title-m0" data-i18n="project.import">Import Scan Results</h2>
                 <div class="asset-toolbar-right">
-                    <button class="btn btn-secondary btn-sm" id="btn-preview-import" data-action="previewImport" title="Preview" disabled>
+                    <button class="btn btn-secondary btn-sm" id="btn-preview-import" data-action="previewImport" title="Preview" data-i18n-attr="title" data-i18n="import.preview" disabled>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
                     </button>
-                    <button class="btn btn-primary btn-sm" id="btn-do-import" data-action="doImport" title="Import" disabled>
+                    <button class="btn btn-primary btn-sm" id="btn-do-import" data-action="doImport" title="Import" data-i18n-attr="title" data-i18n="import.import" disabled>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-upload"/></svg>
                     </button>
-                    <button class="btn btn-secondary btn-sm" data-action="loadImportHistory" title="Refresh">
+                    <button class="btn btn-secondary btn-sm" data-action="loadImportHistory" title="Refresh" data-i18n-attr="title" data-i18n="common.refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                     </button>
                 </div>
@@ -599,8 +599,8 @@
                 <!-- Unified Drop Zone -->
                 <div id="import-drop-zone" class="drop-zone">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" class="drop-zone-icon"><use href="#icon-upload"/></svg>
-                    <p class="drop-zone-title">Drop files or click to select</p>
-                    <p class="drop-zone-sub">.xml .nmap .gnmap .csv .json .zip &middot; Up to 5 files</p>
+                    <p class="drop-zone-title" data-i18n="import.drop_title">Drop files or click to select</p>
+                    <p class="drop-zone-sub" data-i18n="import.drop_sub">.xml .nmap .gnmap .csv .json .zip &middot; Up to 5 files</p>
                     <input type="file" id="import-file-input" accept=".xml,.nmap,.gnmap,.csv,.json,.zip,.txt" multiple style="display:none;" data-action="onImportFilesSelected">
                 </div>
 
@@ -610,31 +610,31 @@
                 <!-- Paste Raw Output -->
                 <div class="import-raw-section">
                     <div class="import-raw-header">
-                        <span class="import-raw-title">Or paste raw output:</span>
+                        <span class="import-raw-title" data-i18n="import.paste_raw">Or paste raw output:</span>
                         <span id="import-raw-detect" class="import-raw-detect" style="display:none;"></span>
                     </div>
-                    <textarea id="import-raw-text" class="form-control import-raw-ta" rows="4" placeholder="Paste XML output, normal nmap output, or grepable output here..." data-action="onImportRawInput"></textarea>
+                    <textarea id="import-raw-text" class="form-control import-raw-ta" rows="4" placeholder="Paste XML output, normal nmap output, or grepable output here..." data-action="onImportRawInput" data-i18n-placeholder="import.raw_placeholder"></textarea>
                 </div>
 
                 <!-- Options -->
                 <div class="import-options-flex">
                     <div class="form-group import-option-group">
-                        <label>Import Name</label>
-                        <input type="text" id="import-name" class="form-control" placeholder="Auto-filled from filename">
+                        <label data-i18n="import.name_label">Import Name</label>
+                        <input type="text" id="import-name" class="form-control" placeholder="Auto-filled from filename" data-i18n-placeholder="import.name_placeholder">
                     </div>
                     <div class="form-group import-option-w200">
-                        <label>Profile</label>
+                        <label data-i18n="import.profile_label">Profile</label>
                         <select id="import-profile" class="form-control"></select>
                     </div>
                     <div class="form-group import-option-w220">
-                        <label>Merge into scan</label>
+                        <label data-i18n="import.merge_label">Merge into scan</label>
                         <select id="import-merge-scan" class="form-control">
-                            <option value="">Create new scan</option>
+                            <option value="" data-i18n="import.create_new_scan">Create new scan</option>
                         </select>
                     </div>
                     <div class="form-group import-option-inline">
                         <label id="import-auto-confirm-label" class="import-auto-label">
-                            <span id="import-auto-confirm-text" class="import-auto-text">Manual</span>
+                            <span id="import-auto-confirm-text" class="import-auto-text" data-i18n="import.manual">Manual</span>
                         </label>
                         <input type="hidden" id="import-auto-confirm" value="false">
                     </div>
@@ -645,15 +645,15 @@
                     <div class="progress-bar">
                         <div id="import-progress-fill" class="progress-fill" style="width:0%;"></div>
                     </div>
-                    <span id="import-progress-text" class="import-progress-text">Processing...</span>
+                    <span id="import-progress-text" class="import-progress-text" data-i18n="import.processing">Processing...</span>
                 </div>
 
                 <!-- Preview -->
                 <div id="import-preview" class="import-preview-block" style="display:none;">
                     <div class="import-preview-flex">
-                        <div><span class="import-preview-stat" id="import-host-count">0</span><br><span class="import-preview-stat-label">Hosts</span></div>
-                        <div><span class="import-preview-stat" id="import-port-count">0</span><br><span class="import-preview-stat-label">Ports</span></div>
-                        <div><span class="import-preview-stat-sm" id="import-format">-</span><br><span class="import-preview-stat-label">Format</span></div>
+                        <div><span class="import-preview-stat" id="import-host-count">0</span><br><span class="import-preview-stat-label" data-i18n="import.hosts">Hosts</span></div>
+                        <div><span class="import-preview-stat" id="import-port-count">0</span><br><span class="import-preview-stat-label" data-i18n="import.ports">Ports</span></div>
+                        <div><span class="import-preview-stat-sm" id="import-format">-</span><br><span class="import-preview-stat-label" data-i18n="import.format">Format</span></div>
                     </div>
                     <div id="import-preview-body" style="display:none;"></div>
                 </div>
@@ -667,18 +667,18 @@
             <!-- Import History -->
             <div class="card full-width" id="import-history-card" style="margin-top:15px;display:none;">
                 <div class="card-header">
-                    <h2 class="card-title">Import History <span id="import-history-count" class="title-count"></span></h2>
+                    <h2 class="card-title" data-i18n="import.history_title">Import History <span id="import-history-count" class="title-count"></span></h2>
                 </div>
                 <div class="import-history-card">
                 <table class="data-table data-table-full">
                     <thead>
                         <tr>
-                            <th class="th-left">Date</th>
-                            <th class="th-left">Name</th>
-                            <th class="th-left">Profile</th>
-                            <th class="th-w70">Hosts</th>
-                            <th class="th-w70">Ports</th>
-                            <th class="th-w90">Scan</th>
+                            <th class="th-left" data-i18n="import.history_date">Date</th>
+                            <th class="th-left" data-i18n="import.history_name">Name</th>
+                            <th class="th-left" data-i18n="import.history_profile">Profile</th>
+                            <th class="th-w70" data-i18n="import.history_hosts">Hosts</th>
+                            <th class="th-w70" data-i18n="import.history_ports">Ports</th>
+                            <th class="th-w90" data-i18n="import.history_scan">Scan</th>
                             <th class="th-w50"></th>
                         </tr>
                     </thead>
@@ -701,8 +701,8 @@
     <div id="profile-manager-modal" class="modal modal-full" style="display:none;" data-action="closeModalBackdrop">
         <div class="modal-content modal-full">
             <div class="modal-header">
-                <h3>Manage Profiles</h3>
-                <button class="modal-close" data-action="closeProfileManager" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
+                <h3 data-i18n="profiles.manage_title">Manage Profiles</h3>
+                <button class="modal-close" data-action="closeProfileManager" title="Close" data-i18n-attr="title" data-i18n="common.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
             <div class="modal-body pm-modal-body">
                 <!-- Left: Profile List -->
@@ -710,7 +710,7 @@
                 </div>
                 <!-- Right: Edit Form -->
                 <div id="profile-form-panel" class="pm-form-panel">
-                    <h4 id="profile-form-title">New Profile</h4>
+                    <h4 id="profile-form-title" data-i18n="profiles.new_profile">New Profile</h4>
                     <input type="hidden" id="profile-edit-id">
                     <input type="hidden" id="profile-form-cmd-hidden">
 
@@ -719,29 +719,29 @@
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow open" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
-                                <span>Basic Info</span>
+                                <span data-i18n="profiles.basic_info">Basic Info</span>
                             </div>
                             <div class="pf-section-body">
                                 <div class="pf-grid">
                                     <div>
-                                        <label class="pf-label-sm">Name</label>
-                                        <input type="text" id="profile-form-name" class="pf-input" placeholder="My Custom Scan" data-action="onPfChange">
+                                        <label class="pf-label-sm" data-i18n="profiles.name">Name</label>
+                                        <input type="text" id="profile-form-name" class="pf-input" placeholder="My Custom Scan" data-action="onPfChange" data-i18n-placeholder="profiles.name_placeholder">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">Category</label>
+                                        <label class="pf-label-sm" data-i18n="profiles.category">Category</label>
                                         <select id="profile-form-cat" class="pf-select" data-action="onPfChange">
-                                            <option value="Network Discovery">Network Discovery</option>
-                                            <option value="Port Scanning">Port Scanning</option>
-                                            <option value="UDP Scanning">UDP Scanning</option>
-                                            <option value="IDS/IPS Evasion">IDS/IPS Evasion</option>
-                                            <option value="Common">Common</option>
-                                            <option value="Custom">Custom</option>
+                                            <option value="Network Discovery" data-i18n="profiles.cat_network_discovery">Network Discovery</option>
+                                            <option value="Port Scanning" data-i18n="profiles.cat_port_scanning">Port Scanning</option>
+                                            <option value="UDP Scanning" data-i18n="profiles.cat_udp_scanning">UDP Scanning</option>
+                                            <option value="IDS/IPS Evasion" data-i18n="profiles.cat_ids_evasion">IDS/IPS Evasion</option>
+                                            <option value="Common" data-i18n="profiles.cat_common">Common</option>
+                                            <option value="Custom" data-i18n="profiles.cat_custom">Custom</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="pf-mt">
-                                    <label class="pf-label-sm">Description</label>
-                                    <input type="text" id="profile-form-desc" class="pf-input" placeholder="What this scan does" data-action="onPfChange">
+                                    <label class="pf-label-sm" data-i18n="profiles.description">Description</label>
+                                    <input type="text" id="profile-form-desc" class="pf-input" placeholder="What this scan does" data-action="onPfChange" data-i18n-placeholder="profiles.desc_placeholder">
                                 </div>
                             </div>
                         </div>
@@ -749,12 +749,12 @@
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow open" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
-                                <span>Scan</span>
+                                <span data-i18n="profiles.scan">Scan</span>
                             </div>
                             <div class="pf-section-body">
                                 <div class="pf-grid">
                                     <div>
-                                        <label class="pf-label-sm">TCP Scan</label>
+                                        <label class="pf-label-sm" data-i18n="profiles.tcp_scan">TCP Scan</label>
                                         <select id="pf-tcp-scan" class="pf-select" data-action="onPfChange">
                                             <option value="">None</option>
                                             <option value="-sA">-sA (ACK scan)</option>
@@ -768,7 +768,7 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">Non-TCP Scan</label>
+                                        <label class="pf-label-sm" data-i18n="profiles.non_tcp_scan">Non-TCP Scan</label>
                                         <select id="pf-non-tcp" class="pf-select" data-action="onPfChange">
                                             <option value="">None</option>
                                             <option value="-sU">-sU (UDP scan)</option>
@@ -781,7 +781,7 @@
                                     </div>
                                 </div>
                                 <div class="pf-mt">
-                                    <label class="pf-label-sm">Timing</label>
+                                    <label class="pf-label-sm" data-i18n="profiles.timing">Timing</label>
                                     <select id="pf-timing" class="pf-select" data-action="onPfChange">
                                         <option value="">None</option>
                                         <option value="-T0">-T0 (Paranoid)</option>
@@ -793,19 +793,19 @@
                                     </select>
                                 </div>
                                 <div class="pf-flex-wrap">
-                                    <label><input type="checkbox" id="pf-A" class="pf-checkbox" data-action="onPfChange"> -A <span class="pf-label-xs">Enable all advanced/aggressive options</span></label>
-                                    <label><input type="checkbox" id="pf-O" class="pf-checkbox" data-action="onPfChange"> -O <span class="pf-label-xs">Operating system detection</span></label>
-                                    <label><input type="checkbox" id="pf-sV" class="pf-checkbox" data-action="onPfChange"> -sV <span class="pf-label-xs">Version detection</span></label>
-                                    <label><input type="checkbox" id="pf-n" class="pf-checkbox" data-action="onPfChange"> -n <span class="pf-label-xs">Disable reverse DNS resolution</span></label>
-                                    <label><input type="checkbox" id="pf-6" class="pf-checkbox" data-action="onPfChange"> -6 <span class="pf-label-xs">IPv6 support</span></label>
+                                    <label><input type="checkbox" id="pf-A" class="pf-checkbox" data-action="onPfChange"> -A <span class="pf-label-xs" data-i18n="profiles.flag_A">Enable all advanced/aggressive options</span></label>
+                                    <label><input type="checkbox" id="pf-O" class="pf-checkbox" data-action="onPfChange"> -O <span class="pf-label-xs" data-i18n="profiles.flag_O">Operating system detection</span></label>
+                                    <label><input type="checkbox" id="pf-sV" class="pf-checkbox" data-action="onPfChange"> -sV <span class="pf-label-xs" data-i18n="profiles.flag_sV">Version detection</span></label>
+                                    <label><input type="checkbox" id="pf-n" class="pf-checkbox" data-action="onPfChange"> -n <span class="pf-label-xs" data-i18n="profiles.flag_n">Disable reverse DNS resolution</span></label>
+                                    <label><input type="checkbox" id="pf-6" class="pf-checkbox" data-action="onPfChange"> -6 <span class="pf-label-xs" data-i18n="profiles.flag_6">IPv6 support</span></label>
                                 </div>
                                 <div class="pf-flex-row">
-                                    <label><input type="checkbox" id="pf-enable-sl" class="pf-checkbox" data-action="onPfChange"> Idle Scan (Zombie) <span class="pf-label-xs">-sI</span></label>
-                                    <input type="text" id="pf-sl-ip" class="pf-input pf-flex-input" placeholder="zombie IP" data-action="onPfChange">
+                                    <label><input type="checkbox" id="pf-enable-sl" class="pf-checkbox" data-action="onPfChange"> <span data-i18n="profiles.idle_scan">Idle Scan (Zombie)</span> <span class="pf-label-xs">-sI</span></label>
+                                    <input type="text" id="pf-sl-ip" class="pf-input pf-flex-input" placeholder="zombie IP" data-action="onPfChange" data-i18n-placeholder="profiles.zombie_ip">
                                 </div>
                                 <div class="pf-flex-row-mt6">
-                                    <label><input type="checkbox" id="pf-enable-b" class="pf-checkbox" data-action="onPfChange"> FTP bounce attack <span class="pf-label-xs">-b</span></label>
-                                    <input type="text" id="pf-b-ip" class="pf-input pf-flex-input" placeholder="FTP server IP" data-action="onPfChange">
+                                    <label><input type="checkbox" id="pf-enable-b" class="pf-checkbox" data-action="onPfChange"> <span data-i18n="profiles.ftp_bounce">FTP bounce attack</span> <span class="pf-label-xs">-b</span></label>
+                                    <input type="text" id="pf-b-ip" class="pf-input pf-flex-input" placeholder="FTP server IP" data-action="onPfChange" data-i18n-placeholder="profiles.ftp_server_ip">
                                 </div>
                             </div>
                         </div>
@@ -813,34 +813,34 @@
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
-                                <span>Ping</span>
+                                <span data-i18n="profiles.ping">Ping</span>
                             </div>
                             <div class="pf-section-body collapsed">
                                 <div class="pf-flex-wrap" style="margin-top:0;">
-                                    <label><input type="checkbox" id="pf-Pn" class="pf-checkbox" data-action="onPfChange"> -Pn <span class="pf-label-xs">Don't ping before scanning</span></label>
-                                    <label><input type="checkbox" id="pf-PE" class="pf-checkbox" data-action="onPfChange"> -PE <span class="pf-label-xs">ICMP ping</span></label>
-                                    <label><input type="checkbox" id="pf-PP" class="pf-checkbox" data-action="onPfChange"> -PP <span class="pf-label-xs">ICMP timestamp request</span></label>
-                                    <label><input type="checkbox" id="pf-PM" class="pf-checkbox" data-action="onPfChange"> -PM <span class="pf-label-xs">ICMP netmask request</span></label>
+                                    <label><input type="checkbox" id="pf-Pn" class="pf-checkbox" data-action="onPfChange"> -Pn <span class="pf-label-xs" data-i18n="profiles.flag_Pn">Don't ping before scanning</span></label>
+                                    <label><input type="checkbox" id="pf-PE" class="pf-checkbox" data-action="onPfChange"> -PE <span class="pf-label-xs" data-i18n="profiles.flag_PE">ICMP ping</span></label>
+                                    <label><input type="checkbox" id="pf-PP" class="pf-checkbox" data-action="onPfChange"> -PP <span class="pf-label-xs" data-i18n="profiles.flag_PP">ICMP timestamp request</span></label>
+                                    <label><input type="checkbox" id="pf-PM" class="pf-checkbox" data-action="onPfChange"> -PM <span class="pf-label-xs" data-i18n="profiles.flag_PM">ICMP netmask request</span></label>
                                 </div>
                                 <div class="pf-flex-row-mt6">
-                                    <label><input type="checkbox" id="pf-enable-PA" class="pf-checkbox" data-action="onPfChange"> ACK ping <span class="pf-label-xs">-PA</span></label>
-                                    <input type="text" id="pf-PA-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
+                                    <label><input type="checkbox" id="pf-enable-PA" class="pf-checkbox" data-action="onPfChange"> <span data-i18n="profiles.ack_ping">ACK ping</span> <span class="pf-label-xs">-PA</span></label>
+                                    <input type="text" id="pf-PA-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange" data-i18n-placeholder="profiles.ports">
                                 </div>
                                 <div class="pf-flex-row-mt6">
-                                    <label><input type="checkbox" id="pf-enable-PS" class="pf-checkbox" data-action="onPfChange"> SYN ping <span class="pf-label-xs">-PS</span></label>
-                                    <input type="text" id="pf-PS-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
+                                    <label><input type="checkbox" id="pf-enable-PS" class="pf-checkbox" data-action="onPfChange"> <span data-i18n="profiles.syn_ping">SYN ping</span> <span class="pf-label-xs">-PS</span></label>
+                                    <input type="text" id="pf-PS-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange" data-i18n-placeholder="profiles.ports">
                                 </div>
                                 <div class="pf-flex-row-mt6">
-                                    <label><input type="checkbox" id="pf-enable-PU" class="pf-checkbox" data-action="onPfChange"> UDP probes <span class="pf-label-xs">-PU</span></label>
-                                    <input type="text" id="pf-PU-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
+                                    <label><input type="checkbox" id="pf-enable-PU" class="pf-checkbox" data-action="onPfChange"> <span data-i18n="profiles.udp_probes">UDP probes</span> <span class="pf-label-xs">-PU</span></label>
+                                    <input type="text" id="pf-PU-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange" data-i18n-placeholder="profiles.ports">
                                 </div>
                                 <div class="pf-flex-row-mt6">
-                                    <label><input type="checkbox" id="pf-enable-PO" class="pf-checkbox" data-action="onPfChange"> IPProto probes <span class="pf-label-xs">-PO</span></label>
-                                    <input type="text" id="pf-PO-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
+                                    <label><input type="checkbox" id="pf-enable-PO" class="pf-checkbox" data-action="onPfChange"> <span data-i18n="profiles.ipproto_probes">IPProto probes</span> <span class="pf-label-xs">-PO</span></label>
+                                    <input type="text" id="pf-PO-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange" data-i18n-placeholder="profiles.ports">
                                 </div>
                                 <div class="pf-flex-row-mt6">
-                                    <label><input type="checkbox" id="pf-enable-PY" class="pf-checkbox" data-action="onPfChange"> SCTP INIT ping <span class="pf-label-xs">-PY</span></label>
-                                    <input type="text" id="pf-PY-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange">
+                                    <label><input type="checkbox" id="pf-enable-PY" class="pf-checkbox" data-action="onPfChange"> <span data-i18n="profiles.sctp_init_ping">SCTP INIT ping</span> <span class="pf-label-xs">-PY</span></label>
+                                    <input type="text" id="pf-PY-ports" class="pf-input pf-flex-input" placeholder="ports" data-action="onPfChange" data-i18n-placeholder="profiles.ports">
                                 </div>
                             </div>
                         </div>
@@ -848,32 +848,32 @@
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
-                                <span>Target</span>
+                                <span data-i18n="profiles.target">Target</span>
                             </div>
                             <div class="pf-section-body collapsed">
                                 <div class="pf-grid">
                                     <div>
-                                        <label class="pf-label-sm">--exclude <span class="pf-label-xs">Excluded hosts/networks</span></label>
-                                        <input type="text" id="pf-exclude" class="pf-input" placeholder="ip,hostname,..." data-action="onPfChange">
+                                        <label class="pf-label-sm">--exclude <span class="pf-label-xs" data-i18n="profiles.exclude_desc">Excluded hosts/networks</span></label>
+                                        <input type="text" id="pf-exclude" class="pf-input" placeholder="ip,hostname,..." data-action="onPfChange" data-i18n-placeholder="profiles.exclude_placeholder">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--excludefile <span class="pf-label-xs">Exclusion file</span></label>
-                                        <input type="text" id="pf-excludefile" class="pf-input" placeholder="file" data-action="onPfChange">
+                                        <label class="pf-label-sm">--excludefile <span class="pf-label-xs" data-i18n="profiles.excludefile_desc">Exclusion file</span></label>
+                                        <input type="text" id="pf-excludefile" class="pf-input" placeholder="file" data-action="onPfChange" data-i18n-placeholder="profiles.file_placeholder">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">-iL <span class="pf-label-xs">Target list file</span></label>
-                                        <input type="text" id="pf-iL" class="pf-input" placeholder="file" data-action="onPfChange">
+                                        <label class="pf-label-sm">-iL <span class="pf-label-xs" data-i18n="profiles.il_desc">Target list file</span></label>
+                                        <input type="text" id="pf-iL" class="pf-input" placeholder="file" data-action="onPfChange" data-i18n-placeholder="profiles.file_placeholder">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">-iR <span class="pf-label-xs">Scan random hosts</span></label>
-                                        <input type="text" id="pf-iR" class="pf-input" placeholder="e.g. 10" data-action="onPfChange">
+                                        <label class="pf-label-sm">-iR <span class="pf-label-xs" data-i18n="profiles.ir_desc">Scan random hosts</span></label>
+                                        <input type="text" id="pf-iR" class="pf-input" placeholder="e.g. 10" data-action="onPfChange" data-i18n-placeholder="profiles.eg_10">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">-p <span class="pf-label-xs">Ports to scan</span></label>
+                                        <label class="pf-label-sm">-p <span class="pf-label-xs" data-i18n="profiles.p_desc">Ports to scan</span></label>
                                         <input type="text" id="pf-p" class="pf-input" placeholder="1-1023,3389" data-action="onPfChange">
                                     </div>
                                     <div class="pf-spacer-target">
-                                        <label><input type="checkbox" id="pf-F" class="pf-checkbox" data-action="onPfChange"> -F <span class="pf-label-xs">Fast scan</span></label>
+                                        <label><input type="checkbox" id="pf-F" class="pf-checkbox" data-action="onPfChange"> -F <span class="pf-label-xs" data-i18n="profiles.flag_F">Fast scan</span></label>
                                     </div>
                                 </div>
                             </div>
@@ -882,24 +882,24 @@
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
-                                <span>Source</span>
+                                <span data-i18n="profiles.source">Source</span>
                             </div>
                             <div class="pf-section-body collapsed">
                                 <div class="pf-grid">
                                     <div>
-                                        <label class="pf-label-sm">-D <span class="pf-label-xs">Use decoys to hide identity</span></label>
+                                        <label class="pf-label-sm">-D <span class="pf-label-xs" data-i18n="profiles.d_desc">Use decoys to hide identity</span></label>
                                         <input type="text" id="pf-D" class="pf-input" placeholder="&lt;decoy1&gt;,&lt;decoy2&gt;,ME,RND,RND" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">-S <span class="pf-label-xs">Set source IP address</span></label>
+                                        <label class="pf-label-sm">-S <span class="pf-label-xs" data-i18n="profiles.s_desc">Set source IP address</span></label>
                                         <input type="text" id="pf-S" class="pf-input" placeholder="64.13.134.52" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--source-port <span class="pf-label-xs">Set source port</span></label>
-                                        <input type="text" id="pf-source-port" class="pf-input" placeholder="53 or ..." data-action="onPfChange">
+                                        <label class="pf-label-sm">--source-port <span class="pf-label-xs" data-i18n="profiles.source_port_desc">Set source port</span></label>
+                                        <input type="text" id="pf-source-port" class="pf-input" placeholder="53 or ..." data-action="onPfChange" data-i18n-placeholder="profiles.source_port_placeholder">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">-e <span class="pf-label-xs">Set network interface</span></label>
+                                        <label class="pf-label-sm">-e <span class="pf-label-xs" data-i18n="profiles.e_desc">Set network interface</span></label>
                                         <input type="text" id="pf-e" class="pf-input" placeholder="eth0" data-action="onPfChange">
                                     </div>
                                 </div>
@@ -909,28 +909,28 @@
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
-                                <span>Other</span>
+                                <span data-i18n="profiles.other">Other</span>
                             </div>
                             <div class="pf-section-body collapsed">
                                 <div class="pf-grid">
                                     <div>
-                                        <label class="pf-label-sm">Extra options <span class="pf-label-xs">Extra options defined by user</span></label>
-                                        <input type="text" id="pf-extra" class="pf-input" placeholder="extra nmap args" data-action="onPfChange">
+                                        <label class="pf-label-sm">Extra options <span class="pf-label-xs" data-i18n="profiles.extra_options_desc">Extra options defined by user</span></label>
+                                        <input type="text" id="pf-extra" class="pf-input" placeholder="extra nmap args" data-action="onPfChange" data-i18n-placeholder="profiles.extra_args_placeholder">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--ttl <span class="pf-label-xs">Set IPv4 time to live</span></label>
+                                        <label class="pf-label-sm">--ttl <span class="pf-label-xs" data-i18n="profiles.ttl_desc">Set IPv4 time to live</span></label>
                                         <input type="text" id="pf-ttl" class="pf-input" placeholder="100" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--max-retries <span class="pf-label-xs">Max Retries</span></label>
+                                        <label class="pf-label-sm">--max-retries <span class="pf-label-xs" data-i18n="profiles.max_retries_desc">Max Retries</span></label>
                                         <input type="text" id="pf-max-retries" class="pf-input" placeholder="10" data-action="onPfChange">
                                     </div>
                                 </div>
                                 <div class="pf-flex-wrap">
-                                    <label><input type="checkbox" id="pf-f" class="pf-checkbox" data-action="onPfChange"> -f <span class="pf-label-xs">Fragment IP packets</span></label>
-                                    <label><input type="checkbox" id="pf-packet-trace" class="pf-checkbox" data-action="onPfChange"> --packet-trace <span class="pf-label-xs">Packet trace</span></label>
-                                    <label><input type="checkbox" id="pf-r" class="pf-checkbox" data-action="onPfChange"> -r <span class="pf-label-xs">Disable randomizing scanned ports</span></label>
-                                    <label><input type="checkbox" id="pf-traceroute" class="pf-checkbox" data-action="onPfChange"> --traceroute <span class="pf-label-xs">Trace routes to targets</span></label>
+                                    <label><input type="checkbox" id="pf-f" class="pf-checkbox" data-action="onPfChange"> -f <span class="pf-label-xs" data-i18n="profiles.flag_f">Fragment IP packets</span></label>
+                                    <label><input type="checkbox" id="pf-packet-trace" class="pf-checkbox" data-action="onPfChange"> --packet-trace <span class="pf-label-xs" data-i18n="profiles.flag_packet_trace">Packet trace</span></label>
+                                    <label><input type="checkbox" id="pf-r" class="pf-checkbox" data-action="onPfChange"> -r <span class="pf-label-xs" data-i18n="profiles.flag_r">Disable randomizing scanned ports</span></label>
+                                    <label><input type="checkbox" id="pf-traceroute" class="pf-checkbox" data-action="onPfChange"> --traceroute <span class="pf-label-xs" data-i18n="profiles.flag_traceroute">Trace routes to targets</span></label>
                                 </div>
                             </div>
                         </div>
@@ -938,48 +938,48 @@
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
-                                <span>Timing</span>
+                                <span data-i18n="profiles.timing_section">Timing</span>
                             </div>
                             <div class="pf-section-body collapsed">
                                 <div class="pf-grid">
                                     <div>
-                                        <label class="pf-label-sm">--host-timeout <span class="pf-label-xs">Max time to scan a target</span></label>
+                                        <label class="pf-label-sm">--host-timeout <span class="pf-label-xs" data-i18n="profiles.host_timeout_desc">Max time to scan a target</span></label>
                                         <input type="text" id="pf-host-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--max-rtt-timeout <span class="pf-label-xs">Max probe timeout</span></label>
+                                        <label class="pf-label-sm">--max-rtt-timeout <span class="pf-label-xs" data-i18n="profiles.max_rtt_desc">Max probe timeout</span></label>
                                         <input type="text" id="pf-max-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--min-rtt-timeout <span class="pf-label-xs">Min probe timeout</span></label>
+                                        <label class="pf-label-sm">--min-rtt-timeout <span class="pf-label-xs" data-i18n="profiles.min_rtt_desc">Min probe timeout</span></label>
                                         <input type="text" id="pf-min-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--initial-rtt-timeout <span class="pf-label-xs">Initial probe timeout</span></label>
+                                        <label class="pf-label-sm">--initial-rtt-timeout <span class="pf-label-xs" data-i18n="profiles.initial_rtt_desc">Initial probe timeout</span></label>
                                         <input type="text" id="pf-initial-rtt-timeout" class="pf-input" placeholder="1s; 4m; 2h" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--max-hostgroup <span class="pf-label-xs">Max hosts in parallel</span></label>
+                                        <label class="pf-label-sm">--max-hostgroup <span class="pf-label-xs" data-i18n="profiles.max_hostgroup_desc">Max hosts in parallel</span></label>
                                         <input type="text" id="pf-max-hostgroup" class="pf-input" placeholder="1024" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--min-hostgroup <span class="pf-label-xs">Min hosts in parallel</span></label>
+                                        <label class="pf-label-sm">--min-hostgroup <span class="pf-label-xs" data-i18n="profiles.min_hostgroup_desc">Min hosts in parallel</span></label>
                                         <input type="text" id="pf-min-hostgroup" class="pf-input" placeholder="50" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--max-parallelism <span class="pf-label-xs">Max outstanding probes</span></label>
+                                        <label class="pf-label-sm">--max-parallelism <span class="pf-label-xs" data-i18n="profiles.max_parallelism_desc">Max outstanding probes</span></label>
                                         <input type="text" id="pf-max-parallelism" class="pf-input" placeholder="1" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--min-parallelism <span class="pf-label-xs">Min outstanding probes</span></label>
+                                        <label class="pf-label-sm">--min-parallelism <span class="pf-label-xs" data-i18n="profiles.min_parallelism_desc">Min outstanding probes</span></label>
                                         <input type="text" id="pf-min-parallelism" class="pf-input" placeholder="10" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--max-scan-delay <span class="pf-label-xs">Max scan delay</span></label>
+                                        <label class="pf-label-sm">--max-scan-delay <span class="pf-label-xs" data-i18n="profiles.max_scan_delay_desc">Max scan delay</span></label>
                                         <input type="text" id="pf-max-scan-delay" class="pf-input" placeholder="20" data-action="onPfChange">
                                     </div>
                                     <div>
-                                        <label class="pf-label-sm">--scan-delay <span class="pf-label-xs">Min delay between probes</span></label>
+                                        <label class="pf-label-sm">--scan-delay <span class="pf-label-xs" data-i18n="profiles.scan_delay_desc">Min delay between probes</span></label>
                                         <input type="text" id="pf-scan-delay" class="pf-input" placeholder="4s; 2m" data-action="onPfChange">
                                     </div>
                                 </div>
@@ -989,18 +989,18 @@
                         <div class="pf-section">
                             <div class="pf-section-header" data-action="togglePfSection">
                                 <svg class="pf-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-chevron-right"/></svg>
-                                <span>NSE Scripts</span>
+                                <span data-i18n="profiles.nse_scripts">NSE Scripts</span>
                             </div>
                             <div class="pf-section-body collapsed">
                                 <div>
-                                    <label class="pf-label-sm">Search NSE scripts <span class="pf-label-xs">--script</span></label>
-                                    <input type="text" id="pf-nse-search" class="pf-input" placeholder="Search NSE scripts..." data-action="searchProfileNse">
+                                    <label class="pf-label-sm"><span data-i18n="profiles.search_nse">Search NSE scripts</span> <span class="pf-label-xs">--script</span></label>
+                                    <input type="text" id="pf-nse-search" class="pf-input" placeholder="Search NSE scripts..." data-action="searchProfileNse" data-i18n-placeholder="profiles.nse_search_placeholder">
                                 </div>
                                 <div id="pf-nse-results" class="pf-mt"></div>
                                 <div id="pf-nse-chips" class="pf-nse-chips"></div>
                                 <div class="pf-mt">
-                                    <label class="pf-label-sm">Script args</label>
-                                    <textarea id="pf-nse-args" class="pf-input pf-nse-args-ta" placeholder="key=value, one per line" rows="3" data-action="onPfChange"></textarea>
+                                    <label class="pf-label-sm" data-i18n="profiles.script_args">Script args</label>
+                                    <textarea id="pf-nse-args" class="pf-input pf-nse-args-ta" placeholder="key=value, one per line" rows="3" data-action="onPfChange" data-i18n-placeholder="profiles.script_args_placeholder"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -1008,17 +1008,17 @@
                     </div>
 
                     <div class="pm-cmd-block">
-                        <div class="pm-cmd-header">Command Preview</div>
+                        <div class="pm-cmd-header" data-i18n="profiles.command_preview">Command Preview</div>
                         <code id="pf-cmd-preview" class="pm-cmd-code">nmap &lt;TARGET&gt;</code>
                     </div>
 
                     <div class="pm-actions">
                         <div id="profile-delete-area" style="display:none;">
-                            <button class="btn btn-sm pm-delete-btn" data-action="deleteProfileFromForm">Delete</button>
+                            <button class="btn btn-sm pm-delete-btn" data-action="deleteProfileFromForm" data-i18n="profiles.delete">Delete</button>
                         </div>
                         <div class="pm-actions-right">
-                            <button class="btn btn-secondary btn-sm" id="pf-reset-btn" data-action="resetProfileForm">Reset</button>
-                            <button class="btn btn-primary btn-sm pm-save-btn" id="profile-save-btn" data-action="saveProfile">Create</button>
+                            <button class="btn btn-secondary btn-sm" id="pf-reset-btn" data-action="resetProfileForm" data-i18n="profiles.reset">Reset</button>
+                            <button class="btn btn-primary btn-sm pm-save-btn" id="profile-save-btn" data-action="saveProfile" data-i18n="profiles.create">Create</button>
                         </div>
                     </div>
                 </div>
@@ -1030,7 +1030,7 @@
     <div id="about-modal" class="modal-overlay" style="display:none;">
         <div class="modal modal-max-480">
             <div class="modal-header">
-                <h3>About</h3>
+                <h3 data-i18n="about.title">About</h3>
                 <button class="modal-close" data-action="hideAboutModal">&times;</button>
             </div>
             <div class="about-body">
@@ -1038,11 +1038,11 @@
                     <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="about-hero-icon">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/><path d="M12 14v3"/>
                     </svg>
-                    <h2 class="about-hero-title">NexusMap</h2>
-                    <p class="about-hero-version"><span class="app-version">v0.9.4</span> &middot; Network Scanner &amp; Asset Management</p>
+                    <h2 class="about-hero-title" data-i18n="app.name">NexusMap</h2>
+                    <p class="about-hero-version"><span class="app-version" data-i18n="app.version">v0.9.4</span> &middot; <span data-i18n="about.network_scanner">Network Scanner &amp; Asset Management</span></p>
                 </div>
                 <div class="about-desc">
-                    <p>NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
+                    <p data-i18n="about.description">NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
                     <p class="about-desc-sub">Built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach. Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
                 </div>
                 <div class="about-pills">
@@ -1051,8 +1051,8 @@
                     <span class="about-pill">Vanilla JS</span>
                 </div>
                 <div class="about-ftr">
-                    <span>Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></span>
-                    <button class="btn btn-secondary btn-sm" data-action="checkForUpdates">Check for Updates</button>
+                    <span><span data-i18n="about.developed_by">Developed by</span> <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></span>
+                    <button class="btn btn-secondary btn-sm" data-action="checkForUpdates" data-i18n="about.check_updates">Check for Updates</button>
                 </div>
             </div>
         </div>
@@ -1061,28 +1061,28 @@
     <div id="advanced-filter-modal" class="modal" style="display:none;">
         <div class="modal-content modal-medium">
             <div class="modal-header">
-                <h3>Advanced Filters</h3>
+                <h3 data-i18n="advanced_filter.title">Advanced Filters</h3>
                 <span class="modal-close" data-action="closeModal" data-modal="advanced-filter-modal">&times;</span>
             </div>
             <div class="modal-body">
                 <div id="adv-filter-rows"></div>
                 <div class="af-actions">
-                    <button class="btn btn-secondary btn-sm" data-action="addFilterRow" data-idx="0">+ Add Filter</button>
-                    <button class="btn btn-secondary btn-sm" data-action="addFilterGroup">+ Add Group</button>
+                    <button class="btn btn-secondary btn-sm" data-action="addFilterRow" data-idx="0" data-i18n="advanced_filter.add_filter">+ Add Filter</button>
+                    <button class="btn btn-secondary btn-sm" data-action="addFilterGroup" data-i18n="advanced_filter.add_group">+ Add Group</button>
                     <div style="flex:1;"></div>
                     <label class="af-mode-label">
                         <select id="adv-filter-mode" class="form-control af-mode-sel">
-                            <option value="and">AND</option>
-                            <option value="or">OR</option>
+                            <option value="and" data-i18n="advanced_filter.and">AND</option>
+                            <option value="or" data-i18n="advanced_filter.or">OR</option>
                         </select>
-                        between filters
+                        <span data-i18n="advanced_filter.between_filters">between filters</span>
                     </label>
                 </div>
             </div>
             <div class="modal-footer af-footer">
-                <button class="btn btn-secondary" data-action="clearAdvancedFilters">Clear All</button>
-                <button class="btn btn-secondary" data-action="cancelAdvancedFilters">Cancel</button>
-                <button class="btn btn-primary" data-action="applyAdvancedFilters">Apply</button>
+                <button class="btn btn-secondary" data-action="clearAdvancedFilters" data-i18n="advanced_filter.clear_all">Clear All</button>
+                <button class="btn btn-secondary" data-action="cancelAdvancedFilters" data-i18n="advanced_filter.cancel">Cancel</button>
+                <button class="btn btn-primary" data-action="applyAdvancedFilters" data-i18n="advanced_filter.apply">Apply</button>
             </div>
         </div>
     </div>
@@ -1091,32 +1091,33 @@
     <div id="compare-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content modal-compare">
             <div class="modal-header">
-                <h3>Compare Scans</h3>
-                <button class="modal-close" data-action="hideCompareModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
+                <h3 data-i18n="compare.title">Compare Scans</h3>
+                <button class="modal-close" data-action="hideCompareModal" title="Close" data-i18n-attr="title" data-i18n="common.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
             <div class="modal-body modal-body-scroll">
                 <div class="compare-selectors">
                     <div class="compare-sel">
-                        <label>Scan A (base)</label>
+                        <label data-i18n="compare.scan_a">Scan A (base)</label>
                         <select id="compare-scan-a" class="form-control"></select>
                     </div>
-                    <div class="compare-vs">vs</div>
+                    <div class="compare-vs" data-i18n="compare.vs">vs</div>
                     <div class="compare-sel">
-                        <label>Scan B (new)</label>
+                        <label data-i18n="compare.scan_b">Scan B (new)</label>
                         <select id="compare-scan-b" class="form-control"></select>
                     </div>
                 </div>
                 <div id="compare-results" style="display:none;margin-top:16px;"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-action="hideCompareModal">Cancel</button>
-                <button class="btn btn-primary" data-action="runCompare">Compare</button>
+                <button class="btn btn-secondary" data-action="hideCompareModal" data-i18n="compare.cancel">Cancel</button>
+                <button class="btn btn-primary" data-action="runCompare" data-i18n="compare.compare">Compare</button>
             </div>
         </div>
     </div>
 
     <script src="/static/js/lib/chart.umd.min.js"></script>
     <script src="/static/js/lib/vis-network.min.js"></script>
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/app.js?v=22"></script>
     <script src="/static/js/project-dashboard.js"></script>
     <script src="/static/js/project-scans.js?v=1"></script>
@@ -1128,7 +1129,7 @@
     <script src="/static/js/project-main.js?v=2"></script>
 
     <div class="footer">
-        NexusMap <span class="app-version">v0.9.4</span> &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        NexusMap <span class="app-version" data-i18n="app.version">v0.9.4</span> &middot; <span data-i18n="footer.made_with">Made with</span> <span class="footer-accent" data-i18n="footer.vibe">vibe coding</span> <span data-i18n="footer.by">by</span> <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

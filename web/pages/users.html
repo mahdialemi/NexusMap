@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administration - NexusMap</title>
+    <title data-i18n="admin.title">Administration - NexusMap</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/static/css/users.css">
 </head>
@@ -11,7 +11,7 @@
     <div class="header">
         <a href="/" class="header-link">
             <svg width="28" height="28" viewBox="0 0 32 32"><use href="#icon-logo"/></svg>
-            <h1>NexusMap <span class="version-badge"><span class="app-version">v0.9.4</span></span></h1>
+            <h1><span data-i18n="app.name">NexusMap</span> <span class="version-badge"><span class="app-version" data-i18n="app.version">v0.9.4</span></span></h1>
         </a>
         <div class="header-nav">
             <span id="user-info"></span>
@@ -20,55 +20,55 @@
 
     <div class="project-body">
         <nav class="sidebar">
-            <button class="sidebar-btn" title="Projects" data-action="backToProjects">
+            <button class="sidebar-btn" title="Projects" data-action="backToProjects" data-i18n-attr="title" data-i18n="nav.projects">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-back"/></svg>
             </button>
             <div class="sidebar-separator"></div>
-            <button class="sidebar-btn active" data-tab="users" data-action="switchTab" title="Users">
+            <button class="sidebar-btn active" data-tab="users" data-action="switchTab" title="Users" data-i18n-attr="title" data-i18n="admin.users">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-user-plus"/></svg>
             </button>
-            <button class="sidebar-btn" data-tab="database" data-action="switchTab" title="Database">
+            <button class="sidebar-btn" data-tab="database" data-action="switchTab" title="Database" data-i18n-attr="title" data-i18n="admin.database">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-database"/></svg>
             </button>
-            <button class="sidebar-btn" data-tab="import" data-action="switchTab" title="Import">
+            <button class="sidebar-btn" data-tab="import" data-action="switchTab" title="Import" data-i18n-attr="title" data-i18n="nav.import">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-upload"/></svg>
             </button>
-            <button class="sidebar-btn" data-tab="activity" data-action="switchTab" title="Activity Log">
+            <button class="sidebar-btn" data-tab="activity" data-action="switchTab" title="Activity Log" data-i18n-attr="title" data-i18n="nav.activity">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-activity"/></svg>
             </button>
-            <button class="sidebar-btn" data-tab="system" data-action="switchTab" title="System">
+            <button class="sidebar-btn" data-tab="system" data-action="switchTab" title="System" data-i18n-attr="title" data-i18n="nav.system">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-settings"/></svg>
             </button>
             <div class="sidebar-spacer"></div>
             <div class="sidebar-separator"></div>
             <div class="notif-wrap">
-                <button class="sidebar-btn" data-action="toggleNotifications" title="Notifications">
+                <button class="sidebar-btn" data-action="toggleNotifications" title="Notifications" data-i18n-attr="title" data-i18n="nav.notifications">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-bell"/></svg>
                     <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
                 </button>
                 <div class="notif-dropdown" id="notif-dropdown" style="display:none;">
                     <div class="notif-dropdown-header">
-                        <span>Notifications</span>
-                        <button class="notif-mark-btn" data-action="markNotifsRead">Mark all read</button>
+                        <span data-i18n="nav.notifications">Notifications</span>
+                        <button class="notif-mark-btn" data-action="markNotifsRead" data-i18n="notifications.mark_all_read">Mark all read</button>
                     </div>
                     <div class="notif-list" id="notif-list">
-                        <div class="notif-empty">No notifications</div>
+                        <div class="notif-empty" data-i18n="notifications.none">No notifications</div>
                     </div>
                 </div>
             </div>
-            <button class="sidebar-btn" title="Shortcuts (?)" data-action="showShortcutsHelp">
+            <button class="sidebar-btn" title="Shortcuts (?)" data-action="showShortcutsHelp" data-i18n-attr="title" data-i18n="nav.shortcuts">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </button>
-            <button class="sidebar-btn" title="Settings" data-action="goToSettings">
+            <button class="sidebar-btn" title="Settings" data-action="goToSettings" data-i18n-attr="title" data-i18n="nav.settings">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-settings"/></svg>
             </button>
-            <button class="sidebar-btn" title="About" data-action="showAboutModal">
+            <button class="sidebar-btn" title="About" data-action="showAboutModal" data-i18n-attr="title" data-i18n="nav.about">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-info"/></svg>
             </button>
-            <button class="sidebar-btn" title="Toggle Theme" data-action="toggleTheme">
+            <button class="sidebar-btn" title="Toggle Theme" data-action="toggleTheme" data-i18n-attr="title" data-i18n="nav.toggle_theme">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-moon"/></svg>
             </button>
-            <button class="sidebar-btn" title="Logout" data-action="logout">
+            <button class="sidebar-btn" title="Logout" data-action="logout" data-i18n-attr="title" data-i18n="nav.logout">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-logout"/></svg>
             </button>
         </nav>
@@ -77,8 +77,8 @@
 
             <!-- Page Title -->
             <div class="page-title-section">
-                <h2 class="page-title-h2">Administration</h2>
-                <p class="page-title-sub">Manage users, database, and system settings</p>
+                <h2 class="page-title-h2" data-i18n="admin.title">Administration</h2>
+                <p class="page-title-sub" data-i18n="admin.subtitle">Manage users, database, and system settings</p>
             </div>
 
             <!-- KPI Cards -->
@@ -89,7 +89,7 @@
                     </div>
                     <div>
                         <div class="kpi-value" id="kpi-users">-</div>
-                        <div class="kpi-label">Users</div>
+                        <div class="kpi-label" data-i18n="admin.total_users">Users</div>
                     </div>
                 </div>
                 <div class="kpi-card">
@@ -98,7 +98,7 @@
                     </div>
                     <div>
                         <div class="kpi-value" id="kpi-projects">-</div>
-                        <div class="kpi-label">Projects</div>
+                        <div class="kpi-label" data-i18n="admin.total_projects">Projects</div>
                     </div>
                 </div>
                 <div class="kpi-card">
@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <div class="kpi-value" id="kpi-scans">-</div>
-                        <div class="kpi-label">Scans</div>
+                        <div class="kpi-label" data-i18n="admin.total_scans">Scans</div>
                     </div>
                 </div>
                 <div class="kpi-card">
@@ -116,7 +116,7 @@
                     </div>
                     <div>
                         <div class="kpi-value" id="kpi-db-size">-</div>
-                        <div class="kpi-label">Database</div>
+                        <div class="kpi-label" data-i18n="admin.db_size">Database</div>
                     </div>
                 </div>
             </div>
@@ -125,10 +125,10 @@
         <div class="panel" id="panel-users">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">User Management</h2>
+                    <h2 class="card-title" data-i18n="admin.user_management">User Management</h2>
                     <div class="card-header-actions">
-                        <input type="text" id="user-search" class="form-control user-search-input" placeholder="Search users..." data-action="filterUsers">
-                        <button class="btn btn-primary btn-sm" data-action="showCreateModal" title="New User">
+                        <input type="text" id="user-search" class="form-control user-search-input" placeholder="Search users..." data-action="filterUsers" data-i18n-placeholder="app.search_dot">
+                        <button class="btn btn-primary btn-sm" data-action="showCreateModal" title="New User" data-i18n-attr="title" data-i18n="admin.new_user">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-user-plus"/></svg>
                             New User
                         </button>
@@ -138,15 +138,15 @@
                     <table class="table" id="users-table">
                         <thead>
                             <tr>
-                                <th class="th-w60">ID</th>
-                                <th>Username</th>
-                                <th class="th-w100">Role</th>
-                                <th class="th-w180">Created</th>
-                                <th class="th-w220">Actions</th>
+                                <th class="th-w60" data-i18n="table.id">ID</th>
+                                <th data-i18n="table.username">Username</th>
+                                <th class="th-w100" data-i18n="table.role">Role</th>
+                                <th class="th-w180" data-i18n="table.created">Created</th>
+                                <th class="th-w220" data-i18n="table.actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="users-tbody">
-                            <tr><td colspan="5" class="empty-cell"><div class="spinner"></div><p>Loading users...</p></td></tr>
+                            <tr><td colspan="5" class="empty-cell"><div class="spinner"></div><p data-i18n="admin.loading_users">Loading users...</p></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -157,11 +157,11 @@
         <div class="panel" id="panel-database" style="display:none;">
             <!-- DB Stats -->
             <div class="db-section-mb">
-                <h3 class="db-section-title">Database Overview</h3>
+                <h3 class="db-section-title" data-i18n="admin.db_overview">Database Overview</h3>
                 <div class="db-stats-grid" id="db-stats">
-                    <div class="db-stat-card"><div class="db-stat-value" id="stat-tables">-</div><div class="db-stat-label">Tables</div></div>
-                    <div class="db-stat-card"><div class="db-stat-value" id="stat-rows">-</div><div class="db-stat-label">Total Rows</div></div>
-                    <div class="db-stat-card"><div class="db-stat-value" id="stat-size">-</div><div class="db-stat-label">DB Size</div></div>
+                    <div class="db-stat-card"><div class="db-stat-value" id="stat-tables">-</div><div class="db-stat-label" data-i18n="admin.tables">Tables</div></div>
+                    <div class="db-stat-card"><div class="db-stat-value" id="stat-rows">-</div><div class="db-stat-label" data-i18n="admin.total_rows">Total Rows</div></div>
+                    <div class="db-stat-card"><div class="db-stat-value" id="stat-size">-</div><div class="db-stat-label" data-i18n="admin.db_size">DB Size</div></div>
                 </div>
                 <div id="vacuum-recommend" class="vacuum-recommend" style="display:none;">
                     <span id="vacuum-recommend-text"></span>
@@ -170,22 +170,22 @@
 
             <!-- Quick Actions -->
             <div>
-                <h3 class="db-section-title">Quick Actions</h3>
+                <h3 class="db-section-title" data-i18n="admin.quick_actions">Quick Actions</h3>
                 <div class="quick-actions">
                     <div class="quick-action" data-action="vacuumDB">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
-                        <div class="quick-action-label">Vacuum</div>
-                        <div class="quick-action-desc">Optimize storage and reclaim space</div>
+                        <div class="quick-action-label" data-i18n="admin.vacuum">Vacuum</div>
+                        <div class="quick-action-desc" data-i18n="admin.vacuum_desc">Optimize storage and reclaim space</div>
                     </div>
                     <div class="quick-action" data-action="backupDB">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-download"/></svg>
-                        <div class="quick-action-label">Backup</div>
-                        <div class="quick-action-desc">Download a copy of the database</div>
+                        <div class="quick-action-label" data-i18n="admin.backup">Backup</div>
+                        <div class="quick-action-desc" data-i18n="admin.backup_desc">Download a copy of the database</div>
                     </div>
                     <div class="quick-action" data-action="resetDB">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh-ccw"/></svg>
-                        <div class="quick-action-label">Reset</div>
-                        <div class="quick-action-desc">Clear all data, keep admin user</div>
+                        <div class="quick-action-label" data-i18n="admin.reset">Reset</div>
+                        <div class="quick-action-desc" data-i18n="admin.reset_desc">Clear all data, keep admin user</div>
                     </div>
                 </div>
             </div>
@@ -194,17 +194,17 @@
             <div class="danger-zone">
                 <div class="danger-zone-title">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-shield-slash"/></svg>
-                    Danger Zone
+                    <span data-i18n="admin.danger_zone">Danger Zone</span>
                 </div>
-                <div class="danger-zone-desc">
+                <div class="danger-zone-desc" data-i18n="admin.danger_zone_desc">
                     Irreversible operations. These actions will permanently delete data. Use with caution.
                 </div>
                 <div class="danger-actions">
-                    <button class="btn btn-danger btn-sm" data-action="resetDB">
+                    <button class="btn btn-danger btn-sm" data-action="resetDB" data-i18n="admin.reset_database">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh-ccw"/></svg>
                         Reset Database
                     </button>
-                    <button class="btn btn-danger btn-sm btn-danger-border" data-action="factoryReset">
+                    <button class="btn btn-danger btn-sm btn-danger-border" data-action="factoryReset" data-i18n="admin.factory_reset">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-shield-slash"/></svg>
                         Factory Reset
                     </button>
@@ -218,15 +218,15 @@
         <div class="panel" id="panel-import" style="display:none;">
             <div class="card panel-card">
                 <div class="card-header">
-                    <h2 class="card-title">Import Database</h2>
+                    <h2 class="card-title" data-i18n="admin.import_database">Import Database</h2>
                 </div>
                 <div class="panel-card-body">
-                    <p class="panel-card-desc">Merge data from another NexusMap database. Duplicate entries will be skipped.</p>
+                    <p class="panel-card-desc" data-i18n="admin.merge_desc">Merge data from another NexusMap database. Duplicate entries will be skipped.</p>
 
                     <div id="db-import-drop-zone" class="import-zone" data-action="clickImport">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-file-import"/></svg>
-                        <p>Click to select a .db file</p>
-                        <p class="import-hint">or drag and drop here</p>
+                        <p data-i18n="admin.click_select">Click to select a .db file</p>
+                        <p class="import-hint" data-i18n="admin.drag_drop">or drag and drop here</p>
                         <input type="file" id="db-import-file" accept=".db" style="display:none;" data-action="onDBImportFileSelect">
                     </div>
 
@@ -244,11 +244,11 @@
                     <div id="db-import-error" class="import-error" style="display:none;"></div>
 
                     <div class="import-actions" id="db-import-actions" style="display:none;">
-                        <button class="btn btn-secondary btn-sm" id="btn-preview-db-import" data-action="previewDBImport">
+                        <button class="btn btn-secondary btn-sm" id="btn-preview-db-import" data-action="previewDBImport" data-i18n="admin.preview">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
                             Preview
                         </button>
-                        <button class="btn btn-primary btn-sm" id="btn-do-db-import" data-action="doDBImport" disabled>
+                        <button class="btn btn-primary btn-sm" id="btn-do-db-import" data-action="doDBImport" disabled data-i18n="admin.import">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-upload"/></svg>
                             Import
                         </button>
@@ -261,14 +261,14 @@
         <div class="panel" id="panel-activity" style="display:none;">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Activity Log</h2>
-                    <button class="btn btn-secondary btn-sm" data-action="loadActivityLog">
+                    <h2 class="card-title" data-i18n="admin.activity_log">Activity Log</h2>
+                    <button class="btn btn-secondary btn-sm" data-action="loadActivityLog" data-i18n="admin.refresh">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-refresh"/></svg>
                         Refresh
                     </button>
                 </div>
                 <div id="activity-log-container">
-                    <div class="empty-state"><div class="spinner"></div><p>Loading activity log...</p></div>
+                    <div class="empty-state"><div class="spinner"></div><p data-i18n="admin.loading_activity">Loading activity log...</p></div>
                 </div>
             </div>
         </div>
@@ -277,23 +277,23 @@
         <div class="panel" id="panel-system" style="display:none;">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">System Health</h2>
+                    <h2 class="card-title" data-i18n="admin.system_health">System Health</h2>
                 </div>
                 <div id="system-health-container" class="system-health-inner">
-                    <div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>
+                    <div class="empty-state"><div class="spinner"></div><p data-i18n="common.loading">Loading...</p></div>
                 </div>
             </div>
             <div class="card card-mt15">
                 <div class="card-header">
-                    <h2 class="card-title">Retention Policy</h2>
+                    <h2 class="card-title" data-i18n="admin.retention_policy">Retention Policy</h2>
                 </div>
                 <div class="system-health-inner">
-                    <p class="retention-desc">Automatically delete completed scans older than a specified number of days. This action cannot be undone.</p>
+                    <p class="retention-desc" data-i18n="admin.retention_desc">Automatically delete completed scans older than a specified number of days. This action cannot be undone.</p>
                     <div class="retention-row">
-                        <label class="retention-label">Delete scans older than</label>
+                        <label class="retention-label" data-i18n="admin.delete_older_than">Delete scans older than</label>
                         <input type="number" id="prune-days" class="form-control prune-days-input" value="90" min="1">
-                        <label class="retention-label">days</label>
-                        <button class="btn btn-warning btn-sm" data-action="doPrune">
+                        <label class="retention-label" data-i18n="admin.days">days</label>
+                        <button class="btn btn-warning btn-sm" data-action="doPrune" data-i18n="admin.prune">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
                             Prune
                         </button>
@@ -309,7 +309,7 @@
     <div id="about-modal" class="modal-overlay" style="display:none;">
         <div class="modal modal-max-480">
             <div class="modal-header">
-                <h3>About</h3>
+                <h3 data-i18n="about.title">About</h3>
                 <button class="modal-close" data-action="hideAboutModal">&times;</button>
             </div>
             <div class="about-body">
@@ -317,11 +317,11 @@
                     <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="about-hero-icon">
                         <use href="#icon-shield"/>
                     </svg>
-                    <h2 class="about-hero-title">NexusMap</h2>
-                    <p class="about-hero-version"><span class="app-version">v0.9.4</span> &middot; Network Scanner &amp; Asset Management</p>
+                    <h2 class="about-hero-title" data-i18n="app.name">NexusMap</h2>
+                    <p class="about-hero-version"><span class="app-version" data-i18n="app.version">v0.9.4</span> <span data-i18n="about.network_scanner">&middot; Network Scanner &amp; Asset Management</span></p>
                 </div>
                 <div class="about-desc">
-                    <p>NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
+                    <p data-i18n="about.description">NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
                     <p class="about-desc-sub">Built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach. Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
                 </div>
                 <div class="about-pills">
@@ -330,8 +330,8 @@
                     <span class="about-pill">Vanilla JS</span>
                 </div>
                 <div class="about-ftr">
-                    <span>Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></span>
-                    <button class="btn btn-secondary btn-sm" data-action="checkForUpdates">Check for Updates</button>
+                    <span data-i18n="about.developed_by">Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></span>
+                    <button class="btn btn-secondary btn-sm" data-action="checkForUpdates" data-i18n="about.check_updates">Check for Updates</button>
                 </div>
             </div>
         </div>
@@ -341,17 +341,17 @@
     <div id="create-modal" class="modal" style="display:none;" data-action="closeModalBackdrop">
         <div class="modal-content modal-small">
             <div class="modal-header">
-                <h3>New User</h3>
-                <button class="modal-close" data-action="hideCreateModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
+                <h3 data-i18n="admin.new_user">New User</h3>
+                <button class="modal-close" data-action="hideCreateModal" title="Close" data-i18n-attr="title" data-i18n="common.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
             <div class="modal-body">
                 <form id="create-form">
                     <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="new-username" class="form-control" required autocomplete="off" placeholder="e.g. john_doe">
+                        <label data-i18n="table.username">Username</label>
+                        <input type="text" id="new-username" class="form-control" required autocomplete="off" placeholder="e.g. john_doe" data-i18n-placeholder="admin.username_placeholder">
                     </div>
                     <div class="form-group">
-                        <label>Password</label>
+                        <label data-i18n="table.password">Password</label>
                         <div class="modal-pw-wrap">
                             <input type="password" id="new-password" class="form-control modal-pw-input" required minlength="6" placeholder="Min 6 characters">
                         <button type="button" data-action="togglePassword" data-input="new-password" class="toggle-pw-inline">
@@ -360,16 +360,16 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Role</label>
+                        <label data-i18n="table.role">Role</label>
                         <select id="new-role" class="form-control">
-                            <option value="user">User — Can view and run scans</option>
-                            <option value="admin">Admin — Full access including user management</option>
+                            <option value="user" data-i18n="admin.role_user">User — Can view and run scans</option>
+                            <option value="admin" data-i18n="admin.role_admin">Admin — Full access including user management</option>
                         </select>
                     </div>
                     <div id="create-error" class="modal-error-box" style="display:none;"></div>
                     <div class="modal-actions-row">
-                        <button type="button" class="btn btn-secondary" data-action="hideCreateModal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create User</button>
+                        <button type="button" class="btn btn-secondary" data-action="hideCreateModal" data-i18n="common.cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-i18n="admin.create_user">Create User</button>
                     </div>
                 </form>
             </div>
@@ -380,22 +380,22 @@
     <div id="edit-modal" class="modal" style="display:none;" data-action="closeModalBackdrop">
         <div class="modal-content modal-small">
             <div class="modal-header">
-                <h3>Edit User</h3>
-                <button class="modal-close" data-action="hideEditModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
+                <h3 data-i18n="admin.edit_user">Edit User</h3>
+                <button class="modal-close" data-action="hideEditModal" title="Close" data-i18n-attr="title" data-i18n="common.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="edit-user-id">
                 <div class="form-group">
-                    <label>Role</label>
+                    <label data-i18n="table.role">Role</label>
                     <select id="edit-role" class="form-control">
-                        <option value="user">User — Can view and run scans</option>
-                        <option value="admin">Admin — Full access including user management</option>
+                        <option value="user" data-i18n="admin.role_user">User — Can view and run scans</option>
+                        <option value="admin" data-i18n="admin.role_admin">Admin — Full access including user management</option>
                     </select>
                 </div>
                 <div id="edit-error" class="modal-error-box" style="display:none;"></div>
                 <div class="modal-actions-row">
-                    <button type="button" class="btn btn-secondary" data-action="hideEditModal">Cancel</button>
-                    <button type="button" class="btn btn-primary" data-action="saveEditUser">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-action="hideEditModal" data-i18n="common.cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-action="saveEditUser" data-i18n="common.save_changes">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -405,14 +405,14 @@
     <div id="reset-modal" class="modal" style="display:none;" data-action="closeModalBackdrop">
         <div class="modal-content modal-small">
             <div class="modal-header">
-                <h3>Reset Password</h3>
-                <button class="modal-close" data-action="hideResetModal" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
+                <h3 data-i18n="admin.reset_password">Reset Password</h3>
+                <button class="modal-close" data-action="hideResetModal" title="Close" data-i18n-attr="title" data-i18n="common.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-close"/></svg></button>
             </div>
             <div class="modal-body">
                 <p class="reset-subtitle" id="reset-subtitle"></p>
                 <input type="hidden" id="reset-user-id">
                 <div class="form-group">
-                    <label>New Password</label>
+                    <label data-i18n="admin.new_password">New Password</label>
                     <div class="modal-pw-wrap">
                         <input type="password" id="reset-password" class="form-control modal-pw-input" required minlength="6" placeholder="Min 6 characters">
                         <button type="button" data-action="togglePassword" data-input="reset-password" class="toggle-pw-inline">
@@ -422,22 +422,23 @@
                 </div>
                 <div class="reset-info-box">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="reset-info-icon"><use href="#icon-info"/></svg>
-                    <span class="reset-info-text">User will be forced to change this password on next login.</span>
+                    <span class="reset-info-text" data-i18n="admin.reset_info">User will be forced to change this password on next login.</span>
                 </div>
                 <div id="reset-error" class="modal-error-box" style="display:none;"></div>
                 <div class="modal-actions-row">
-                    <button type="button" class="btn btn-secondary" data-action="hideResetModal">Cancel</button>
-                    <button type="button" class="btn btn-warning" data-action="doResetPassword">Reset Password</button>
+                    <button type="button" class="btn btn-secondary" data-action="hideResetModal" data-i18n="common.cancel">Cancel</button>
+                    <button type="button" class="btn btn-warning" data-action="doResetPassword" data-i18n="admin.reset_password">Reset Password</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/app.js"></script>
     <script src="/static/js/users.js"></script>
 
     <div class="footer">
-        NexusMap <span class="app-version">v0.9.4</span> &middot; Made with <span class="footer-accent">vibe coding</span> by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        <span data-i18n="app.name">NexusMap</span> <span class="app-version" data-i18n="app.version">v0.9.4</span> &middot; <span data-i18n="footer.made_with">Made with</span> <span class="footer-accent" data-i18n="footer.vibe">vibe coding</span> <span data-i18n="footer.by">by</span> <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

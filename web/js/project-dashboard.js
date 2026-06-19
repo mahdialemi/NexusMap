@@ -36,7 +36,7 @@ var pdCharts = {};
 function loadProjectDashboard() {
     var container = document.getElementById('project-dashboard-content');
     if (!container) return;
-    container.innerHTML = '<div class="pd-empty"><div class="spinner" style="margin:0 auto 12px;"></div><p>Loading dashboard...</p></div>';
+    container.innerHTML = '<div class="pd-empty"><div class="spinner" style="margin:0 auto 12px;"></div><p>' + t('dashboard.loading') + '</p></div>';
     (async function() {
         try {
             var res = await fetch('/api/projects/' + projectId + '/stats');
@@ -44,7 +44,7 @@ function loadProjectDashboard() {
             var stats = await res.json();
             renderPD(container, stats);
         } catch (e) {
-            container.innerHTML = '<div class="pd-empty"><p style="color:#ef4444;">Error: ' + esc(e.message) + '</p></div>';
+            container.innerHTML = '<div class="pd-empty"><p style="color:#ef4444;">' + t('app.error') + ': ' + esc(e.message) + '</p></div>';
         }
     })();
 }
@@ -57,25 +57,25 @@ function renderPD(container, s) {
     var html = '';
     var p = s.project || {};
 
-    html += '<div class="pd-header"><h2>' + esc(p.name || 'Project') + ' Dashboard</h2></div>';
+    html += '<div class="pd-header"><h2>' + esc(p.name || t('project.title')) + ' ' + t('dashboard.title') + '</h2></div>';
 
-    html += '<div class="pd-section"><div class="pd-section-title">Overview</div><div class="pd-cards">' +
-        pdCard('Total Scans', s.total_scans || 0, '#e6952e') +
-        pdCard('Hosts', s.host_count || 0, '#45c486') +
-        pdCard('Open Ports', s.open_port_count || 0, '#22c55e') +
-        pdCard('High Risk', s.high_risk_port_count || 0, '#ef4444') +
+    html += '<div class="pd-section"><div class="pd-section-title">' + t('dashboard.overview') + '</div><div class="pd-cards">' +
+        pdCard(t('dashboard.total_scans'), s.total_scans || 0, '#e6952e') +
+        pdCard(t('dashboard.hosts'), s.host_count || 0, '#45c486') +
+        pdCard(t('dashboard.open_ports'), s.open_port_count || 0, '#22c55e') +
+        pdCard(t('dashboard.high_risk'), s.high_risk_port_count || 0, '#ef4444') +
     '</div></div>';
 
-    html += '<div class="pd-section"><div class="pd-section-title">Charts</div><div class="pd-charts">' +
-        '<div class="pd-chart-card"><div class="pd-chart-title">Scan Activity</div><div class="pd-chart-body"><canvas id="pdc-scans"></canvas></div></div>' +
-        '<div class="pd-chart-card"><div class="pd-chart-title">Scan Status</div><div class="pd-chart-body"><canvas id="pdc-scan-status"></canvas></div></div>' +
-        '<div class="pd-chart-card"><div class="pd-chart-title">Port State</div><div class="pd-chart-body"><canvas id="pdc-port-state"></canvas></div></div>' +
+    html += '<div class="pd-section"><div class="pd-section-title">' + t('dashboard.charts') + '</div><div class="pd-charts">' +
+        '<div class="pd-chart-card"><div class="pd-chart-title">' + t('dashboard.scan_activity') + '</div><div class="pd-chart-body"><canvas id="pdc-scans"></canvas></div></div>' +
+        '<div class="pd-chart-card"><div class="pd-chart-title">' + t('dashboard.scan_status') + '</div><div class="pd-chart-body"><canvas id="pdc-scan-status"></canvas></div></div>' +
+        '<div class="pd-chart-card"><div class="pd-chart-title">' + t('dashboard.port_state') + '</div><div class="pd-chart-body"><canvas id="pdc-port-state"></canvas></div></div>' +
     '</div></div>';
 
     html += '<div class="pd-charts" style="margin-bottom:24px;">' +
-        '<div class="pd-chart-card"><div class="pd-chart-title">Top Services</div><div class="pd-chart-body"><canvas id="pdc-services"></canvas></div></div>' +
-        '<div class="pd-chart-card"><div class="pd-chart-title">Top Ports</div><div class="pd-chart-body"><canvas id="pdc-ports"></canvas></div></div>' +
-        '<div class="pd-chart-card"><div class="pd-chart-title">Top OS</div><div class="pd-chart-body"><canvas id="pdc-os"></canvas></div></div>' +
+        '<div class="pd-chart-card"><div class="pd-chart-title">' + t('dashboard.top_services') + '</div><div class="pd-chart-body"><canvas id="pdc-services"></canvas></div></div>' +
+        '<div class="pd-chart-card"><div class="pd-chart-title">' + t('dashboard.top_ports') + '</div><div class="pd-chart-body"><canvas id="pdc-ports"></canvas></div></div>' +
+        '<div class="pd-chart-card"><div class="pd-chart-title">' + t('dashboard.top_os') + '</div><div class="pd-chart-body"><canvas id="pdc-os"></canvas></div></div>' +
     '</div>';
 
     // Recent scans
@@ -109,7 +109,7 @@ function renderPD(container, s) {
                 '</div>' +
             '</div>';
         }
-        html += '<div class="pd-section"><div class="pd-section-title">Recent Scans</div><div class="pd-table-wrap">' + rows + '</div></div>';
+        html += '<div class="pd-section"><div class="pd-section-title">' + t('dashboard.recent_scans') + '</div><div class="pd-table-wrap">' + rows + '</div></div>';
     }
 
     container.innerHTML = html;
@@ -153,7 +153,7 @@ function renderPDCharts(s) {
         if (el) {
             pdCharts.scans = new Chart(el, {
                 type: 'line',
-                data: { labels: s.scan_activity.map(function(d){var p=d.date.split('-');return p[1]+'/'+p[2];}), datasets: [{ label: 'Scans', data: s.scan_activity.map(function(d){return d.count;}), borderColor: accent, backgroundColor: accent + '22', fill: true, tension: 0.3, pointRadius: 2, pointHoverRadius: 4 }] },
+                data: { labels: s.scan_activity.map(function(d){var p=d.date.split('-');return p[1]+'/'+p[2];}), datasets: [{ label: t('dashboard.scan_activity_label'), data: s.scan_activity.map(function(d){return d.count;}), borderColor: accent, backgroundColor: accent + '22', fill: true, tension: 0.3, pointRadius: 2, pointHoverRadius: 4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipOpts }, scales: { x: { ticks: { color: textColor, font: { size: 9 }, maxTicksLimit: 10 }, grid: { color: borderColor, drawBorder: false } }, y: { ticks: { color: textColor, font: { size: 9 }, precision: 0 }, grid: { color: borderColor, drawBorder: false } } } }
             });
         }
@@ -184,13 +184,13 @@ function renderPDCharts(s) {
 
     // Top ports
     if (s.top_ports && s.top_ports.length) {
-        pdCharts.ports = barH('pdc-ports', s.top_ports.map(function(p){return p.port+'/'+p.protocol;}), s.top_ports.map(function(p){return p.count;}), 'Hosts');
+        pdCharts.ports = barH('pdc-ports', s.top_ports.map(function(p){return p.port+'/'+p.protocol;}), s.top_ports.map(function(p){return p.count;}), t('dashboard.hosts'));
     }
 
     function trunc(s, n) { return s && s.length > n ? s.substring(0, n-1) + '\u2026' : s; }
 
     // Top OS
     if (s.top_os && s.top_os.length) {
-        pdCharts.os = barH('pdc-os', s.top_os.map(function(o){return trunc(o.os, 20);}), s.top_os.map(function(o){return o.count;}), 'Hosts');
+        pdCharts.os = barH('pdc-os', s.top_os.map(function(o){return trunc(o.os, 20);}), s.top_os.map(function(o){return o.count;}), t('dashboard.hosts'));
     }
 }

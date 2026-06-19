@@ -358,11 +358,11 @@
         }
 
         function copyToClipboard(text, msg) {
-            navigator.clipboard.writeText(text).then(() => showToast(msg || 'Copied')).catch(() => showToast('Copy failed', 'error'));
+            navigator.clipboard.writeText(text).then(() => showToast(msg || t('live.copied', 'Copied'))).catch(() => showToast(t('live.copy_failed', 'Copy failed'), 'error'));
         }
 
         async function pingLiveHost(ip) {
-            showToast('Pinging ' + ip + '...', 'info');
+            showToast(t('live.pinging', 'Pinging ') + ip + '...', 'info');
             const ipCells = document.querySelectorAll('#live-table .live-ip-cell');
             let ipCell = null;
             for (const cell of ipCells) {
@@ -386,18 +386,18 @@
                     badge.textContent = data.time_ms + 'ms';
                     badge.style.color = '#22c55e';
                     badge.style.borderColor = '#22c55e';
-                    showToast(ip + ' is reachable (' + data.time_ms + 'ms)', 'success');
+                    showToast(ip + ' ' + t('live.is_reachable', 'is reachable') + ' (' + data.time_ms + 'ms)', 'success');
                 } else {
                     badge.textContent = '\u2717';
                     badge.style.color = '#ef4444';
                     badge.style.borderColor = '#ef4444';
-                    showToast(ip + ' is unreachable', 'error');
+                    showToast(ip + ' ' + t('live.is_unreachable', 'is unreachable'), 'error');
                 }
                 ipCell.style.position = 'relative';
                 ipCell.appendChild(badge);
                 setTimeout(() => { if (badge.parentNode) badge.remove(); }, 5000);
             } catch (e) {
-                showToast('Ping failed: ' + e.message, 'error');
+                showToast(t('live.ping_failed', 'Ping failed: ') + e.message, 'error');
             }
         }
 
@@ -414,10 +414,10 @@
                 closeModal(mid);
                 try {
                     await deleteLiveHost(projectId, ip);
-                    showToast('Host removed');
+                    showToast(t('live.host_removed', 'Host removed'));
                     await loadLiveHosts();
                 } catch (e) {
-                    showToast('Error: ' + e.message, 'error');
+                    showToast(t('live.error', 'Error: ') + e.message, 'error');
                 }
             });
             modal.querySelector('#del-cancel').addEventListener('click', function() { closeModal(mid); });
@@ -499,11 +499,11 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ ips: ips })
                     });
-                    showToast(label + ' deleted');
+                    showToast(label + ' ' + t('live.deleted', 'deleted'));
                     liveSelectedHosts.clear();
                     await loadLiveHosts();
                 } catch (e) {
-                    showToast('Error: ' + e.message, 'error');
+                    showToast(t('live.error', 'Error: ') + e.message, 'error');
                 }
             });
             modal.querySelector('#bulk-del-cancel').addEventListener('click', function() { closeModal(mid); });
@@ -520,17 +520,17 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ips: ips, status: status })
                 });
-                showToast('Status updated for ' + ips.length + ' hosts');
+                showToast(t('live.status_updated', 'Status updated for ') + ips.length + t('live.hosts', ' hosts'));
                 liveSelectedHosts.clear();
                 await loadLiveHosts();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('live.error', 'Error: ') + e.message, 'error');
             }
         }
 
         function compareSelectedHosts() {
             const ips = [...liveSelectedHosts];
-            if (ips.length < 2) { showToast('Select at least 2 hosts', 'error'); return; }
+            if (ips.length < 2) { showToast(t('live.select_two_hosts', 'Select at least 2 hosts'), 'error'); return; }
             openHostCompare(ips);
         }
 
@@ -730,11 +730,11 @@
                     else if (field === 'note') host.note = newValue;
                     else if (field === 'status') host.status = newValue;
                 }
-                showToast('Updated');
+                showToast(t('live.updated', 'Updated'));
                 applyLiveFiltersAndSort();
             } catch (e) {
                 td.textContent = td.getAttribute('data-original') || '-';
-                showToast('Error saving: ' + e.message, 'error');
+                showToast(t('live.error_saving', 'Error saving: ') + e.message, 'error');
             }
         }
 

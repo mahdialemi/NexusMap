@@ -66,7 +66,7 @@ async function login(username, password) {
     });
     const data = await res.json();
     if (res.ok) return data;
-    throw new Error(data.error || 'Login failed');
+    throw new Error(data.error || t('errors.login_failed', 'Login failed'));
 }
 
 async function logout() {
@@ -83,7 +83,7 @@ async function me() {
 // Projects
 async function getProjects() {
     const res = await fetch(`${API}/api/projects`);
-    if (!res.ok) throw new Error('Failed to load projects');
+    if (!res.ok) throw new Error(t('errors.load_projects', 'Failed to load projects'));
     return res.json();
 }
 
@@ -94,14 +94,14 @@ async function createProject(name, description, status, priority, tags, client, 
         body: JSON.stringify({ name, description, status, priority, tags, client, owner_id, due_date })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to create project');
+    if (!res.ok) throw new Error(data.error || t('errors.create_project', 'Failed to create project'));
     return data;
 }
 
 async function deleteProject(id) {
     const res = await fetch(`${API}/api/projects/${id}`, { method: 'DELETE' });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to delete project');
+    if (!res.ok) throw new Error(data.error || t('errors.delete_project', 'Failed to delete project'));
     return data;
 }
 
@@ -112,13 +112,13 @@ async function updateProject(id, name, description, status, priority, tags, clie
         body: JSON.stringify({ name, description, status, priority, tags, client, owner_id, due_date })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to update project');
+    if (!res.ok) throw new Error(data.error || t('errors.update_project', 'Failed to update project'));
     return data;
 }
 
 async function getTagCloud() {
     const res = await fetch(`${API}/api/tags`);
-    if (!res.ok) throw new Error('Failed to load tag cloud');
+    if (!res.ok) throw new Error(t('errors.load_tags', 'Failed to load tag cloud'));
     const data = await res.json();
     return data.tags || [];
 }
@@ -131,59 +131,59 @@ async function createScanAPI(projectId, profile, target, extraArgs, note) {
         body: JSON.stringify({ project_id: Number(projectId), profile, target, extra_args: extraArgs || '', note: note || '' })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to create scan');
+    if (!res.ok) throw new Error(data.error || t('errors.create_scan', 'Failed to create scan'));
     return data;
 }
 
 async function runScanAPI(scanId) {
     const res = await fetch(`${API}/api/scans/${scanId}/run`, { method: 'POST' });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to run scan');
+    if (!res.ok) throw new Error(data.error || t('errors.run_scan', 'Failed to run scan'));
     return data;
 }
 
 async function stopScanAPI(scanId) {
     const res = await fetch(`${API}/api/scans/${scanId}/stop`, { method: 'POST' });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to stop scan');
+    if (!res.ok) throw new Error(data.error || t('errors.stop_scan', 'Failed to stop scan'));
     return data;
 }
 
 async function getScanLog(scanId) {
     const res = await fetch(`${API}/api/scans/${scanId}/log`);
-    if (!res.ok) throw new Error('Failed to load scan log: ' + res.status);
+    if (!res.ok) throw new Error(t('errors.scan_log', 'Failed to load scan log') + ': ' + res.status);
     return res.json();
 }
 
 async function getScans(projectId) {
     const res = await fetch(`${API}/api/projects/${projectId}/scans`);
-    if (!res.ok) throw new Error('Failed to load scans: ' + res.status);
+    if (!res.ok) throw new Error(t('errors.load_scans', 'Failed to load scans') + ': ' + res.status);
     return res.json();
 }
 
 async function deleteScanAPI(id) {
     const res = await fetch(`${API}/api/scans/${id}`, { method: 'DELETE' });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to delete scan');
+    if (!res.ok) throw new Error(data.error || t('errors.delete_scan', 'Failed to delete scan'));
 }
 
 async function confirmScanAPI(scanId) {
     const res = await fetch(`${API}/api/scans/${scanId}/confirm`, { method: 'POST' });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to confirm scan');
+    if (!res.ok) throw new Error(data.error || t('errors.confirm_scan', 'Failed to confirm scan'));
     return data;
 }
 
 async function rejectScanAPI(scanId) {
     const res = await fetch(`${API}/api/scans/${scanId}/reject`, { method: 'POST' });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to reject scan');
+    if (!res.ok) throw new Error(data.error || t('errors.reject_scan', 'Failed to reject scan'));
     return data;
 }
 
 async function getSchedules(projectId) {
     const res = await fetch(`/api/projects/${projectId}/schedules`);
-    if (!res.ok) throw new Error('Failed to load schedules: ' + res.status);
+    if (!res.ok) throw new Error(t('errors.load_schedules', 'Failed to load schedules') + ': ' + res.status);
     return res.json();
 }
 
@@ -195,7 +195,7 @@ async function getResults(scanId, page, limit) {
     if (limit) params.push('limit=' + limit);
     if (params.length) url += '?' + params.join('&');
     const res = await fetch(url);
-    if (!res.ok) throw new Error('Failed to load results: ' + res.status);
+    if (!res.ok) throw new Error(t('errors.load_results', 'Failed to load results') + ': ' + res.status);
     return res.json();
 }
 
@@ -206,7 +206,7 @@ async function updateResult(id, table, field, value) {
         body: JSON.stringify({ table, field, value })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to update result');
+    if (!res.ok) throw new Error(data.error || t('errors.update_result', 'Failed to update result'));
     return data;
 }
 
@@ -216,7 +216,7 @@ async function revertResult(id, table, field) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ table, field })
     });
-    if (!res.ok) throw new Error('Failed to revert result: ' + res.status);
+    if (!res.ok) throw new Error(t('errors.revert_result', 'Failed to revert result') + ': ' + res.status);
 }
 
 async function addPort(hostId, port, protocol, state, service, version) {
@@ -225,7 +225,7 @@ async function addPort(hostId, port, protocol, state, service, version) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ host_id: hostId, port, protocol, state, service, version })
     });
-    if (!res.ok) throw new Error('Failed to add port: ' + res.status);
+    if (!res.ok) throw new Error(t('errors.add_port', 'Failed to add port') + ': ' + res.status);
 }
 
 async function deleteResult(id, table) {
@@ -234,7 +234,7 @@ async function deleteResult(id, table) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ table })
     });
-    if (!res.ok) throw new Error('Failed to delete result: ' + res.status);
+    if (!res.ok) throw new Error(t('errors.delete_result', 'Failed to delete result') + ': ' + res.status);
 }
 
 async function bulkUpdate(ids, field, value) {
@@ -243,7 +243,7 @@ async function bulkUpdate(ids, field, value) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids, field, value })
     });
-    if (!res.ok) throw new Error('Failed to bulk update: ' + res.status);
+    if (!res.ok) throw new Error(t('errors.bulk_update', 'Failed to bulk update') + ': ' + res.status);
 }
 
 // Export
@@ -258,14 +258,14 @@ async function deleteLiveHost(projectId, ip) {
         body: JSON.stringify({ ip })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to delete host');
+    if (!res.ok) throw new Error(data.error || t('errors.delete_host', 'Failed to delete host'));
     return data;
 }
 
 // Users (admin)
 async function getUsers() {
     const res = await fetch(`${API}/api/users`);
-    if (!res.ok) throw new Error('Failed to fetch users');
+    if (!res.ok) throw new Error(t('errors.fetch_users', 'Failed to fetch users'));
     return res.json();
 }
 
@@ -276,7 +276,7 @@ async function createUser(username, password, role) {
         body: JSON.stringify({ username, password, role })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to create user');
+    if (!res.ok) throw new Error(data.error || t('errors.create_user', 'Failed to create user'));
     return data;
 }
 
@@ -285,7 +285,7 @@ async function deleteUser(id) {
         method: 'DELETE'
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to delete user');
+    if (!res.ok) throw new Error(data.error || t('errors.delete_user', 'Failed to delete user'));
     return data;
 }
 
@@ -296,7 +296,7 @@ async function updateUser(id, role) {
         body: JSON.stringify({ role })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to update user');
+    if (!res.ok) throw new Error(data.error || t('errors.update_user', 'Failed to update user'));
     return data;
 }
 
@@ -307,7 +307,7 @@ async function resetUserPassword(id, newPassword) {
         body: JSON.stringify({ action: 'reset_password', new_password: newPassword })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+    if (!res.ok) throw new Error(data.error || t('errors.reset_password', 'Failed to reset password'));
     return data;
 }
 
@@ -318,8 +318,8 @@ async function changePassword(oldPass, newPass, confirmPass) {
         body: JSON.stringify({ old_password: oldPass, new_password: newPass, confirm_password: confirmPass })
     });
     if (!res.ok) {
-        var data = await res.json().catch(function() { return {error: 'request failed'}; });
-        throw new Error(data.error || 'password change failed');
+        var data = await res.json().catch(function() { return {error: t('errors.request_failed', 'request failed')}; });
+        throw new Error(data.error || t('errors.password_change_failed', 'password change failed'));
     }
 }
 
@@ -398,22 +398,22 @@ loadVersion();
 
 async function checkForUpdates() {
     const btn = document.querySelector('[data-action="checkForUpdates"]');
-    if (btn) { btn.disabled = true; btn.textContent = 'Checking...'; }
+    if (btn) { btn.disabled = true; btn.textContent = t('app.checking', 'Checking...'); }
     try {
         const res = await fetch('/api/check-update');
         const data = await res.json();
         if (data.update_available) {
-            showToast('Update ' + data.latest + ' available — opening releases page...', 'info', 5000);
+            showToast(t('app.update_available', 'Update {v} available').replace('{v}', data.latest) + ' — ' + t('app.opening_releases', 'opening releases page...'), 'info', 5000);
             setTimeout(function () { window.open('https://github.com/mahdialemi/NexusMap/releases/latest', '_blank'); }, 800);
         } else if (data.latest) {
-            showToast('You are up to date (' + data.current + ')', 'success');
+            showToast(t('app.up_to_date', 'You are up to date') + ' (' + data.current + ')', 'success');
         } else {
-            showToast('Could not check for updates', 'error');
+            showToast(t('app.check_failed', 'Could not check for updates'), 'error');
         }
     } catch (e) {
-        showToast('Update check failed: ' + e.message, 'error');
+        showToast(t('app.update_check_error', 'Update check failed') + ': ' + e.message, 'error');
     } finally {
-        if (btn) { btn.disabled = false; btn.textContent = 'Check for Updates'; }
+        if (btn) { btn.disabled = false; btn.textContent = t('about.check_updates', 'Check for Updates'); }
     }
 }
 
@@ -444,7 +444,7 @@ function showModal(id, title, bodyHTML, sizeClass) {
     modal.innerHTML = '<div class="modal-content ' + size + '">' +
         '<div class="modal-header">' +
             '<h3>' + esc(title) + '</h3>' +
-            '<button class="modal-close" data-close="' + id + '" title="Close">' +
+            '<button class="modal-close" data-close="' + id + '" title="' + t('app.close', 'Close') + '">' +
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
                     '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>' +
                 '</svg>' +
@@ -548,7 +548,7 @@ function renderNotifList(entries, lastSeen) {
     if (!list) return;
     var unread = lastSeen ? entries.filter(function(e) { return toEpoch(e.created_at) > lastSeen; }) : entries;
     if (!unread.length) {
-        list.innerHTML = '<div class="notif-empty">No notifications</div>';
+        list.innerHTML = '<div class="notif-empty">' + t('notifications.empty', 'No notifications') + '</div>';
         return;
     }
     var html = '';
@@ -576,7 +576,7 @@ function toggleNotifications() {
             })
             .catch(function() {
                 var list = document.getElementById('notif-list');
-                if (list) list.innerHTML = '<div class="notif-empty">Failed to load</div>';
+                if (list) list.innerHTML = '<div class="notif-empty">' + t('app.failed_to_load', 'Failed to load') + '</div>';
             });
     }
 }
@@ -632,12 +632,12 @@ if (document.getElementById('notif-badge')) {
 
 // ----- Keyboard Shortcuts -----
 var SHORTCUTS = [
-    { key: '?', label: 'Show keyboard shortcuts', global: true, fn: showShortcutsHelp },
-    { key: 'n', label: 'New Scan', global: false, fn: function() {
+    { key: '?', label: t('shortcuts.show_help', 'Show keyboard shortcuts'), global: true, fn: showShortcutsHelp },
+    { key: 'n', label: t('shortcuts.new_scan', 'New Scan'), global: false, fn: function() {
         var btn = document.querySelector('.sidebar-btn[data-tab="new-scan"]');
         if (btn && typeof showTab === 'function') { btn.click(); }
     }},
-    { key: 's', label: 'Focus scan search', global: false, fn: function() {
+    { key: 's', label: t('shortcuts.focus_search', 'Focus scan search'), global: false, fn: function() {
         var wrap = document.getElementById('scan-search-wrap');
         if (wrap) {
             wrap.style.display = 'flex';
@@ -650,31 +650,31 @@ var SHORTCUTS = [
             if (gs) { gs.focus(); gs.select(); }
         }
     }},
-    { key: 'a', label: 'Go to Assets', global: false, fn: function() {
+    { key: 'a', label: t('shortcuts.go_assets', 'Go to Assets'), global: false, fn: function() {
         var btn = document.querySelector('.sidebar-btn[data-tab="consolidated"]');
         if (btn && typeof showTab === 'function') { btn.click(); }
     }},
-    { key: 'l', label: 'Go to Live Hosts', global: false, fn: function() {
+    { key: 'l', label: t('shortcuts.go_live', 'Go to Live Hosts'), global: false, fn: function() {
         var btn = document.querySelector('.sidebar-btn[data-tab="live"]');
         if (btn && typeof showTab === 'function') { btn.click(); }
     }},
-    { key: 't', label: 'Go to Topology', global: false, fn: function() {
+    { key: 't', label: t('shortcuts.go_topology', 'Go to Topology'), global: false, fn: function() {
         var btn = document.querySelector('.sidebar-btn[data-tab="topology"]');
         if (btn && typeof showTab === 'function') { btn.click(); }
     }},
-    { key: 'o', label: 'Go to Notes', global: false, fn: function() {
+    { key: 'o', label: t('shortcuts.go_notes', 'Go to Notes'), global: false, fn: function() {
         var btn = document.querySelector('.sidebar-btn[data-tab="notes"]');
         if (btn && typeof showTab === 'function') { btn.click(); }
     }},
-    { key: 'i', label: 'Go to Import', global: false, fn: function() {
+    { key: 'i', label: t('shortcuts.go_import', 'Go to Import'), global: false, fn: function() {
         var btn = document.querySelector('.sidebar-btn[data-tab="import"]');
         if (btn && typeof showTab === 'function') { btn.click(); }
     }},
-    { key: 'b', label: 'Back to projects', global: false, fn: function() {
+    { key: 'b', label: t('shortcuts.back_projects', 'Back to projects'), global: false, fn: function() {
         var btn = document.querySelector('[data-action="backToProjects"]');
         if (btn) { btn.click(); }
     }},
-    { key: 'Escape', label: 'Close modal / search', global: true, fn: function() {
+    { key: 'Escape', label: t('shortcuts.close_modal', 'Close modal / search'), global: true, fn: function() {
         // Close any open modal via overlay clicks
         var modals = document.querySelectorAll('.modal[style*="flex"], .modal-overlay[style*="block"], .modal-overlay[style*="flex"]');
         modals.forEach(function(m) {
@@ -706,14 +706,14 @@ function showShortcutsHelp() {
 
     var html = '';
     if (globalItems.length) {
-        html += '<div class="sc-group"><div class="sc-group-header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Global</div><div class="sc-items">' + globalItems.join('') + '</div></div>';
+        html += '<div class="sc-group"><div class="sc-group-header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> ' + t('shortcuts.global', 'Global') + '</div><div class="sc-items">' + globalItems.join('') + '</div></div>';
     }
     if (pageItems.length) {
-        html += '<div class="sc-group"><div class="sc-group-header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg> Project Page</div><div class="sc-items">' + pageItems.join('') + '</div></div>';
+        html += '<div class="sc-group"><div class="sc-group-header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg> ' + t('shortcuts.page', 'Project Page') + '</div><div class="sc-items">' + pageItems.join('') + '</div></div>';
     }
-    html += '<div class="sc-footer">Press <kbd>?</kbd> anytime to show this help</div>';
+    html += '<div class="sc-footer">' + t('shortcuts.hint', 'Press ? anytime to show this help').replace('?', '<kbd>?</kbd>') + '</div>';
 
-    showModal('shortcuts-help-modal', 'Keyboard Shortcuts', '<div class="shortcuts-body">' + html + '</div>', 'modal-medium');
+    showModal('shortcuts-help-modal', t('shortcuts.title', 'Keyboard Shortcuts'), '<div class="shortcuts-body">' + html + '</div>', 'modal-medium');
 }
 
 function isEditable(el) {

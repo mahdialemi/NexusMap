@@ -5,7 +5,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
     var errorEl = document.getElementById('login-error');
     
     if (!username || !password) {
-        errorEl.textContent = 'Username and password are required';
+        errorEl.textContent = t('login.required');
         errorEl.style.display = 'block';
         return;
     }

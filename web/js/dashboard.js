@@ -66,7 +66,7 @@ async function loadDashboard() {
         var stats = await res.json();
         renderDashboard(container, stats);
     } catch (e) {
-        container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">Error loading dashboard: ' + esc(e.message) + '</p></div>';
+        container.innerHTML = '<div class="empty-state"><p style="color:#ef4444;">' + t('dashboard.load_error') + esc(e.message) + '</p></div>';
     }
 }
 
@@ -93,44 +93,44 @@ function chartRow(id1, id2, id3) {
 function renderDashboard(container, s) {
     var html = '';
 
-    html += '<div class="db-header"><h2>Dashboard</h2><div class="db-header-actions"><button class="btn btn-secondary btn-sm" data-action="refreshDashboard"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh</button></div></div>';
+    html += '<div class="db-header"><h2>' + t('dashboard.title') + '</h2><div class="db-header-actions"><button class="btn btn-secondary btn-sm" data-action="refreshDashboard"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>' + t('dashboard.refresh') + '</button></div></div>';
 
-    html += '<div class="db-section"><div class="db-section-title">Projects & Scans</div><div class="db-cards">' +
-        card('Total Projects', s.total_projects, '#4fc4cf') +
-        card('Active', s.active_projects, '#22c55e') +
-        card('Total Scans', s.total_scans, '#e6952e') +
-        card('Running', s.running_scans, '#3b82f6', s.running_scans ? 'in progress' : '') +
-        card('Completed', s.completed_scans, '#22c55e') +
-        card('Failed', s.failed_scans, '#ef4444') +
+    html += '<div class="db-section"><div class="db-section-title">' + t('dashboard.projects_scans') + '</div><div class="db-cards">' +
+        card(t('dashboard.total_projects'), s.total_projects, '#4fc4cf') +
+        card(t('dashboard.active_projects'), s.active_projects, '#22c55e') +
+        card(t('dashboard.total_scans'), s.total_scans, '#e6952e') +
+        card(t('dashboard.running'), s.running_scans, '#3b82f6', s.running_scans ? t('dashboard.in_progress') : '') +
+        card(t('dashboard.completed'), s.completed_scans, '#22c55e') +
+        card(t('dashboard.failed'), s.failed_scans, '#ef4444') +
     '</div></div>';
 
-    html += '<div class="db-section"><div class="db-section-title">Assets</div><div class="db-cards">' +
-        card('Total Hosts', s.total_hosts, '#45c486') +
-        card('Total Ports', s.total_ports, '#9b87f5') +
-        card('Open Ports', s.open_port_count, '#22c55e') +
-        card('High Risk', s.high_risk_port_count, '#ef4444', 'ports in top 25') +
-        card('Services', s.unique_services, '#e8b84b') +
-        card('Live Hosts', s.total_live_hosts, '#4fc4cf') +
+    html += '<div class="db-section"><div class="db-section-title">' + t('dashboard.assets') + '</div><div class="db-cards">' +
+        card(t('dashboard.total_hosts'), s.total_hosts, '#45c486') +
+        card(t('dashboard.total_ports'), s.total_ports, '#9b87f5') +
+        card(t('dashboard.open_ports'), s.open_port_count, '#22c55e') +
+        card(t('dashboard.high_risk'), s.high_risk_port_count, '#ef4444', t('dashboard.ports_in_top_25')) +
+        card(t('dashboard.services'), s.unique_services, '#e8b84b') +
+        card(t('dashboard.live_hosts'), s.total_live_hosts, '#4fc4cf') +
     '</div></div>';
 
     // Charts row 1
-    html += '<div class="db-section"><div class="db-section-title">Charts</div><div class="db-charts">' +
-        chartRow('Scans (Last 30 Days)', 'scans', 'scans') +
-        chartRow('Top Services', 'services', 'services') +
-        chartRow('Top Ports', 'ports', 'ports') +
+    html += '<div class="db-section"><div class="db-section-title">' + t('dashboard.charts') + '</div><div class="db-charts">' +
+        chartRow(t('dashboard.scans_last_30_days'), 'scans', 'scans') +
+        chartRow(t('dashboard.top_services'), 'services', 'services') +
+        chartRow(t('dashboard.top_ports'), 'ports', 'ports') +
     '</div></div>';
 
     // Charts row 2
     html += '<div class="db-charts" style="margin-bottom:24px;">' +
-        chartRow('Scan Status', 'scan-status', 'scan-status') +
-        chartRow('Port State', 'port-state', 'port-state') +
-        chartRow('Projects by Priority', 'priority', 'priority') +
+        chartRow(t('dashboard.scan_status'), 'scan-status', 'scan-status') +
+        chartRow(t('dashboard.port_state'), 'port-state', 'port-state') +
+        chartRow(t('dashboard.projects_by_priority'), 'priority', 'priority') +
     '</div>';
 
     // Charts row 3 (2 columns)
     html += '<div class="db-charts-2" style="margin-bottom:24px;">' +
-        chartRow('Top OS', 'os', 'os') +
-        chartRow('Scans per Project', 'scans-per-project', 'scans-per-project') +
+        chartRow(t('dashboard.top_os'), 'os', 'os') +
+        chartRow(t('dashboard.scans_per_project'), 'scans-per-project', 'scans-per-project') +
     '</div>';
 
     // Recent scans
@@ -151,7 +151,7 @@ function renderDashboard(container, s) {
                 if (diff > 0) {
                     var mins = Math.floor(diff / 60000);
                     var secs = Math.floor((diff % 60000) / 1000);
-                    duration = (mins > 0 ? mins + 'm ' : '') + secs + 's';
+                    duration = (mins > 0 ? mins + t('dashboard.min_short') + ' ' : '') + secs + t('dashboard.sec_short');
                 }
             }
             var pColor = projColors[sc.project_id % projColors.length];
@@ -171,7 +171,7 @@ function renderDashboard(container, s) {
                 '</div>' +
             '</div>';
         }
-        html += '<div class="db-section"><div class="db-section-title">Recent Scans</div><div class="db-table-wrap">' + rows + '</div></div>';
+        html += '<div class="db-section"><div class="db-section-title">' + t('dashboard.recent_scans') + '</div><div class="db-table-wrap">' + rows + '</div></div>';
     }
 
     // Recent Activity
@@ -189,14 +189,14 @@ function renderDashboard(container, s) {
                 '</div>' +
             '</div>';
         }
-        html += '<div class="db-section"><div class="db-section-title">Recent Activity</div><div class="db-table-wrap">' + actRows + '</div></div>';
+        html += '<div class="db-section"><div class="db-section-title">' + t('dashboard.recent_activity') + '</div><div class="db-table-wrap">' + actRows + '</div></div>';
     }
 
     var hasAny = (s.total_projects > 0 || s.total_scans > 0 || s.total_hosts > 0 ||
         (s.recent_scans && s.recent_scans.length) || (s.recent_activity && s.recent_activity.length) ||
         (s.top_services && s.top_services.length) || (s.top_os && s.top_os.length));
     if (!hasAny) {
-        html += '<div class="db-empty"><div class="db-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div><p>No data available yet. Create a project and run a scan to get started.</p></div>';
+        html += '<div class="db-empty"><div class="db-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div><p>' + t('dashboard.no_data') + ' ' + t('dashboard.try_creating') + '</p></div>';
     }
 
     container.innerHTML = html;
@@ -220,7 +220,7 @@ function renderCharts(s) {
         if (el) {
             dCharts.scans = new Chart(el, {
                 type: 'line',
-                data: { labels: s.scan_activity.map(function(d){var p=d.date.split('-');return p[1]+'/'+p[2];}), datasets: [{ label: 'Scans', data: s.scan_activity.map(function(d){return d.count;}), borderColor: accent, backgroundColor: accent + '22', fill: true, tension: 0.3, pointRadius: 2, pointHoverRadius: 4 }] },
+                data: { labels: s.scan_activity.map(function(d){var p=d.date.split('-');return p[1]+'/'+p[2];}),                 datasets: [{ label: t('dashboard.scans'), data: s.scan_activity.map(function(d){return d.count;}), borderColor: accent, backgroundColor: accent + '22', fill: true, tension: 0.3, pointRadius: 2, pointHoverRadius: 4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipOpts }, scales: { x: { ticks: { color: textColor, font: { size: 9 }, maxTicksLimit: 10 }, grid: { color: borderColor, drawBorder: false } }, y: { ticks: { color: textColor, font: { size: 9 }, precision: 0 }, grid: { color: borderColor, drawBorder: false } } } }
             });
         }
@@ -243,7 +243,7 @@ function renderCharts(s) {
         if (!el) return null;
         return new Chart(el, {
             type: 'bar',
-            data: { labels: labels, datasets: [{ label: label || 'Count', data: data, backgroundColor: accent + '66', borderColor: accent, borderWidth: 1, borderRadius: 3 }] },
+            data: { labels: labels, datasets: [{ label: label || t('dashboard.count'), data: data, backgroundColor: accent + '66', borderColor: accent, borderWidth: 1, borderRadius: 3 }] },
             options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, tooltip: tooltipOpts }, scales: axisOpts(0) }
         });
     }
@@ -255,7 +255,7 @@ function renderCharts(s) {
 
     // Top ports
     if (s.top_ports && s.top_ports.length) {
-        dCharts.ports = barH('c-ports', s.top_ports.map(function(p){return p.port+'/'+p.protocol;}), s.top_ports.map(function(p){return p.count;}), 'Hosts');
+        dCharts.ports = barH('c-ports', s.top_ports.map(function(p){return p.port+'/'+p.protocol;}), s.top_ports.map(function(p){return p.count;}), t('dashboard.hosts'));
     }
 
     // Scan status breakdown
@@ -289,12 +289,12 @@ function renderCharts(s) {
 
     // Top OS
     if (s.top_os && s.top_os.length) {
-        dCharts.os = barH('c-os', s.top_os.map(function(o){return trunc(o.os, 20);}), s.top_os.map(function(o){return o.count;}), 'Hosts');
+        dCharts.os = barH('c-os', s.top_os.map(function(o){return trunc(o.os, 20);}), s.top_os.map(function(o){return o.count;}), t('dashboard.hosts'));
     }
 
     // Scans per project
     if (s.scans_per_project && s.scans_per_project.length) {
-        dCharts.scansPerProject = barH('c-scans-per-project', s.scans_per_project.map(function(p){return trunc(p.project_name || '#'+p.project_id, 20);}), s.scans_per_project.map(function(p){return p.count;}), 'Scans');
+        dCharts.scansPerProject = barH('c-scans-per-project', s.scans_per_project.map(function(p){return trunc(p.project_name || '#'+p.project_id, 20);}), s.scans_per_project.map(function(p){return p.count;}), t('dashboard.scans'));
     }
 }
 

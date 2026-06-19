@@ -24,9 +24,9 @@
             const totalPorts = consolidatedPortsData.total || consolidatedPortsData.ports.length;
             const hosts = [...new Set(consolidatedPortsData.ports.map(p => p.ip))].length;
             if (hideClosedPorts) {
-                stat.textContent = `${totalPorts} ports on ${hosts} hosts (closed hidden)`;
+                stat.textContent = `${totalPorts} ${t('consolidated.ports')} ${t('consolidated.on')} ${hosts} ${t('consolidated.hosts')} (${t('consolidated.closed_hidden')})`;
             } else {
-                stat.textContent = `${totalPorts} ports on ${hosts} hosts`;
+                stat.textContent = `${totalPorts} ${t('consolidated.ports')} ${t('consolidated.on')} ${hosts} ${t('consolidated.hosts')}`;
             }
         }
 
@@ -124,7 +124,7 @@
                 renderPaginationControls();
             } catch (e) {
                 console.error('loadConsolidated error:', e);
-                document.getElementById('cports-table').innerHTML = '<div class="empty-state"><p>Error loading: ' + esc(e.message) + '</p></div>';
+                document.getElementById('cports-table').innerHTML = '<div class="empty-state"><p>' + t('consolidated.error_loading') + esc(e.message) + '</p></div>';
             }
         }
 
@@ -206,7 +206,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ip, port, protocol, note })
                 });
-                showToast(note ? 'Note saved' : 'Note cleared');
+                showToast(note ? t('consolidated.note_saved') : t('consolidated.note_cleared'));
                 noteRow.style.display = 'none';
                 // Update note_preview in local data and re-render
                 const p = consolidatedPortsData.ports.find(x => x.ip === ip && x.port === port && x.protocol === protocol);
@@ -217,15 +217,15 @@
                 }
                 renderConsolidatedPorts();
             } catch (e) {
-                showToast('Error saving note: ' + e.message, 'error');
+                showToast(t('consolidated.error_saving_note') + e.message, 'error');
             }
         }
 
         async function deleteInlineNote(ip, port, protocol, noteRow) {
-            if (!confirm('Delete this note?')) return;
+            if (!confirm(t('consolidated.delete_note_confirm'))) return;
             try {
                 await fetch(`/api/projects/${projectId}/consolidated/notes/delete?ip=${encodeURIComponent(ip)}&port=${port}&protocol=${encodeURIComponent(protocol)}`, { method: 'DELETE' });
-                showToast('Note deleted');
+                showToast(t('consolidated.note_deleted'));
                 noteRow.style.display = 'none';
                 const p = consolidatedPortsData.ports.find(x => x.ip === ip && x.port === port && x.protocol === protocol);
                 if (p) p.note_preview = '';
@@ -235,7 +235,7 @@
                 }
                 renderConsolidatedPorts();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('consolidated.error') + e.message, 'error');
             }
         }
 
@@ -247,17 +247,17 @@
         let consolidatedFilterGroupsBackup = [];
 
         const FILTER_FIELD_LABELS = {
-            ip:'IP',mac:'MAC',hostname:'Hostname',os:'OS',
-            host_status:'Status',port:'Port',protocol:'Proto',
-            state:'State',service:'Service',version:'Version',
-            product:'Product',extra_info:'Extra',change_count:'Changes',
-            last_seen:'Last Seen',note:'Note'
+            ip:t('consolidated.ip'),mac:t('consolidated.mac'),hostname:t('consolidated.hostname'),os:t('consolidated.os'),
+            host_status:t('consolidated.status'),port:t('consolidated.port'),protocol:t('consolidated.proto'),
+            state:t('consolidated.state'),service:t('consolidated.service'),version:t('consolidated.version'),
+            product:t('consolidated.product'),extra_info:t('consolidated.extra_info'),change_count:t('consolidated.changes'),
+            last_seen:t('consolidated.last_seen'),note:t('consolidated.note_column')
         };
         const FILTER_OP_LABELS = {
-            eq:'=',neq:'\u2260',contains:'Contains',begins_with:'Starts With',
-            ends_with:'Ends With',gt:'>',gte:'\u2265',lt:'<',lte:'\u2264',
-            in:'In',not_in:'Not In',between:'Between',
-            is_empty:'Is Empty',is_not_empty:'Is Not Empty'
+            eq:'=',neq:'\u2260',contains:t('consolidated.op_contains'),begins_with:t('consolidated.op_begins_with'),
+            ends_with:t('consolidated.op_ends_with'),gt:'>',gte:'\u2265',lt:'<',lte:'\u2264',
+            in:t('consolidated.op_in'),not_in:t('consolidated.op_not_in'),between:t('consolidated.op_between'),
+            is_empty:t('consolidated.op_is_empty'),is_not_empty:t('consolidated.op_is_not_empty')
         };
 
         async function fetchConsolidatedFilterOptions() {
@@ -329,7 +329,7 @@
             if (!container) return;
             let hasAny = consolidatedFilterGroups.some(g => g.filters.length > 0);
             if (!hasAny) {
-                container.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--text-muted);font-size:0.85rem;">No filters added. Click "+ Add Group" or "+ Add Filter" to get started.</div>';
+                container.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--text-muted);font-size:0.85rem;">' + t('consolidated.no_filters') + '</div>';
                 return;
             }
             let html = '';
@@ -337,21 +337,21 @@
                 const g = consolidatedFilterGroups[gi];
                 html += `<div class="filter-group" style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;">
                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                        <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Group ${gi+1}</span>
+                        <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">${t('consolidated.group')} ${gi+1}</span>
                         <select class="form-control" style="width:auto;font-size:0.75rem;padding:2px 8px;" onchange="setGroupMode(${gi},this.value);renderAllFilterGroups();">
-                            <option value="and" ${g.group_mode==='and'?'selected':''}>AND</option>
-                            <option value="or" ${g.group_mode==='or'?'selected':''}>OR</option>
+                            <option value="and" ${g.group_mode==='and'?'selected':''}>${t('consolidated.filter_and')}</option>
+                            <option value="or" ${g.group_mode==='or'?'selected':''}>${t('consolidated.filter_or')}</option>
                         </select>
                         <span style="flex:1;"></span>
-                        ${consolidatedFilterGroups.length > 1 ? `<button class="btn btn-danger btn-sm" onclick="removeFilterGroup(${gi})" title="Remove group" style="padding:2px 6px;font-size:0.7rem;">&times;</button>` : ''}
+                        ${consolidatedFilterGroups.length > 1 ? `<button class="btn btn-danger btn-sm" onclick="removeFilterGroup(${gi})" title="${t('consolidated.remove_group')}" style="padding:2px 6px;font-size:0.7rem;">&times;</button>` : ''}
                     </div>`;
                 for (let fi = 0; fi < g.filters.length; fi++) {
                     html += renderFilterRow(gi, fi);
                 }
-                html += `<button class="btn btn-secondary btn-sm" onclick="addFilterRow(${gi})" style="font-size:0.75rem;padding:2px 10px;margin-top:4px;">+ Add Filter</button>`;
+                html += `<button class="btn btn-secondary btn-sm" onclick="addFilterRow(${gi})" style="font-size:0.75rem;padding:2px 10px;margin-top:4px;">${t('consolidated.add_filter')}</button>`;
                 html += `</div>`;
             }
-            html += `<button class="btn btn-secondary btn-sm" onclick="addFilterGroup()" style="margin-top:4px;">+ Add Group</button>`;
+            html += `<button class="btn btn-secondary btn-sm" onclick="addFilterGroup()" style="margin-top:4px;">${t('consolidated.add_group')}</button>`;
             container.innerHTML = html;
         }
 
@@ -385,7 +385,7 @@
                     ${opOptions}
                 </select>
                 ${valueHtml}
-                <button class="btn btn-danger btn-sm" onclick="removeFilterRow(${gi},${fi})" title="Remove" style="padding:4px 8px;font-size:0.8rem;">
+                <button class="btn btn-danger btn-sm" onclick="removeFilterRow(${gi},${fi})" title="${t('consolidated.remove')}" style="padding:4px 8px;font-size:0.8rem;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>`;
@@ -464,7 +464,7 @@
             const f = g.filters[fi];
             const field = f.field || '';
             const op = f.op || 'contains';
-            if (op === 'is_empty' || op === 'is_not_empty') return '<span class="filter-value-container" style="font-size:0.8rem;color:var(--text-muted);">(no value needed)</span>';
+            if (op === 'is_empty' || op === 'is_not_empty') return '<span class="filter-value-container" style="font-size:0.8rem;color:var(--text-muted);">' + t('consolidated.no_value_needed') + '</span>';
 
             const fieldMeta = consolidatedFilterOptions ? consolidatedFilterOptions[field] : null;
             const fieldType = fieldMeta ? fieldMeta.type : 'string';
@@ -489,9 +489,9 @@
                     </span>`;
                 }
                 return `<span class="filter-value-container" style="display:flex;gap:4px;align-items:center;">
-                    <input type="number" class="form-control" style="width:70px;font-size:0.8rem;padding:4px 8px;" placeholder="Min" value="${escAttr(f.min||'')}" onchange="updateFilterMin(${gi},${fi},this.value)">
+                    <input type="number" class="form-control" style="width:70px;font-size:0.8rem;padding:4px 8px;" placeholder="${t('consolidated.min')}" value="${escAttr(f.min||'')}" onchange="updateFilterMin(${gi},${fi},this.value)">
                     <span style="color:var(--text-muted);font-size:0.8rem;">-</span>
-                    <input type="number" class="form-control" style="width:70px;font-size:0.8rem;padding:4px 8px;" placeholder="Max" value="${escAttr(f.max||'')}" onchange="updateFilterMax(${gi},${fi},this.value)">
+                    <input type="number" class="form-control" style="width:70px;font-size:0.8rem;padding:4px 8px;" placeholder="${t('consolidated.max')}" value="${escAttr(f.max||'')}" onchange="updateFilterMax(${gi},${fi},this.value)">
                 </span>`;
             }
             if (fieldType === 'date') {
@@ -500,7 +500,7 @@
             const val = acEscapeHtml(f.value||'');
             return `<span class="filter-value-container">
                 <div class="filter-ac-wrap">
-                    <input type="text" class="form-control filter-ac-input" style="width:150px;font-size:0.8rem;padding:4px 8px;" value="${val}" placeholder="Type..." autocomplete="off" data-idx="${acId}" data-field="${field}" data-gi="${gi}" data-fi="${fi}" onfocus="acShow(this)" oninput="acInput(this)" onchange="updateFilterValue(${gi},${fi},this.value)">
+                    <input type="text" class="form-control filter-ac-input" style="width:150px;font-size:0.8rem;padding:4px 8px;" value="${val}" placeholder="${t('consolidated.type_placeholder')}" autocomplete="off" data-idx="${acId}" data-field="${field}" data-gi="${gi}" data-fi="${fi}" onfocus="acShow(this)" oninput="acInput(this)" onchange="updateFilterValue(${gi},${fi},this.value)">
                 </div>
             </span>`;
         }
@@ -587,7 +587,7 @@
         function acRender(dd, values, query) {
             const acId = dd.id.replace('ac-dd-', '');
             if (!values || values.length === 0) {
-                dd.innerHTML = '<div class="filter-ac-item ac-disabled">No matches</div>'; return;
+                dd.innerHTML = '<div class="filter-ac-item ac-disabled">' + t('consolidated.no_matches') + '</div>'; return;
             }
             dd.innerHTML = values.map(v =>
                 `<div class="filter-ac-item" onmousedown="event.preventDefault(); acSelect('${acId}','${escAttr(v)}')">${acHighlight(v, query)}</div>`
@@ -697,8 +697,8 @@
                     const fieldLabel = FILTER_FIELD_LABELS[f.field] || f.field;
                     const opLabel = FILTER_OP_LABELS[f.op] || f.op;
                     let valLabel = '';
-                    if (f.op === 'is_empty') valLabel = '(empty)';
-                    else if (f.op === 'is_not_empty') valLabel = '(not empty)';
+                    if (f.op === 'is_empty') valLabel = t('consolidated.empty');
+                    else if (f.op === 'is_not_empty') valLabel = t('consolidated.not_empty');
                     else if (f.op === 'between') valLabel = `${f.min||''} - ${f.max||''}`;
                     else if (f.op === 'in' || f.op === 'not_in') valLabel = (f.values||[]).join(', ');
                     else valLabel = f.value;
@@ -714,7 +714,7 @@
                         <span style="font-size:0.65rem;color:var(--text-muted);margin-right:4px;">G${gi+1} ${g.group_mode.toUpperCase()}</span>${groupHtml}</span>`;
                 }
             }
-            html += `<span class="filter-badge-clear" onclick="clearAdvancedFilters()" style="cursor:pointer;color:var(--danger);font-size:0.75rem;margin-left:6px;display:inline-flex;align-items:center;">Clear all</span>`;
+            html += `<span class="filter-badge-clear" onclick="clearAdvancedFilters()" style="cursor:pointer;color:var(--danger);font-size:0.75rem;margin-left:6px;display:inline-flex;align-items:center;">${t('consolidated.clear_all')}</span>`;
             container.innerHTML = html;
         }
 
@@ -761,27 +761,27 @@
                 consolidatedSelected.clear();
                 updateConsolidatedBulkBtn();
                 if (!consolidatedGroupMode) {
-                    container.innerHTML = '<div class="empty-state"><h3>No assets</h3><p>Confirm scans to populate assets</p></div>';
+                    container.innerHTML = '<div class="empty-state"><h3>' + t('consolidated.no_assets') + '</h3><p>' + t('consolidated.confirm_scans') + '</p></div>';
                     return;
                 }
             }
             if (consolidatedGroupMode) {
                 if (!consolidatedAllPorts) {
-                    container.innerHTML = '<div class="empty-state"><div class="spinner"></div><p>Loading all data for group view...</p></div>';
+                    container.innerHTML = '<div class="empty-state"><div class="spinner"></div><p>' + t('consolidated.loading_group') + '</p></div>';
                     return;
                 }
                 renderConsolidatedPortsGrouped(container, ports);
                 return;
             }
             let html = '<table><thead><tr>';
-            html += '<th style="width:36px"><input type="checkbox" onchange="toggleConsolidatedSelectAll(this.checked)" title="Select all"></th>';
-            html += '<th>IP</th><th>MAC</th><th>Hostname</th><th>OS</th><th>Status</th><th>Port</th><th>Proto</th><th>State</th><th>Service</th><th>Version</th><th>Product</th><th>Extra</th><th>Changes</th><th>Last Seen</th><th>Note</th><th>Label</th><th class="sticky-right-2">NSE</th><th class="sticky-right"></th>';
+            html += '<th style="width:36px"><input type="checkbox" onchange="toggleConsolidatedSelectAll(this.checked)" title="' + t('consolidated.select_all') + '"></th>';
+            html += '<th>' + t('consolidated.ip') + '</th><th>' + t('consolidated.mac') + '</th><th>' + t('consolidated.hostname') + '</th><th>' + t('consolidated.os') + '</th><th>' + t('consolidated.status') + '</th><th>' + t('consolidated.port') + '</th><th>' + t('consolidated.proto') + '</th><th>' + t('consolidated.state') + '</th><th>' + t('consolidated.service') + '</th><th>' + t('consolidated.version') + '</th><th>' + t('consolidated.product') + '</th><th>' + t('consolidated.extra_info') + '</th><th>' + t('consolidated.changes') + '</th><th>' + t('consolidated.last_seen') + '</th><th>' + t('consolidated.note_column') + '</th><th>' + t('consolidated.label') + '</th><th class="sticky-right-2">' + t('consolidated.nse') + '</th><th class="sticky-right"></th>';
             html += '</tr></thead><tbody>';
             for (const p of ports) {
                 const key = p.ip + '|' + p.port + '|' + p.protocol;
-                const histBtn = '<button class="btn btn-secondary btn-sm btn-history" onclick="event.stopPropagation();openPortHistory(\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="View scan history"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>';
+                const histBtn = '<button class="btn btn-secondary btn-sm btn-history" onclick="event.stopPropagation();openPortHistory(\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="' + t('consolidated.view_scan_history') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>';
                 const nseScripts = getPortNSEScripts(p.ip, p.port, p.protocol);
-                const nseBtn = nseScripts.length > 0 ? '<button class="btn btn-secondary btn-sm btn-nse" onclick="event.stopPropagation();toggleNSERow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="View NSE scripts"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span class="nse-count">' + nseScripts.length + '</span></button>' : '<span style="color:var(--text-muted);font-size:0.7rem;">-</span>';
+                const nseBtn = nseScripts.length > 0 ? '<button class="btn btn-secondary btn-sm btn-nse" onclick="event.stopPropagation();toggleNSERow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="' + t('consolidated.view_nse') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span class="nse-count">' + nseScripts.length + '</span></button>' : '<span style="color:var(--text-muted);font-size:0.7rem;">-</span>';
                 const checked = consolidatedSelected.has(key) ? 'checked' : '';
                 html += '<tr data-ip="' + esc(p.ip) + '" data-port="' + p.port + '" data-proto="' + esc(p.protocol) + '">';
                 html += '<td><input type="checkbox" class="cons-cb" data-key="' + esc(key) + '" ' + checked + ' onchange="toggleConsolidatedSelect(\'' + esc(key) + '\', this.checked)"></td>';
@@ -799,19 +799,19 @@
                 html += '<td class="editable-cell" ondblclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'extra_info\',\'' + esc(p.extra_info || '') + '\')" title="' + esc(p.extra_info || '') + '">' + (esc(p.extra_info) || '-') + '</td>';
                 html += '<td style="text-align:center;">' + p.change_count + '</td>';
                 html += '<td>' + formatDate(p.last_seen) + '</td>';
-                html += '<td title="' + esc(p.note_preview || '') + '"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toggleNoteRow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="Edit note" style="padding:2px 6px;font-size:0.75rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>';
+                html += '<td title="' + esc(p.note_preview || '') + '"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toggleNoteRow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="' + t('consolidated.edit_note') + '" style="padding:2px 6px;font-size:0.75rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>';
                 html += '<td>' + renderLabelDropdown(p) + '</td>';
                 html += '<td class="sticky-right-2">' + nseBtn + '</td>';
                 html += '<td class="sticky-right">' + histBtn + '</td>';
                 html += '</tr>';
                 html += '<tr class="note-row" style="display:none;" data-parent-ip="' + esc(p.ip) + '" data-parent-port="' + p.port + '" data-parent-proto="' + esc(p.protocol) + '">';
-                html += '<td colspan="19"><div class="note-inline"><textarea class="form-control note-inline-ta" placeholder="Enter note for this port...">' + esc(p.note_preview || '') + '</textarea><div class="note-inline-actions"><button class="btn btn-secondary btn-sm note-inline-delete">Delete</button><button class="btn btn-primary btn-sm note-inline-save">Save</button></div></div></td>';
+                html += '<td colspan="19"><div class="note-inline"><textarea class="form-control note-inline-ta" placeholder="' + t('consolidated.note_placeholder') + '">' + esc(p.note_preview || '') + '</textarea><div class="note-inline-actions"><button class="btn btn-secondary btn-sm note-inline-delete">' + t('consolidated.delete_note') + '</button><button class="btn btn-primary btn-sm note-inline-save">' + t('consolidated.save_note') + '</button></div></div></td>';
                 html += '</tr>';
                 if (nseScripts.length > 0) {
                     html += '<tr class="nse-row" style="display:none;" data-parent-ip="' + esc(p.ip) + '" data-parent-port="' + p.port + '" data-parent-proto="' + esc(p.protocol) + '">';
                     html += '<td colspan="19"><div class="nse-content">';
                     for (const s of nseScripts) {
-                        html += '<div class="nse-item"><div class="nse-left"><span class="nse-id">' + esc(s.script_id) + '</span><pre class="nse-output">' + esc(s.output) + '</pre></div><span class="nse-eye" onclick="showScriptModalFromData(\'' + esc(s.script_id) + '\',\'' + esc(s.ip) + '\',' + s.port + ')" title="View full output"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span></div>';
+                        html += '<div class="nse-item"><div class="nse-left"><span class="nse-id">' + esc(s.script_id) + '</span><pre class="nse-output">' + esc(s.output) + '</pre></div><span class="nse-eye" onclick="showScriptModalFromData(\'' + esc(s.script_id) + '\',\'' + esc(s.ip) + '\',' + s.port + ')" title="' + t('consolidated.view_output') + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span></div>';
                     }
                     html += '</div></td></tr>';
                 }
@@ -820,23 +820,38 @@
             container.innerHTML = html;
         }
 
-        const LABEL_OPTIONS = [
-            {value: '', label: 'None', color: ''},
-            {value: 'critical', label: 'Critical', color: '#ef4444'},
-            {value: 'high', label: 'High', color: '#f97316'},
-            {value: 'medium', label: 'Medium', color: '#eab308'},
-            {value: 'low', label: 'Low', color: '#22c55e'},
-            {value: 'info', label: 'Info', color: '#3b82f6'},
-            {value: 'interesting', label: 'Interesting', color: '#a855f7'}
-        ];
+        function getLabelOptions() {
+            return [
+                {value: '', label: t('consolidated.label_none'), color: ''},
+                {value: 'critical', label: t('consolidated.label_critical'), color: '#ef4444'},
+                {value: 'high', label: t('consolidated.label_high'), color: '#f97316'},
+                {value: 'medium', label: t('consolidated.label_medium'), color: '#eab308'},
+                {value: 'low', label: t('consolidated.label_low'), color: '#22c55e'},
+                {value: 'info', label: t('consolidated.label_info'), color: '#3b82f6'},
+                {value: 'interesting', label: t('consolidated.label_interesting'), color: '#a855f7'}
+            ];
+        }
 
         function renderLabelDropdown(p) {
-            const current = (p.label || '').toLowerCase();
+            const raw = p.label || '';
+            const current = raw.toLowerCase();
+            const LABEL_OPTIONS = getLabelOptions();
             const opt = LABEL_OPTIONS.find(o => o.value === current);
-            const color = opt ? opt.color : '';
-            const displayLabel = opt && opt.value ? opt.label : '';
+            let color = opt ? opt.color : '';
+            let displayLabel;
+            if (opt && opt.value) {
+                displayLabel = opt.label;
+                color = opt.color;
+            } else if (raw.startsWith('consolidated.label_')) {
+                displayLabel = t(raw);
+                const innerValue = raw.replace('consolidated.label_', '');
+                const innerOpt = LABEL_OPTIONS.find(o => o.value === innerValue);
+                if (innerOpt) color = innerOpt.color;
+            } else {
+                displayLabel = raw || '-';
+            }
             let html = `<div class="label-dd" style="position:relative;display:inline-block;">`;
-            html += `<button class="label-btn" onclick="event.stopPropagation();var m=this.nextElementSibling;if(m.style.display==='block'){m.style.display='none'}else{var r=this.getBoundingClientRect();m.style.position='fixed';m.style.top=r.bottom+'px';m.style.left=r.left+'px';m.style.display='block';m.style.zIndex='9999'}" style="padding:2px 6px;border-radius:4px;font-size:0.7rem;font-weight:600;text-transform:uppercase;border:1px solid ${color || 'var(--border)'};background:${color ? color+'22' : 'transparent'};color:${color || 'var(--text-muted)'};cursor:pointer;white-space:nowrap;">${displayLabel || '-'}</button>`;
+            html += `<button class="label-btn" onclick="event.stopPropagation();var m=this.nextElementSibling;if(m.style.display==='block'){m.style.display='none'}else{var r=this.getBoundingClientRect();m.style.position='fixed';m.style.top=r.bottom+'px';m.style.left=r.left+'px';m.style.display='block';m.style.zIndex='9999'}" style="padding:2px 6px;border-radius:4px;font-size:0.7rem;font-weight:600;text-transform:uppercase;border:1px solid ${color || 'var(--border)'};background:${color ? color+'22' : 'transparent'};color:${color || 'var(--text-muted)'};cursor:pointer;white-space:nowrap;">${displayLabel}</button>`;
             html += `<div class="label-menu" style="display:none;position:absolute;top:100%;left:0;z-index:50;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;min-width:110px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">`;
             for (const o of LABEL_OPTIONS) {
                 const sel = o.value === current ? ' style="background:var(--accent);color:white;"' : '';
@@ -862,7 +877,7 @@
                 // Re-render
                 renderConsolidatedPorts();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('consolidated.error') + e.message, 'error');
             }
         }
 
@@ -883,9 +898,9 @@
                 limitSelect.value = String(d.limit);
             }
             let html = '<div class="pagination">';
-            html += '<span class="pagination-info">Showing ' + ((currentPage - 1) * d.limit + 1) + '-' + Math.min(currentPage * d.limit, d.total) + ' of ' + d.total + '</span>';
+            html += '<span class="pagination-info">' + t('consolidated.showing') + ' ' + ((currentPage - 1) * d.limit + 1) + '-' + Math.min(currentPage * d.limit, d.total) + ' ' + t('consolidated.of') + ' ' + d.total + '</span>';
             if (currentPage > 1) {
-                html += '<button class="btn btn-secondary btn-sm" onclick="loadConsolidated(' + (currentPage - 1) + ')">&laquo; Prev</button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="loadConsolidated(' + (currentPage - 1) + ')">' + t('consolidated.prev') + '</button>';
             }
             const maxButtons = 5;
             let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
@@ -905,7 +920,7 @@
                 html += '<button class="btn btn-secondary btn-sm" onclick="loadConsolidated(' + totalPages + ')">' + totalPages + '</button>';
             }
             if (currentPage < totalPages) {
-                html += '<button class="btn btn-secondary btn-sm" onclick="loadConsolidated(' + (currentPage + 1) + ')">Next &raquo;</button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="loadConsolidated(' + (currentPage + 1) + ')">' + t('consolidated.next') + '</button>';
             }
             html += '</div>';
             container.innerHTML = html;
@@ -953,7 +968,7 @@
                 if (!res.ok) throw new Error(`HTTP ${res.status}: ${raw.error || JSON.stringify(raw)}`);
                 consolidatedAllPorts = Array.isArray(raw) ? raw : (raw.ports || []);
             } catch (e) {
-                showToast('Error loading all data: ' + e.message, 'error');
+                showToast(t('consolidated.error_loading_all') + e.message, 'error');
                 consolidatedAllPorts = null;
             }
         }
@@ -1003,8 +1018,8 @@
 
             const nCols = 19; // checkbox + 18 data columns
             let html = '<table><thead><tr>';
-            html += '<th style="width:36px"><input type="checkbox" onchange="toggleConsolidatedSelectAll(this.checked)" title="Select all"></th>';
-            html += '<th>IP</th><th>MAC</th><th>Hostname</th><th>OS</th><th>Status</th><th>Port</th><th>Proto</th><th>State</th><th>Service</th><th>Version</th><th>Product</th><th>Extra</th><th>Changes</th><th>Last Seen</th><th>Note</th><th>Label</th><th class="sticky-right-2">NSE</th><th class="sticky-right"></th>';
+            html += '<th style="width:36px"><input type="checkbox" onchange="toggleConsolidatedSelectAll(this.checked)" title="' + t('consolidated.select_all') + '"></th>';
+            html += '<th>' + t('consolidated.ip') + '</th><th>' + t('consolidated.mac') + '</th><th>' + t('consolidated.hostname') + '</th><th>' + t('consolidated.os') + '</th><th>' + t('consolidated.status') + '</th><th>' + t('consolidated.port') + '</th><th>' + t('consolidated.proto') + '</th><th>' + t('consolidated.state') + '</th><th>' + t('consolidated.service') + '</th><th>' + t('consolidated.version') + '</th><th>' + t('consolidated.product') + '</th><th>' + t('consolidated.extra_info') + '</th><th>' + t('consolidated.changes') + '</th><th>' + t('consolidated.last_seen') + '</th><th>' + t('consolidated.note_column') + '</th><th>' + t('consolidated.label') + '</th><th class="sticky-right-2">' + t('consolidated.nse') + '</th><th class="sticky-right"></th>';
             html += '</tr></thead><tbody>';
 
             for (const ip of sortedIPs) {
@@ -1021,15 +1036,15 @@
                 html += '<td>' + (esc(first.hostname) || '-') + '</td>';
                 html += '<td>' + (esc(first.os) || '-') + '</td>';
                 html += '<td>' + stateBadge(first.host_status) + '</td>';
-                html += '<td colspan="12"><span class="badge badge-hosts">' + hostPorts.length + ' port' + (hostPorts.length > 1 ? 's' : '') + '</span></td>';
+                html += '<td colspan="12"><span class="badge badge-hosts">' + hostPorts.length + ' ' + (hostPorts.length > 1 ? t('consolidated.ports') : t('consolidated.port_singular')) + '</span></td>';
                 html += '</tr>';
 
                 // Sub-rows (hidden by default)
                 for (const p of hostPorts) {
                     const pkey = p.ip + '|' + p.port + '|' + p.protocol;
-                    const histBtn = '<button class="btn btn-secondary btn-sm btn-history" onclick="event.stopPropagation();openPortHistory(\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="View scan history"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>';
+                    const histBtn = '<button class="btn btn-secondary btn-sm btn-history" onclick="event.stopPropagation();openPortHistory(\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="' + t('consolidated.view_scan_history') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>';
                     const nseScripts = getPortNSEScripts(p.ip, p.port, p.protocol);
-                    const nseBtn = nseScripts.length > 0 ? '<button class="btn btn-secondary btn-sm btn-nse" onclick="event.stopPropagation();toggleNSERow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="View NSE scripts" style="display:inline-flex;align-items:center;gap:2px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span class="nse-count">' + nseScripts.length + '</span></button>' : '<span style="color:var(--text-muted);font-size:0.7rem;">-</span>';
+                    const nseBtn = nseScripts.length > 0 ? '<button class="btn btn-secondary btn-sm btn-nse" onclick="event.stopPropagation();toggleNSERow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="' + t('consolidated.view_nse') + '" style="display:inline-flex;align-items:center;gap:2px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span class="nse-count">' + nseScripts.length + '</span></button>' : '<span style="color:var(--text-muted);font-size:0.7rem;">-</span>';
                     const checked = consolidatedSelected.has(pkey) ? 'checked' : '';
                     html += '<tr data-group-key="' + esc(key) + '" style="display:none;" data-ip="' + esc(p.ip) + '" data-port="' + p.port + '" data-proto="' + esc(p.protocol) + '">';
                     html += '<td><input type="checkbox" class="cons-cb" data-key="' + esc(pkey) + '" ' + checked + ' onchange="toggleConsolidatedSelect(\'' + esc(pkey) + '\', this.checked)"></td>';
@@ -1047,19 +1062,19 @@
                     html += '<td class="editable-cell" ondblclick="editConsolidatedCell(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\',\'extra_info\',\'' + esc(p.extra_info || '') + '\')" title="' + esc(p.extra_info || '') + '">' + (esc(p.extra_info) || '-') + '</td>';
                     html += '<td style="text-align:center;">' + p.change_count + '</td>';
                     html += '<td>' + formatDate(p.last_seen) + '</td>';
-                    html += '<td title="' + esc(p.note_preview || '') + '"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toggleNoteRow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="Edit note" style="padding:2px 6px;font-size:0.75rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>';
+                    html += '<td title="' + esc(p.note_preview || '') + '"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toggleNoteRow(this,\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="' + t('consolidated.edit_note') + '" style="padding:2px 6px;font-size:0.75rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>';
                     html += '<td>' + renderLabelDropdown(p) + '</td>';
                     html += '<td class="sticky-right-2">' + nseBtn + '</td>';
                     html += '<td class="sticky-right">' + histBtn + '</td>';
                     html += '</tr>';
                     html += '<tr class="note-row" style="display:none;" data-group-key="' + esc(key) + '" data-parent-ip="' + esc(p.ip) + '" data-parent-port="' + p.port + '" data-parent-proto="' + esc(p.protocol) + '">';
-                    html += '<td colspan="' + nCols + '"><div class="note-inline"><textarea class="form-control note-inline-ta" placeholder="Enter note for this port...">' + esc(p.note_preview || '') + '</textarea><div class="note-inline-actions"><button class="btn btn-secondary btn-sm note-inline-delete">Delete</button><button class="btn btn-primary btn-sm note-inline-save">Save</button></div></div></td>';
+                    html += '<td colspan="' + nCols + '"><div class="note-inline"><textarea class="form-control note-inline-ta" placeholder="' + t('consolidated.note_placeholder') + '">' + esc(p.note_preview || '') + '</textarea><div class="note-inline-actions"><button class="btn btn-secondary btn-sm note-inline-delete">' + t('consolidated.delete_note') + '</button><button class="btn btn-primary btn-sm note-inline-save">' + t('consolidated.save_note') + '</button></div></div></td>';
                     html += '</tr>';
                     if (nseScripts.length > 0) {
                         html += '<tr class="nse-row" style="display:none;" data-group-key="' + esc(key) + '" data-parent-ip="' + esc(p.ip) + '" data-parent-port="' + p.port + '" data-parent-proto="' + esc(p.protocol) + '">';
                         html += '<td colspan="' + nCols + '"><div class="nse-content">';
                         for (const s of nseScripts) {
-                            html += '<div class="nse-item"><div class="nse-left"><span class="nse-id">' + esc(s.script_id) + '</span><pre class="nse-output">' + esc(s.output) + '</pre></div><span class="nse-eye" onclick="showScriptModalFromData(\'' + esc(s.script_id) + '\',\'' + esc(s.ip) + '\',' + s.port + ')" title="View full output"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span></div>';
+                            html += '<div class="nse-item"><div class="nse-left"><span class="nse-id">' + esc(s.script_id) + '</span><pre class="nse-output">' + esc(s.output) + '</pre></div><span class="nse-eye" onclick="showScriptModalFromData(\'' + esc(s.script_id) + '\',\'' + esc(s.ip) + '\',' + s.port + ')" title="' + t('consolidated.view_output') + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span></div>';
                         }
                         html += '</div></td></tr>';
                     }
@@ -1090,13 +1105,13 @@
                 noteText = data.note || '';
             } catch (e) {}
             const body = '<div style="margin-bottom:15px;">' +
-                '<label style="display:block;margin-bottom:6px;color:var(--text-muted);font-size:0.85rem;">Port: <strong>' + label + '</strong></label>' +
-                '<textarea id="port-note-textarea" class="form-control" style="min-height:100px;resize:vertical;" placeholder="Enter note for this port...">' + esc(noteText) + '</textarea></div>' +
+                '<label style="display:block;margin-bottom:6px;color:var(--text-muted);font-size:0.85rem;">' + t('consolidated.port_label') + ' <strong>' + label + '</strong></label>' +
+                '<textarea id="port-note-textarea" class="form-control" style="min-height:100px;resize:vertical;" placeholder="' + t('consolidated.note_placeholder') + '">' + esc(noteText) + '</textarea></div>' +
                 '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-                '<button class="btn btn-secondary" id="port-note-delete" style="margin-right:auto;">Delete</button> ' +
-                '<button class="btn btn-secondary" id="port-note-cancel">Cancel</button> ' +
-                '<button class="btn btn-primary" id="port-note-save">Save</button></div>';
-            const modal = showModal(mid, 'Port Note', body, 'modal-small');
+                '<button class="btn btn-secondary" id="port-note-delete" style="margin-right:auto;">' + t('consolidated.delete_note') + '</button> ' +
+                '<button class="btn btn-secondary" id="port-note-cancel">' + t('common.cancel') + '</button> ' +
+                '<button class="btn btn-primary" id="port-note-save">' + t('consolidated.save_note') + '</button></div>';
+            const modal = showModal(mid, t('consolidated.port_note'), body, 'modal-small');
             const ta = modal.querySelector('#port-note-textarea');
             modal.querySelector('#port-note-save').addEventListener('click', async function() {
                 const note = ta.value.trim();
@@ -1106,21 +1121,21 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ ip, port, protocol, note })
                     });
-                    showToast(note ? 'Note saved' : 'Note cleared');
+                    showToast(note ? t('consolidated.note_saved') : t('consolidated.note_cleared'));
                     closeModal(mid);
                     refreshCurrentNoteView();
                 } catch (e) {
-                    showToast('Error saving note: ' + e.message, 'error');
+                    showToast(t('consolidated.error_saving_note') + e.message, 'error');
                 }
             });
             modal.querySelector('#port-note-delete').addEventListener('click', async function() {
                 try {
                     await fetch(`/api/projects/${projectId}/consolidated/notes/delete?ip=${encodeURIComponent(ip)}&port=${port}&protocol=${encodeURIComponent(protocol)}`, { method: 'DELETE' });
-                    showToast('Note deleted');
+                    showToast(t('consolidated.note_deleted'));
                     closeModal(mid);
                     refreshCurrentNoteView();
                 } catch (e) {
-                    showToast('Error: ' + e.message, 'error');
+                    showToast(t('consolidated.error') + e.message, 'error');
                 }
             });
             modal.querySelector('#port-note-cancel').addEventListener('click', function() { closeModal(mid); });
@@ -1156,10 +1171,10 @@
                         } else {
                             cell.textContent = newVal || '-';
                         }
-                        showToast('Updated');
+                        showToast(t('app.saved'));
                     } catch (e) {
                         cell.textContent = current || '-';
-                        showToast('Update failed: ' + e.message, 'error');
+                        showToast(t('consolidated.update_failed') + e.message, 'error');
                     }
                 } else {
                     cell.textContent = current || '-';
@@ -1174,34 +1189,34 @@
         }
 
         async function revertEdit(editId, ip, port, protocol) {
-            if (!confirm('Revert this manual edit?')) return;
+            if (!confirm(t('consolidated.revert_confirm'))) return;
             try {
                 await fetch(`/api/projects/${projectId}/consolidated/ports/edits/${editId}/revert`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ip, port, protocol })
                 });
-                showToast('Edit reverted');
+                showToast(t('consolidated.edit_reverted'));
                 await loadHostEdits(ip);
                 renderConsolidatedPorts();
             } catch (e) {
-                showToast('Revert failed: ' + e.message, 'error');
+                showToast(t('consolidated.revert_failed') + e.message, 'error');
             }
         }
 
         async function applyEdit(editId, ip, port, protocol) {
-            if (!confirm('Re-apply this manual edit?')) return;
+            if (!confirm(t('consolidated.reapply_confirm'))) return;
             try {
                 await fetch(`/api/projects/${projectId}/consolidated/ports/edits/${editId}/apply`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ip, port, protocol })
                 });
-                showToast('Edit re-applied');
+                showToast(t('consolidated.edit_reapplied'));
                 await loadConsolidated(1);
                 openPortHistory(ip, port, protocol);
             } catch (e) {
-                showToast('Re-apply failed: ' + e.message, 'error');
+                showToast(t('consolidated.reapply_failed') + e.message, 'error');
             }
         }
 
@@ -1212,12 +1227,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ip })
                 });
-                showToast('Reverted');
+                showToast(t('consolidated.reverted'));
                 await loadConsolidated(1);
                 await loadHostEdits(ip);
                 renderConsolidatedPorts();
             } catch (e) {
-                showToast('Revert failed: ' + e.message, 'error');
+                showToast(t('consolidated.revert_failed') + e.message, 'error');
             }
         }
 
@@ -1229,14 +1244,14 @@
             const mid = 'confirm-bulk-del-consolidated';
             const old = document.getElementById(mid);
             if (old) old.remove();
-            const label = items.length + ' port' + (items.length > 1 ? 's' : '');
-            const body = '<p style="margin-bottom:15px;color:var(--text-muted);">Delete ' + label + ' from consolidated assets?</p>' +
+            const label = items.length + ' ' + t('consolidated.ports');
+            const body = '<p style="margin-bottom:15px;color:var(--text-muted);">' + t('consolidated.bulk_delete_body') + ' ' + label + '?</p>' +
                 '<div style="max-height:200px;overflow-y:auto;margin-bottom:15px;font-size:0.8rem;color:var(--text-muted);">' +
                 items.map(k => '<div>' + esc(k.replace(/\|/g, ':')) + '</div>').join('') + '</div>' +
                 '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-                '<button class="btn btn-secondary" id="bulk-del-cons-cancel">Cancel</button> ' +
-                '<button class="btn btn-danger" id="bulk-del-cons-ok">Delete ' + label + '</button></div>';
-            const modal = showModal(mid, 'Bulk Delete', body, 'modal-small');
+                '<button class="btn btn-secondary" id="bulk-del-cons-cancel">' + t('common.cancel') + '</button> ' +
+                '<button class="btn btn-danger" id="bulk-del-cons-ok">' + t('consolidated.bulk_delete_confirm') + ' ' + label + '</button></div>';
+            const modal = showModal(mid, t('consolidated.bulk_delete_title'), body, 'modal-small');
             modal.querySelector('#bulk-del-cons-ok').addEventListener('click', async function() {
                 closeModal(mid);
                 try {
@@ -1249,11 +1264,11 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ ports: payload })
                     });
-                    showToast(label + ' deleted');
+                    showToast(label + ' ' + t('consolidated.deleted'));
                     consolidatedSelected.clear();
                     await loadConsolidated(1);
                 } catch (e) {
-                    showToast('Error: ' + e.message, 'error');
+                    showToast(t('consolidated.error') + e.message, 'error');
                 }
             });
             modal.querySelector('#bulk-del-cons-cancel').addEventListener('click', function() { closeModal(mid); });
@@ -1298,50 +1313,50 @@
                 params += '&filters=' + encodeURIComponent(JSON.stringify(activeGroups));
             }
 
-            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Loading sizes...</p>';
-            var m = showModal('asset-export-modal', 'Export Assets', body, 'modal-small');
+            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('consolidated.loading_sizes') + '</p>';
+            var m = showModal('asset-export-modal', t('consolidated.export_title'), body, 'modal-small');
             fetch('/api/projects/' + projectId + '/consolidated/export/sizes' + params)
                 .then(function(r) { return r.json(); })
                 .then(function(sizes) {
                     var fmt = function(size) {
-                        if (size < 1024) return size + ' B';
-                        if (size < 1024*1024) return (size/1024).toFixed(1) + ' KB';
-                        return (size/1024/1024).toFixed(1) + ' MB';
+                        if (size < 1024) return size + ' ' + t('common.bytes_b');
+                        if (size < 1024*1024) return (size/1024).toFixed(1) + ' ' + t('common.bytes_kb');
+                        return (size/1024/1024).toFixed(1) + ' ' + t('common.bytes_mb');
                     };
-                    body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                    body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('consolidated.select_format') + '</p>' +
                         '<div style="display:flex;flex-direction:column;gap:8px;">' +
                             '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'xlsx\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
-                                ' Excel (.xlsx)' +
+                                ' ' + t('consolidated.export_excel') +
                                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.xlsx || 0) + '</span>' +
                             '</button>' +
                             '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'json\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
-                                ' JSON' +
+                                ' ' + t('consolidated.export_json') +
                                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.json || 0) + '</span>' +
                             '</button>' +
                             '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'txt\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
-                                ' TXT (.txt)' +
+                                ' ' + t('consolidated.export_txt') +
                                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.txt || 0) + '</span>' +
                             '</button>' +
                         '</div>';
                     m.querySelector('.modal-body').innerHTML = body;
                 })
                 .catch(function() {
-                    m.querySelector('.modal-body').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                    m.querySelector('.modal-body').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('consolidated.select_format') + '</p>' +
                         '<div style="display:flex;flex-direction:column;gap:8px;">' +
                             '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'xlsx\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
-                                ' Excel (.xlsx)' +
+                                ' ' + t('consolidated.export_excel') +
                             '</button>' +
                             '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'json\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
-                                ' JSON' +
+                                ' ' + t('consolidated.export_json') +
                             '</button>' +
                             '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doAssetExport(\'txt\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
-                                ' TXT (.txt)' +
+                                ' ' + t('consolidated.export_txt') +
                             '</button>' +
                         '</div>';
                 });
@@ -1368,10 +1383,10 @@
         function copyConsolidatedIPs() {
             const ports = consolidatedPortsData.ports || [];
             const ips = [...new Set(ports.map(p => p.ip))];
-            if (ips.length === 0) { showToast('No IPs to copy', 'error'); return; }
+            if (ips.length === 0) { showToast(t('consolidated.no_ips_to_copy'), 'error'); return; }
             const text = ips.join(',');
             navigator.clipboard.writeText(text).then(() => {
-                showToast('Copied ' + ips.length + ' IPs to clipboard');
+                showToast(t('consolidated.copied_ips_1') + ips.length + t('consolidated.copied_ips_2'));
             }).catch(() => {
                 const ta = document.createElement('textarea');
                 ta.value = text;
@@ -1379,7 +1394,7 @@
                 ta.select();
                 document.execCommand('copy');
                 document.body.removeChild(ta);
-                showToast('Copied ' + ips.length + ' IPs to clipboard');
+                showToast(t('consolidated.copied_ips_1') + ips.length + t('consolidated.copied_ips_2'));
             });
         }
 
@@ -1399,7 +1414,7 @@
                 populateScriptServiceFilter();
                 applyScriptFilters();
             }).catch(() => {
-                document.getElementById('scripts-table').innerHTML = '<div class="empty-state"><h3>No scripts</h3><p>No NSE scripts found</p></div>';
+                document.getElementById('scripts-table').innerHTML = '<div class="empty-state"><h3>' + t('consolidated.no_scripts') + '</h3><p>' + t('consolidated.no_nse_scripts') + '</p></div>';
             });
         }
 
@@ -1418,7 +1433,7 @@
                 notesData = data.notes || [];
                 applyNotesFilters();
             } catch (e) {
-                document.getElementById('notes-table').innerHTML = '<div class="empty-state"><h3>No notes</h3><p>No port notes found</p></div>';
+                document.getElementById('notes-table').innerHTML = '<div class="empty-state"><h3>' + t('consolidated.no_notes') + '</h3><p>' + t('consolidated.no_notes_found') + '</p></div>';
             }
         }
 
@@ -1444,11 +1459,11 @@
             const pageData = notesFiltered.slice(start, end);
             const container = document.getElementById('notes-table');
             if (pageData.length === 0) {
-                container.innerHTML = '<div class="empty-state"><h3>No results</h3><p>No notes match the current filter</p></div>';
+                container.innerHTML = '<div class="empty-state"><h3>' + t('consolidated.no_results') + '</h3><p>' + t('consolidated.no_notes_match') + '</p></div>';
                 return;
             }
             let html = '<table><thead><tr>';
-            html += '<th>IP</th><th>Port</th><th>Proto</th><th>Service</th><th>Hostname</th><th>Note</th><th>Updated</th><th></th>';
+            html += '<th>' + t('consolidated.ip') + '</th><th>' + t('consolidated.port') + '</th><th>' + t('consolidated.proto') + '</th><th>' + t('consolidated.service') + '</th><th>' + t('consolidated.hostname') + '</th><th>' + t('consolidated.note_column') + '</th><th>' + t('consolidated.updated') + '</th><th></th>';
             html += '</tr></thead><tbody>';
             for (const n of pageData) {
                 html += '<tr>';
@@ -1460,8 +1475,8 @@
                 html += '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(n.note) + '">' + esc(n.note) + '</td>';
                 html += '<td>' + formatDate(n.updated_at) + '</td>';
                 html += '<td style="white-space:nowrap;">';
-                html += '<button class="btn btn-secondary btn-sm" onclick="openPortNote(\'' + esc(n.ip) + '\',' + n.port + ',\'' + esc(n.protocol) + '\')" title="Edit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
-                html += ' <button class="btn btn-secondary btn-sm" onclick="deleteNoteFromTab(\'' + esc(n.ip) + '\',' + n.port + ',\'' + esc(n.protocol) + '\')" title="Delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="openPortNote(\'' + esc(n.ip) + '\',' + n.port + ',\'' + esc(n.protocol) + '\')" title="' + t('common.edit') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+                html += ' <button class="btn btn-secondary btn-sm" onclick="deleteNoteFromTab(\'' + esc(n.ip) + '\',' + n.port + ',\'' + esc(n.protocol) + '\')" title="' + t('app.delete') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
                 html += '</td>';
                 html += '</tr>';
             }
@@ -1482,9 +1497,9 @@
             const totalPages = Math.ceil(notesFiltered.length / notesPerPage);
             const currentPage = notesCurrentPage;
             let html = '<div class="pagination">';
-            html += '<span class="pagination-info">' + notesFiltered.length + ' note' + (notesFiltered.length > 1 ? 's' : '') + '</span>';
+            html += '<span class="pagination-info">' + notesFiltered.length + ' ' + (notesFiltered.length > 1 ? t('consolidated.notes_plural') : t('consolidated.notes_singular')) + '</span>';
             if (currentPage > 1) {
-                html += '<button class="btn btn-secondary btn-sm" onclick="notesGoTo(' + (currentPage - 1) + ')">&laquo; Prev</button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="notesGoTo(' + (currentPage - 1) + ')">' + t('consolidated.prev') + '</button>';
             }
             const maxButtons = 5;
             let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
@@ -1504,22 +1519,22 @@
                 html += '<button class="btn btn-secondary btn-sm" onclick="notesGoTo(' + totalPages + ')">' + totalPages + '</button>';
             }
             if (currentPage < totalPages) {
-                html += '<button class="btn btn-secondary btn-sm" onclick="notesGoTo(' + (currentPage + 1) + ')">Next &raquo;</button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="notesGoTo(' + (currentPage + 1) + ')">' + t('consolidated.next') + '</button>';
             }
             html += '</div>';
             container.innerHTML = html;
         }
-
+        
         async function deleteNoteFromTab(ip, port, protocol) {
-            if (!confirm('Delete this note?')) return;
+            if (!confirm(t('consolidated.delete_note_confirm'))) return;
             try {
                 const res = await fetch(`/api/projects/${projectId}/consolidated/notes/delete?ip=${encodeURIComponent(ip)}&port=${port}&protocol=${encodeURIComponent(protocol)}`, { method: 'DELETE' });
                 if (!res.ok) throw new Error((await res.json()).error);
-                showToast('Note deleted');
-                notesData = notesData.filter(n => !(n.ip === ip && n.port === port && n.protocol === protocol));
+                showToast(t('consolidated.note_deleted'));
+                notesData = notesData.filter(n => !(n.ip === ip && n.port === n.port && n.protocol === protocol));
                 applyNotesFilters();
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('consolidated.error') + e.message, 'error');
             }
         }
 
@@ -1594,18 +1609,18 @@
             const pageData = scriptsFiltered.slice(start, end);
             const container = document.getElementById('scripts-table');
             if (pageData.length === 0) {
-                container.innerHTML = '<div class="empty-state"><h3>No results</h3><p>No scripts match the current filter</p></div>';
+                container.innerHTML = '<div class="empty-state"><h3>' + t('consolidated.no_results') + '</h3><p>' + t('consolidated.no_scripts_match') + '</p></div>';
                 return;
             }
             let html = '<table><thead><tr>';
-            html += '<th onclick="sortScripts(\'ip\')" style="cursor:pointer;">IP' + scriptSortArrow('ip') + '</th>';
-            html += '<th onclick="sortScripts(\'port\')" style="cursor:pointer;">Port' + scriptSortArrow('port') + '</th>';
-            html += '<th onclick="sortScripts(\'protocol\')" style="cursor:pointer;">Proto' + scriptSortArrow('protocol') + '</th>';
-            html += '<th onclick="sortScripts(\'service\')" style="cursor:pointer;">Service' + scriptSortArrow('service') + '</th>';
-            html += '<th onclick="sortScripts(\'state\')" style="cursor:pointer;">State' + scriptSortArrow('state') + '</th>';
-            html += '<th>Extra</th>';
-            html += '<th onclick="sortScripts(\'script_id\')" style="cursor:pointer;">Script ID' + scriptSortArrow('script_id') + '</th>';
-            html += '<th>Output</th><th></th>';
+            html += '<th onclick="sortScripts(\'ip\')" style="cursor:pointer;">' + t('consolidated.ip') + scriptSortArrow('ip') + '</th>';
+            html += '<th onclick="sortScripts(\'port\')" style="cursor:pointer;">' + t('consolidated.port') + scriptSortArrow('port') + '</th>';
+            html += '<th onclick="sortScripts(\'protocol\')" style="cursor:pointer;">' + t('consolidated.proto') + scriptSortArrow('protocol') + '</th>';
+            html += '<th onclick="sortScripts(\'service\')" style="cursor:pointer;">' + t('consolidated.service') + scriptSortArrow('service') + '</th>';
+            html += '<th onclick="sortScripts(\'state\')" style="cursor:pointer;">' + t('consolidated.state') + scriptSortArrow('state') + '</th>';
+            html += '<th>' + t('consolidated.extra_info') + '</th>';
+            html += '<th onclick="sortScripts(\'script_id\')" style="cursor:pointer;">' + t('consolidated.script_id') + scriptSortArrow('script_id') + '</th>';
+            html += '<th>' + t('consolidated.output') + '</th><th></th>';
             html += '</tr></thead><tbody>';
             for (const s of pageData) {
                 const key = esc(s.script_id) + '-' + esc(s.ip) + '-' + s.port;
@@ -1618,8 +1633,8 @@
                 html += '<td title="' + esc(s.extra_info || '') + '">' + (esc(s.extra_info) || '-') + '</td>';
                 html += '<td><span class="nse-id" style="font-family:var(--font-mono);color:var(--cyan);font-size:0.85rem;">' + esc(s.script_id) + '</span></td>';
                 html += '<td style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><pre style="margin:0;font-size:0.75rem;color:var(--text-muted);">' + esc(s.output).substring(0, 120) + (s.output.length > 120 ? '...' : '') + '</pre></td>';
-                html += '<td style="white-space:nowrap;"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showScriptModalFromData(\'' + esc(s.script_id) + '\',\'' + esc(s.ip) + '\',' + s.port + ')" title="View output"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>';
-                html += ' <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();goToConsolidatedPort(\'' + esc(s.ip) + '\',' + s.port + ')" title="View in Assets"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button></td>';
+                html += '<td style="white-space:nowrap;"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showScriptModalFromData(\'' + esc(s.script_id) + '\',\'' + esc(s.ip) + '\',' + s.port + ')" title="' + t('consolidated.view_output_short') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>';
+                html += ' <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();goToConsolidatedPort(\'' + esc(s.ip) + '\',' + s.port + ')" title="' + t('consolidated.view_in_assets') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button></td>';
                 html += '</tr>';
                 html += '<tr class="script-expand-row" style="display:none;" data-key="' + key + '"><td colspan="9"><div style="padding:8px;"><pre style="white-space:pre-wrap;font-size:0.75rem;background:var(--bg-input);padding:8px;border-radius:4px;margin:0;max-height:300px;overflow-y:auto;">' + esc(s.output) + '</pre></div></td></tr>';
             }
@@ -1660,34 +1675,34 @@
         function renderScriptsGrouped() {
             const container = document.getElementById('scripts-table');
             if (scriptsFiltered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><h3>No results</h3><p>No scripts match the current filter</p></div>';
+                container.innerHTML = '<div class="empty-state"><h3>' + t('consolidated.no_results') + '</h3><p>' + t('consolidated.no_scripts_match') + '</p></div>';
                 return;
             }
             const groupField = scriptGroupMode === 'script' ? 'script_id' : 'ip';
             const groups = {};
             for (const s of scriptsFiltered) {
-                const key = s[groupField] || '(unknown)';
+                const key = s[groupField] || t('consolidated.unknown');
                 if (!groups[key]) groups[key] = [];
                 groups[key].push(s);
             }
             const sortedKeys = Object.keys(groups).sort();
             let html = '<table><thead><tr>';
-            html += '<th>' + (groupField === 'script_id' ? 'Script ID' : 'Host') + '</th>';
-            html += '<th onclick="sortScripts(\'ip\')" style="cursor:pointer;">IP' + scriptSortArrow('ip') + '</th>';
-            html += '<th onclick="sortScripts(\'port\')" style="cursor:pointer;">Port' + scriptSortArrow('port') + '</th>';
-            html += '<th onclick="sortScripts(\'protocol\')" style="cursor:pointer;">Proto' + scriptSortArrow('protocol') + '</th>';
-            html += '<th onclick="sortScripts(\'service\')" style="cursor:pointer;">Service' + scriptSortArrow('service') + '</th>';
-            html += '<th onclick="sortScripts(\'state\')" style="cursor:pointer;">State' + scriptSortArrow('state') + '</th>';
-            html += '<th>Extra</th>';
-            html += '<th onclick="sortScripts(\'script_id\')" style="cursor:pointer;">Script ID' + scriptSortArrow('script_id') + '</th>';
-            html += '<th>Output</th><th></th>';
+            html += '<th>' + (groupField === 'script_id' ? t('consolidated.script_id') : t('consolidated.host')) + '</th>';
+            html += '<th onclick="sortScripts(\'ip\')" style="cursor:pointer;">' + t('consolidated.ip') + scriptSortArrow('ip') + '</th>';
+            html += '<th onclick="sortScripts(\'port\')" style="cursor:pointer;">' + t('consolidated.port') + scriptSortArrow('port') + '</th>';
+            html += '<th onclick="sortScripts(\'protocol\')" style="cursor:pointer;">' + t('consolidated.proto') + scriptSortArrow('protocol') + '</th>';
+            html += '<th onclick="sortScripts(\'service\')" style="cursor:pointer;">' + t('consolidated.service') + scriptSortArrow('service') + '</th>';
+            html += '<th onclick="sortScripts(\'state\')" style="cursor:pointer;">' + t('consolidated.state') + scriptSortArrow('state') + '</th>';
+            html += '<th>' + t('consolidated.extra_info') + '</th>';
+            html += '<th onclick="sortScripts(\'script_id\')" style="cursor:pointer;">' + t('consolidated.script_id') + scriptSortArrow('script_id') + '</th>';
+            html += '<th>' + t('consolidated.output') + '</th><th></th>';
             html += '</tr></thead>';
             for (const gkey of sortedKeys) {
                 const entries = groups[gkey].sort((a, b) => a.ip.localeCompare(b.ip) || a.port - b.port);
                 const safeGkey = esc(gkey);
                 html += '<tbody class="script-group" data-group="' + safeGkey + '">';
                 html += '<tr class="script-group-header" onclick="toggleScriptGroupBody(this)">';
-                html += '<td colspan="10"><span class="group-toggle-icon">&#9654;</span> <strong>' + safeGkey + '</strong> <span class="group-count">' + entries.length + ' ' + (entries.length === 1 ? 'entry' : 'entries') + '</span></td>';
+                html += '<td colspan="10"><span class="group-toggle-icon">&#9654;</span> <strong>' + safeGkey + '</strong> <span class="group-count">' + entries.length + ' ' + (entries.length === 1 ? t('consolidated.entry') : t('consolidated.entries')) + '</span></td>';
                 html += '</tr>';
                 for (const s of entries) {
                     const key = esc(s.script_id) + '-' + esc(s.ip) + '-' + s.port;
@@ -1701,8 +1716,8 @@
                     html += '<td title="' + esc(s.extra_info || '') + '">' + (esc(s.extra_info) || '-') + '</td>';
                     html += '<td><span class="nse-id" style="font-family:var(--font-mono);color:var(--cyan);font-size:0.85rem;">' + esc(s.script_id) + '</span></td>';
                     html += '<td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><pre style="margin:0;font-size:0.75rem;color:var(--text-muted);">' + esc(s.output).substring(0, 80) + (s.output.length > 80 ? '...' : '') + '</pre></td>';
-                    html += '<td style="white-space:nowrap;"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showScriptModalFromData(\'' + esc(s.script_id) + '\',\'' + esc(s.ip) + '\',' + s.port + ')" title="View output"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>';
-                    html += ' <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();goToConsolidatedPort(\'' + esc(s.ip) + '\',' + s.port + ')" title="View in Assets"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button></td>';
+                    html += '<td style="white-space:nowrap;"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showScriptModalFromData(\'' + esc(s.script_id) + '\',\'' + esc(s.ip) + '\',' + s.port + ')" title="' + t('consolidated.view_output_short') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>';
+                    html += ' <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();goToConsolidatedPort(\'' + esc(s.ip) + '\',' + s.port + ')" title="' + t('consolidated.view_in_assets') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button></td>';
                     html += '</tr>';
                     html += '<tr class="script-expand-row" style="display:none;" data-key="' + key + '"><td colspan="10"><div style="padding:8px;"><pre style="white-space:pre-wrap;font-size:0.75rem;background:var(--bg-input);padding:8px;border-radius:4px;margin:0;max-height:300px;overflow-y:auto;">' + esc(s.output) + '</pre></div></td></tr>';
                 }
@@ -1736,9 +1751,9 @@
             const totalPages = Math.ceil(scriptsFiltered.length / scriptsPerPage);
             const currentPage = scriptsCurrentPage;
             let html = '<div class="pagination">';
-            html += '<span class="pagination-info">Showing ' + ((currentPage - 1) * scriptsPerPage + 1) + '-' + Math.min(currentPage * scriptsPerPage, scriptsFiltered.length) + ' of ' + scriptsFiltered.length + '</span>';
+            html += '<span class="pagination-info">' + t('consolidated.showing') + ' ' + ((currentPage - 1) * scriptsPerPage + 1) + '-' + Math.min(currentPage * scriptsPerPage, scriptsFiltered.length) + ' ' + t('consolidated.of') + ' ' + scriptsFiltered.length + '</span>';
             if (currentPage > 1) {
-                html += '<button class="btn btn-secondary btn-sm" onclick="scriptsGoTo(' + (currentPage - 1) + ')">&laquo; Prev</button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="scriptsGoTo(' + (currentPage - 1) + ')">' + t('consolidated.prev') + '</button>';
             }
             const maxButtons = 5;
             let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
@@ -1756,7 +1771,7 @@
                 html += '<button class="btn btn-secondary btn-sm" onclick="scriptsGoTo(' + totalPages + ')">' + totalPages + '</button>';
             }
             if (currentPage < totalPages) {
-                html += '<button class="btn btn-secondary btn-sm" onclick="scriptsGoTo(' + (currentPage + 1) + ')">Next &raquo;</button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="scriptsGoTo(' + (currentPage + 1) + ')">' + t('consolidated.next') + '</button>';
             }
             html += '</div>';
             container.innerHTML = html;
@@ -1787,7 +1802,7 @@
         function populateScriptFilter() {
             const sel = document.getElementById('script-filter');
             const current = sel.value;
-            sel.innerHTML = '<option value="">All Scripts</option>';
+            sel.innerHTML = '<option value="">' + t('consolidated.all_scripts') + '</option>';
             getUniqueScriptIDs().forEach(s => {
                 sel.innerHTML += '<option value="' + esc(s) + '">' + esc(s) + '</option>';
             });
@@ -1801,7 +1816,7 @@
             (consolidatedScriptsData.scripts || []).forEach(s => {
                 if (s.service) svcs.add(s.service);
             });
-            sel.innerHTML = '<option value="">Service</option>';
+            sel.innerHTML = '<option value="">' + t('consolidated.service_filter_all') + '</option>';
             Array.from(svcs).sort().forEach(s => {
                 sel.innerHTML += '<option value="' + esc(s) + '">' + esc(s) + '</option>';
             });
@@ -1812,7 +1827,7 @@
             if (!output) {
                 const scripts = getPortNSEScripts(ip, port, 'tcp');
                 const found = scripts.find(s => s.script_id === scriptId);
-                output = found ? found.output : 'No output available';
+                output = found ? found.output : t('consolidated.no_output');
             }
             var title = scriptId + ' - ' + ip + (port ? ':' + port : '');
             var body = '<div class="script-modal-output"><pre style="white-space:pre-wrap;font-family:var(--font-mono);font-size:0.8rem;background:var(--bg-input);padding:16px;border-radius:var(--radius-card);max-height:60vh;overflow-y:auto;margin:0;">' + esc(output) + '</pre></div>';
@@ -1821,7 +1836,7 @@
 
         function showScriptModalFromData(scriptId, ip, port) {
             const found = (consolidatedScriptsData.scripts || []).find(s => s.script_id === scriptId && s.ip === ip && s.port === port);
-            const output = found ? found.output : 'No output available';
+            const output = found ? found.output : t('consolidated.no_output');
             showScriptModal(scriptId, ip, port, output);
         }
 
@@ -1862,50 +1877,50 @@
             if (input) { input.focus(); input.select(); }
         }
         function showScriptExportModal() {
-            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Loading sizes...</p>';
-            var m = showModal('script-export-modal', 'Export Scripts', body, 'modal-small');
+            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('consolidated.loading_sizes') + '</p>';
+            var m = showModal('script-export-modal', t('consolidated.export_scripts_title'), body, 'modal-small');
             fetch('/api/projects/' + projectId + '/consolidated/export/scripts/sizes')
                 .then(function(r) { return r.json(); })
                 .then(function(sizes) {
                     var fmt = function(size) {
-                        if (size < 1024) return size + ' B';
-                        if (size < 1024*1024) return (size/1024).toFixed(1) + ' KB';
-                        return (size/1024/1024).toFixed(1) + ' MB';
+                        if (size < 1024) return size + ' ' + t('common.bytes_b');
+                        if (size < 1024*1024) return (size/1024).toFixed(1) + ' ' + t('common.bytes_kb');
+                        return (size/1024/1024).toFixed(1) + ' ' + t('common.bytes_mb');
                     };
-                    body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                    body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('consolidated.select_format') + '</p>' +
                         '<div style="display:flex;flex-direction:column;gap:8px;">' +
                             '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'xlsx\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
-                                ' Excel (.xlsx)' +
+                                ' ' + t('consolidated.export_excel') +
                                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.xlsx || 0) + '</span>' +
                             '</button>' +
                             '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'json\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
-                                ' JSON' +
+                                ' ' + t('consolidated.export_json') +
                                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.json || 0) + '</span>' +
                             '</button>' +
                             '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'txt\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
-                                ' TXT (.txt)' +
+                                ' ' + t('consolidated.export_txt') +
                                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.txt || 0) + '</span>' +
                             '</button>' +
                         '</div>';
                     m.querySelector('.modal-body').innerHTML = body;
                 })
                 .catch(function() {
-                    m.querySelector('.modal-body').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                    m.querySelector('.modal-body').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('consolidated.select_format') + '</p>' +
                         '<div style="display:flex;flex-direction:column;gap:8px;">' +
                             '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'xlsx\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
-                                ' Excel (.xlsx)' +
+                                ' ' + t('consolidated.export_excel') +
                             '</button>' +
                             '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'json\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
-                                ' JSON' +
+                                ' ' + t('consolidated.export_json') +
                             '</button>' +
                             '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doScriptExport(\'txt\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
-                                ' TXT (.txt)' +
+                                ' ' + t('consolidated.export_txt') +
                             '</button>' +
                         '</div>';
                 });
@@ -1923,16 +1938,16 @@
                 const url = `/api/projects/${projectId}/consolidated/export/scripts/${format}`;
                 window.location.href = url;
             }
-            showToast('Exporting scripts (' + format + ')');
+            showToast(t('consolidated.exporting_scripts_1') + format + t('consolidated.exporting_scripts_2'));
         }
 
         function copyScriptIPs() {
             const scripts = consolidatedScriptsData.scripts || [];
             const ips = [...new Set(scripts.map(s => s.ip))];
-            if (ips.length === 0) { showToast('No IPs to copy', 'error'); return; }
+            if (ips.length === 0) { showToast(t('consolidated.no_ips_to_copy'), 'error'); return; }
             const text = ips.join(',');
             navigator.clipboard.writeText(text).then(() => {
-                showToast('Copied ' + ips.length + ' IPs to clipboard');
+                showToast(t('consolidated.copied_ips_1') + ips.length + t('consolidated.copied_ips_2'));
             }).catch(() => {
                 const ta = document.createElement('textarea');
                 ta.value = text;
@@ -1940,7 +1955,7 @@
                 ta.select();
                 document.execCommand('copy');
                 document.body.removeChild(ta);
-                showToast('Copied ' + ips.length + ' IPs to clipboard');
+                showToast(t('consolidated.copied_ips_1') + ips.length + t('consolidated.copied_ips_2'));
             });
         }
 
@@ -1963,8 +1978,8 @@
         }
 
         async function openPortHistory(ip, port, protocol) {
-            var body = '<div id="port-history-content"><div class="empty-state"><div class="spinner"></div><p>Loading history...</p></div></div>';
-            showModal('port-history-modal', ip + ':' + port + '/' + protocol + ' - History', body, 'modal-large');
+            var body = '<div id="port-history-content"><div class="empty-state"><div class="spinner"></div><p>' + t('consolidated.loading_port_history') + '</p></div></div>';
+            showModal('port-history-modal', ip + ':' + port + '/' + protocol + ' - ' + t('consolidated.history_suffix'), body, 'modal-large');
             var content = document.getElementById('port-history-content');
 
             let currentPort = (consolidatedPortsData.ports || []).find(p => p.ip === ip && p.port === port && p.protocol === protocol);
@@ -2000,7 +2015,7 @@
                 // scans
                 if (scanHistory && scanHistory.length > 0) {
                     hasAny = true;
-                    html += '<div class="ph-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Scan History</div>';
+                    html += '<div class="ph-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + t('consolidated.scan_history_title') + '</div>';
                     for (let i = 0; i < scanHistory.length; i++) {
                         const h = scanHistory[i];
                         const isCurrent = i === 0;
@@ -2009,7 +2024,7 @@
                         html += '<div class="ph-row-top">';
                         html += '<a href="/project/' + projectId + '/scan/' + h.scan_id + '" class="ph-link">#' + h.scan_id + '</a>';
                         html += '<span class="ph-profile">' + esc(h.profile) + '</span>';
-                        if (isCurrent) html += '<span class="ph-cur-tag">Current</span>';
+                        if (isCurrent) html += '<span class="ph-cur-tag">' + t('consolidated.current_tag') + '</span>';
                         html += '<span class="ph-date">' + fmt(h.started_at) + '</span>';
                         html += '</div>';
                         html += '<div class="ph-row-mid">';
@@ -2019,7 +2034,7 @@
                         if (h.product) html += '<span class="ph-val ph-val-muted">' + esc(h.product) + '</span>';
                         html += '</div></div>';
                         if (!isCurrent) {
-                            html += '<button class="btn btn-secondary btn-sm" onclick="revertPort(\'' + esc(ip) + '\',' + port + ',\'' + esc(protocol) + '\',\'' + esc(h.state) + '\',\'' + esc(h.service || '') + '\',\'' + esc(h.version || '') + '\',\'' + esc(h.product || '') + '\',\'' + esc(h.extra_info || '') + '\', ' + h.scan_id + ')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>Restore</button>';
+                            html += '<button class="btn btn-secondary btn-sm" onclick="revertPort(\'' + esc(ip) + '\',' + port + ',\'' + esc(protocol) + '\',\'' + esc(h.state) + '\',\'' + esc(h.service || '') + '\',\'' + esc(h.version || '') + '\',\'' + esc(h.product || '') + '\',\'' + esc(h.extra_info || '') + '\', ' + h.scan_id + ')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>' + t('consolidated.restore_btn') + '</button>';
                         }
                         html += '</div>';
                     }
@@ -2028,53 +2043,53 @@
                 // edits
                 if (edits && edits.length > 0) {
                     hasAny = true;
-                    html += '<div class="ph-title" style="margin-top:24px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Manual Edits</div>';
+                    html += '<div class="ph-title" style="margin-top:24px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' + t('consolidated.manual_edits_title') + '</div>';
                     for (const e of edits) {
                         const isApplied = e.applied !== 0;
                         html += '<div class="ph-row' + (isApplied ? '' : ' ph-row-reverted') + '">';
                         html += '<div class="ph-row-main">';
                         html += '<div class="ph-row-top">';
-                        html += '<span class="ph-edit-tag' + (isApplied ? '' : ' ph-edit-tag-reverted') + '">' + (isApplied ? 'Edit' : 'Reverted') + '</span>';
+                        html += '<span class="ph-edit-tag' + (isApplied ? '' : ' ph-edit-tag-reverted') + '">' + (isApplied ? t('consolidated.edit_tag') : t('consolidated.reverted_tag')) + '</span>';
                         html += '<span class="ph-field">' + esc(e.field) + '</span>';
                         html += '<span class="ph-date">' + fmt(e.edited_at) + '</span>';
                         html += '</div>';
-                        const oldV = esc(e.old_value) || '<span class="ph-empty">empty</span>';
-                        const newV = esc(e.new_value) || '<span class="ph-empty">empty</span>';
+                        const oldV = esc(e.old_value) || '<span class="ph-empty">' + t('consolidated.empty_value') + '</span>';
+                        const newV = esc(e.new_value) || '<span class="ph-empty">' + t('consolidated.empty_value') + '</span>';
                         html += '<div class="ph-row-mid" style="gap:0;font-size:0.85rem;color:var(--text);">';
                         html += '<span style="color:var(--text-muted);">' + oldV + '</span>';
                         html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin:0 6px;flex-shrink:0;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
                         html += '<span style="color:var(--text);font-weight:500;">' + newV + '</span>';
                         html += '</div></div>';
                         if (isApplied) {
-                            html += '<button class="btn btn-secondary btn-sm" onclick="revertEdit(' + e.edit_id + ',\'' + esc(ip) + '\',' + port + ',\'' + esc(protocol) + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>Revert</button>';
+                            html += '<button class="btn btn-secondary btn-sm" onclick="revertEdit(' + e.edit_id + ',\'' + esc(ip) + '\',' + port + ',\'' + esc(protocol) + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>' + t('consolidated.revert_btn') + '</button>';
                         } else {
-                            html += '<button class="btn btn-secondary btn-sm" onclick="applyEdit(' + e.edit_id + ',\'' + esc(ip) + '\',' + port + ',\'' + esc(protocol) + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Re-apply</button>';
+                            html += '<button class="btn btn-secondary btn-sm" onclick="applyEdit(' + e.edit_id + ',\'' + esc(ip) + '\',' + port + ',\'' + esc(protocol) + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>' + t('consolidated.reapply_btn') + '</button>';
                         }
                         html += '</div>';
                     }
                 }
 
-                if (!hasAny) html += '<div class="empty-state" style="margin-top:20px;"><p>No history found for this port</p></div>';
+                if (!hasAny) html += '<div class="empty-state" style="margin-top:20px;"><p>' + t('consolidated.no_port_history') + '</p></div>';
                 html += '</div>';
                 content.innerHTML = html;
             } catch (e) {
-                content.innerHTML = '<div class="empty-state"><p>Error loading history: ' + esc(e.message) + '</p></div>';
+                content.innerHTML = '<div class="empty-state"><p>' + t('consolidated.error_loading_history') + ' ' + esc(e.message) + '</p></div>';
             }
         }
 
         async function revertPort(ip, port, protocol, state, service, version, product, extraInfo, scanId) {
-            if (!confirm('Use state from scan #' + scanId + ' for ' + ip + ':' + port + '?\n\nOnly this port in the consolidated table will change. Original scan data is not modified.\n\nNew state: ' + state + (service ? ', service: ' + service : ''))) return;
+            if (!confirm(t('consolidated.revert_scan_confirm_1') + scanId + t('consolidated.revert_scan_confirm_2') + ip + ':' + port + t('consolidated.revert_scan_confirm_3') + state + (service ? ' ' + t('consolidated.service_colon') + ' ' + service : ''))) return;
             try {
                 await fetch(`/api/projects/${projectId}/consolidated/ports/revert`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ip, port, protocol, state, service, version, product, extra_info: extraInfo })
                 });
-                showToast('Port reverted to scan #' + scanId + ' state');
+                showToast(t('consolidated.port_reverted_1') + scanId + t('consolidated.port_reverted_2'));
                 await loadConsolidated(1);
                 openPortHistory(ip, port, protocol);
             } catch (e) {
-                showToast('Error: ' + e.message, 'error');
+                showToast(t('consolidated.error') + e.message, 'error');
             }
         }
 
@@ -2083,8 +2098,8 @@
         function closePortHistoryModal() { closeModal('port-history-modal'); }
 
         async function openHostPorts(ip) {
-            var body = '<div id="host-ports-content" class="table-container"><div class="empty-state"><div class="spinner"></div><p>Loading ports...</p></div></div>';
-            showModal('host-ports-modal', ip + ' - Open Ports', body, 'modal-large');
+            var body = '<div id="host-ports-content" class="table-container"><div class="empty-state"><div class="spinner"></div><p>' + t('consolidated.loading_ports') + '</p></div></div>';
+            showModal('host-ports-modal', ip + ' - ' + t('consolidated.open_ports_title'), body, 'modal-large');
             var content = document.getElementById('host-ports-content');
 
             try {
@@ -2094,15 +2109,15 @@
                 const hostPorts = ports.filter(p => p.ip === ip);
 
                 if (!hostPorts || hostPorts.length === 0) {
-                    content.innerHTML = '<div class="empty-state"><h3>No ports found</h3><p>No consolidated port data for this host</p></div>';
+                    content.innerHTML = '<div class="empty-state"><h3>' + t('consolidated.no_ports_found') + '</h3><p>' + t('consolidated.no_port_data') + '</p></div>';
                     return;
                 }
 
                 let html = '<table><thead><tr>';
-                html += '<th>Port</th><th>Protocol</th><th>State</th><th>Service</th><th>Version</th><th>Product</th><th>Changes</th><th>Last Seen</th><th></th>';
+                html += '<th>' + t('consolidated.host_port_header') + '</th><th>' + t('consolidated.host_protocol_header') + '</th><th>' + t('consolidated.host_state_header') + '</th><th>' + t('consolidated.host_service_header') + '</th><th>' + t('consolidated.host_version_header') + '</th><th>' + t('consolidated.host_product_header') + '</th><th>' + t('consolidated.host_changes_header') + '</th><th>' + t('consolidated.host_last_seen_header') + '</th><th></th>';
                 html += '</tr></thead><tbody>';
                 for (const p of hostPorts) {
-                    const histBtn = '<button class="btn btn-secondary btn-sm btn-history" onclick="event.stopPropagation();closeHostPortsModal();openPortHistory(\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="View scan history"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>';
+                    const histBtn = '<button class="btn btn-secondary btn-sm btn-history" onclick="event.stopPropagation();closeHostPortsModal();openPortHistory(\'' + esc(p.ip) + '\',' + p.port + ',\'' + esc(p.protocol) + '\')" title="' + t('consolidated.view_scan_history') + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>';
                     html += '<tr>';
                     html += '<td class="mono">' + p.port + '</td>';
                     html += '<td>' + esc(p.protocol) + '</td>';
@@ -2118,7 +2133,7 @@
                 html += '</tbody></table>';
                 content.innerHTML = html;
             } catch (e) {
-                content.innerHTML = '<div class="empty-state"><p>Error loading ports: ' + esc(e.message) + '</p></div>';
+                content.innerHTML = '<div class="empty-state"><p>' + t('consolidated.error_loading_ports') + ' ' + esc(e.message) + '</p></div>';
             }
         }
 
