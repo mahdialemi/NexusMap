@@ -142,7 +142,7 @@ function renderPDCharts(s) {
         if (!el) return null;
         return new Chart(el, {
             type: 'bar',
-            data: { labels: labels, datasets: [{ label: label || 'Count', data: data, backgroundColor: accent + '66', borderColor: accent, borderWidth: 1, borderRadius: 3 }] },
+            data: { labels: labels, datasets: [{ label: label || t('dashboard.count', 'Count'), data: data, backgroundColor: accent + '66', borderColor: accent, borderWidth: 1, borderRadius: 3 }] },
             options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, tooltip: tooltipOpts }, scales: { x: { ticks: { color: textColor, font: { size: 9 }, precision: 0 }, grid: { color: borderColor, drawBorder: false } }, y: { ticks: { color: textColor, font: { size: 9 } }, grid: { color: borderColor, drawBorder: false } } } }
         });
     }

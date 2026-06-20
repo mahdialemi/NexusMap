@@ -756,7 +756,7 @@
                                     <div>
                                         <label class="pf-label-sm" data-i18n="profiles.tcp_scan">TCP Scan</label>
                                         <select id="pf-tcp-scan" class="pf-select" data-action="onPfChange">
-                                            <option value="">None</option>
+                                            <option value="" data-i18n="profiles.none">None</option>
                                             <option value="-sA">-sA (ACK scan)</option>
                                             <option value="-sF">-sF (FIN scan)</option>
                                             <option value="-sM">-sM (Maimon scan)</option>
@@ -770,7 +770,7 @@
                                     <div>
                                         <label class="pf-label-sm" data-i18n="profiles.non_tcp_scan">Non-TCP Scan</label>
                                         <select id="pf-non-tcp" class="pf-select" data-action="onPfChange">
-                                            <option value="">None</option>
+                                            <option value="" data-i18n="profiles.none">None</option>
                                             <option value="-sU">-sU (UDP scan)</option>
                                             <option value="-sO">-sO (IP protocol scan)</option>
                                             <option value="-sL">-sL (List scan)</option>
@@ -783,7 +783,7 @@
                                 <div class="pf-mt">
                                     <label class="pf-label-sm" data-i18n="profiles.timing">Timing</label>
                                     <select id="pf-timing" class="pf-select" data-action="onPfChange">
-                                        <option value="">None</option>
+                                        <option value="" data-i18n="profiles.none">None</option>
                                         <option value="-T0">-T0 (Paranoid)</option>
                                         <option value="-T1">-T1 (Sneaky)</option>
                                         <option value="-T2">-T2 (Polite)</option>
@@ -914,7 +914,7 @@
                             <div class="pf-section-body collapsed">
                                 <div class="pf-grid">
                                     <div>
-                                        <label class="pf-label-sm">Extra options <span class="pf-label-xs" data-i18n="profiles.extra_options_desc">Extra options defined by user</span></label>
+                                        <label class="pf-label-sm" data-i18n="common.extra_options">Extra options <span class="pf-label-xs" data-i18n="profiles.extra_options_desc">Extra options defined by user</span></label>
                                         <input type="text" id="pf-extra" class="pf-input" placeholder="extra nmap args" data-action="onPfChange" data-i18n-placeholder="profiles.extra_args_placeholder">
                                     </div>
                                     <div>
@@ -1043,12 +1043,12 @@
                 </div>
                 <div class="about-desc">
                     <p data-i18n="about.description">NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
-                    <p class="about-desc-sub">Built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach. Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
+                    <p class="about-desc-sub" data-i18n="about.subtitle">Built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach. Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
                 </div>
                 <div class="about-pills">
-                    <span class="about-pill">Go</span>
-                    <span class="about-pill">SQLite</span>
-                    <span class="about-pill">Vanilla JS</span>
+                    <span class="about-pill" data-i18n="about.pill_go">Go</span>
+                    <span class="about-pill" data-i18n="about.pill_sqlite">SQLite</span>
+                    <span class="about-pill" data-i18n="about.pill_vanilla_js">Vanilla JS</span>
                 </div>
                 <div class="about-ftr">
                     <span><span data-i18n="about.developed_by">Developed by</span> <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></span>
@@ -1129,7 +1129,7 @@
     <script src="/static/js/project-main.js?v=2"></script>
 
     <div class="footer">
-        NexusMap <span class="app-version" data-i18n="app.version">v0.9.4</span> &middot; <span data-i18n="footer.made_with">Made with</span> <span class="footer-accent" data-i18n="footer.vibe">vibe coding</span> <span data-i18n="footer.by">by</span> <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        <span data-i18n="app.name">NexusMap</span> <span class="app-version" data-i18n="app.version">v0.9.4</span> &middot; <span data-i18n="footer.made_with">Made with</span> <span class="footer-accent" data-i18n="footer.vibe">vibe coding</span> <span data-i18n="footer.by">by</span> <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

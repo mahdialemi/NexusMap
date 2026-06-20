@@ -19,7 +19,7 @@
                 renderLivePagination();
                 populateLiveFilters();
             } catch (e) {
-                document.getElementById('live-table').innerHTML = '<div class="empty-state"><p>Error loading</p></div>';
+                document.getElementById('live-table').innerHTML = '<div class="empty-state"><p>' + t('live.error_loading', 'Error loading') + '</p></div>';
             }
         }
 
@@ -85,15 +85,15 @@
             const selOS = document.getElementById('live-filter-os');
             const selMethod = document.getElementById('live-filter-method');
             if (selStatus) {
-                selStatus.innerHTML = '<option value="">All Status</option>' + statuses.map(s => '<option value="' + esc(s) + '">' + esc(s) + '</option>').join('');
+                selStatus.innerHTML = '<option value="">' + t('live.filter_status', 'All Status') + '</option>' + statuses.map(s => '<option value="' + esc(s) + '">' + esc(s) + '</option>').join('');
                 selStatus.value = liveFilterStatus;
             }
             if (selOS) {
-                selOS.innerHTML = '<option value="">All OS</option>' + oses.map(o => '<option value="' + esc(o) + '">' + esc(o) + '</option>').join('');
+                selOS.innerHTML = '<option value="">' + t('live.filter_os', 'All OS') + '</option>' + oses.map(o => '<option value="' + esc(o) + '">' + esc(o) + '</option>').join('');
                 selOS.value = liveFilterOS;
             }
             if (selMethod) {
-                selMethod.innerHTML = '<option value="">All Methods</option>' + methodList.map(m => '<option value="' + esc(m) + '">' + esc(m) + '</option>').join('');
+                selMethod.innerHTML = '<option value="">' + t('live.filter_methods', 'All Methods') + '</option>' + methodList.map(m => '<option value="' + esc(m) + '">' + esc(m) + '</option>').join('');
                 selMethod.value = liveFilterMethod;
             }
         }
@@ -121,7 +121,7 @@
         function renderLiveHosts() {
             const container = document.getElementById('live-table');
             if (liveFiltered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><h3>No live hosts</h3><p>Confirm scans to populate live hosts</p></div>';
+                container.innerHTML = '<div class="empty-state"><h3>' + t('live.no_hosts_title', 'No live hosts') + '</h3><p>' + t('live.no_hosts_desc', 'Confirm scans to populate live hosts') + '</p></div>';
                 return;
             }
 
@@ -135,15 +135,15 @@
             const pageData = liveFiltered.slice(start, end);
 
             let html = '<table><thead><tr>';
-            if (liveCompareMode) html += '<th style="width:40px"><input type="checkbox" onchange="toggleLiveSelectAll(this.checked)" title="Select all"></th>';
-            html += '<th class="sortable" onclick="sortLiveHosts(\'ip\')">IP ' + sortArrow('ip') + '</th>';
-            html += '<th class="sortable" onclick="sortLiveHosts(\'mac\')">MAC ' + sortArrow('mac') + '</th>';
-            html += '<th class="sortable" onclick="sortLiveHosts(\'hostname\')">Hostname ' + sortArrow('hostname') + '</th>';
-            html += '<th class="sortable" onclick="sortLiveHosts(\'os\')">OS ' + sortArrow('os') + '</th>';
-            html += '<th class="sortable" onclick="sortLiveHosts(\'status\')">Status ' + sortArrow('status') + '</th>';
-            html += '<th>Discovery Methods</th>';
-            html += '<th class="sortable" onclick="sortLiveHosts(\'last_seen\')">Last Seen ' + sortArrow('last_seen') + '</th>';
-            html += '<th class="sticky-right">Actions</th>';
+            if (liveCompareMode) html += '<th style="width:40px"><input type="checkbox" onchange="toggleLiveSelectAll(this.checked)" title="' + t('projects.select_all', 'Select all') + '"></th>';
+            html += '<th class="sortable" onclick="sortLiveHosts(\'ip\')">' + t('live.th_ip', 'IP') + ' ' + sortArrow('ip') + '</th>';
+            html += '<th class="sortable" onclick="sortLiveHosts(\'mac\')">' + t('live.th_mac', 'MAC') + ' ' + sortArrow('mac') + '</th>';
+            html += '<th class="sortable" onclick="sortLiveHosts(\'hostname\')">' + t('live.th_hostname', 'Hostname') + ' ' + sortArrow('hostname') + '</th>';
+            html += '<th class="sortable" onclick="sortLiveHosts(\'os\')">' + t('live.th_os', 'OS') + ' ' + sortArrow('os') + '</th>';
+            html += '<th class="sortable" onclick="sortLiveHosts(\'status\')">' + t('live.th_status', 'Status') + ' ' + sortArrow('status') + '</th>';
+            html += '<th>' + t('live.th_discovery', 'Discovery Methods') + '</th>';
+            html += '<th class="sortable" onclick="sortLiveHosts(\'last_seen\')">' + t('live.th_last_seen', 'Last Seen') + ' ' + sortArrow('last_seen') + '</th>';
+            html += '<th class="sticky-right">' + t('live.th_actions', 'Actions') + '</th>';
             html += '</tr></thead><tbody>';
             for (const h of pageData) {
                 const sel = liveCompareMode ? '<td><input type="checkbox" class="live-cb" data-ip="' + esc(h.ip) + '" ' + (liveSelectedHosts.has(h.ip) ? 'checked' : '') + ' onchange="toggleLiveSelect(\'' + esc(h.ip) + '\', this.checked)"></td>' : '';
@@ -166,9 +166,9 @@
                 html += '</div></td>';
                 html += '<td>' + formatDate(h.last_seen) + '</td>';
                 html += '<td class="sticky-right" style="white-space:nowrap;">';
-                html += '<button class="btn btn-secondary btn-sm" onclick="copyToClipboard(\'' + esc(h.ip) + '\', \'IP copied\')" title="Copy IP"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button> ';
-                html += '<button class="btn btn-secondary btn-sm" onclick="pingLiveHost(\'' + esc(h.ip) + '\')" title="Ping check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button> ';
-                html += '<button class="btn btn-danger btn-sm" onclick="removeLiveHost(\'' + esc(h.ip) + '\')" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="copyToClipboard(\'' + esc(h.ip) + '\', t(\'live.ip_copied\', \'IP copied\'))" title="' + t('live.copy_ip_title', 'Copy IP') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button> ';
+                html += '<button class="btn btn-secondary btn-sm" onclick="pingLiveHost(\'' + esc(h.ip) + '\')" title="' + t('live.ping_title', 'Ping check') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button> ';
+                html += '<button class="btn btn-danger btn-sm" onclick="removeLiveHost(\'' + esc(h.ip) + '\')" title="' + t('live.remove_title', 'Remove') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
                 html += '</td></tr>';
             }
             html += '</tbody></table>';
@@ -190,18 +190,18 @@
                 html += '<div class="live-subnet-group"><div class="live-subnet-header" onclick="toggleSubnetGroup(this)">';
                 html += '<span class="live-subnet-arrow">\u25B6</span>';
                 html += '<span class="live-subnet-name">' + esc(subnet) + '</span>';
-                html += '<span class="live-subnet-count">' + hosts.length + ' host' + (hosts.length > 1 ? 's' : '') + '</span>';
+                html += '<span class="live-subnet-count">' + hosts.length + ' ' + (hosts.length === 1 ? t('live.host', 'host') : t('live.hosts', 'hosts')) + '</span>';
                 html += '</div>';
                 html += '<div class="live-subnet-body" style="display:none;">';
                 html += '<table><thead><tr>';
-                if (liveCompareMode) html += '<th style="width:40px"><input type="checkbox" onchange="toggleLiveSelectAll(this.checked)" title="Select all"></th>';
-                html += '<th class="sortable" onclick="sortLiveHosts(\'ip\')">IP ' + sortArrow('ip') + '</th>';
-                html += '<th class="sortable" onclick="sortLiveHosts(\'mac\')">MAC ' + sortArrow('mac') + '</th>';
-                html += '<th>Hostname</th><th>OS</th>';
-                html += '<th class="sortable" onclick="sortLiveHosts(\'status\')">Status ' + sortArrow('status') + '</th>';
-                html += '<th>Discovery Methods</th>';
-                html += '<th class="sortable" onclick="sortLiveHosts(\'last_seen\')">Last Seen ' + sortArrow('last_seen') + '</th>';
-                html += '<th class="sticky-right">Actions</th>';
+                if (liveCompareMode) html += '<th style="width:40px"><input type="checkbox" onchange="toggleLiveSelectAll(this.checked)" title="' + t('projects.select_all', 'Select all') + '"></th>';
+                html += '<th class="sortable" onclick="sortLiveHosts(\'ip\')">' + t('live.th_ip', 'IP') + ' ' + sortArrow('ip') + '</th>';
+                html += '<th class="sortable" onclick="sortLiveHosts(\'mac\')">' + t('live.th_mac', 'MAC') + ' ' + sortArrow('mac') + '</th>';
+                html += '<th>' + t('live.th_hostname', 'Hostname') + '</th><th>' + t('live.th_os', 'OS') + '</th>';
+                html += '<th class="sortable" onclick="sortLiveHosts(\'status\')">' + t('live.th_status', 'Status') + ' ' + sortArrow('status') + '</th>';
+                html += '<th>' + t('live.th_discovery', 'Discovery Methods') + '</th>';
+                html += '<th class="sortable" onclick="sortLiveHosts(\'last_seen\')">' + t('live.th_last_seen', 'Last Seen') + ' ' + sortArrow('last_seen') + '</th>';
+                html += '<th class="sticky-right">' + t('live.th_actions', 'Actions') + '</th>';
                 html += '</tr></thead><tbody>';
                 for (const h of hosts) {
                     const sel = liveCompareMode ? '<td><input type="checkbox" class="live-cb" data-ip="' + esc(h.ip) + '" ' + (liveSelectedHosts.has(h.ip) ? 'checked' : '') + ' onchange="toggleLiveSelect(\'' + esc(h.ip) + '\', this.checked)"></td>' : '';
@@ -224,9 +224,9 @@
                     html += '</div></td>';
                     html += '<td>' + formatDate(h.last_seen) + '</td>';
                     html += '<td class="sticky-right" style="white-space:nowrap;">';
-                    html += '<button class="btn btn-secondary btn-sm" onclick="copyToClipboard(\'' + esc(h.ip) + '\', \'IP copied\')" title="Copy IP"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button> ';
-                    html += '<button class="btn btn-secondary btn-sm" onclick="pingLiveHost(\'' + esc(h.ip) + '\')" title="Ping check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button> ';
-                    html += '<button class="btn btn-danger btn-sm" onclick="removeLiveHost(\'' + esc(h.ip) + '\')" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+                    html += '<button class="btn btn-secondary btn-sm" onclick="copyToClipboard(\'' + esc(h.ip) + '\', t(\'live.ip_copied\', \'IP copied\'))" title="' + t('live.copy_ip_title', 'Copy IP') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button> ';
+                    html += '<button class="btn btn-secondary btn-sm" onclick="pingLiveHost(\'' + esc(h.ip) + '\')" title="' + t('live.ping_title', 'Ping check') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button> ';
+                    html += '<button class="btn btn-danger btn-sm" onclick="removeLiveHost(\'' + esc(h.ip) + '\')" title="' + t('live.remove_title', 'Remove') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
                     html += '</td></tr>';
                 }
                 html += '</tbody></table></div></div>';
@@ -259,7 +259,7 @@
             if (!bar) return;
             if (liveSelectedHosts.size > 0) {
                 bar.style.display = 'flex';
-                bar.querySelector('.bulk-count').textContent = liveSelectedHosts.size + ' selected';
+                bar.querySelector('.bulk-count').textContent = t('live.select_count', '{n} selected').replace('{n}', liveSelectedHosts.size);
                 const cmpBtn = document.getElementById('live-compare-action-btn');
                 if (cmpBtn) cmpBtn.style.display = liveSelectedHosts.size >= 2 ? '' : 'none';
             } else {
@@ -277,9 +277,9 @@
             const totalPages = Math.ceil(liveFiltered.length / livePerPage);
             const currentPage = liveCurrentPage;
             let html = '<div class="pagination">';
-            html += '<span class="pagination-info">Showing ' + ((currentPage - 1) * livePerPage + 1) + '-' + Math.min(currentPage * livePerPage, liveFiltered.length) + ' of ' + liveFiltered.length + '</span>';
+            html += '<span class="pagination-info">' + t('live.pagination_info', 'Showing {start}-{end} of {total}').replace('{start}', (currentPage - 1) * livePerPage + 1).replace('{end}', Math.min(currentPage * livePerPage, liveFiltered.length)).replace('{total}', liveFiltered.length) + '</span>';
             if (currentPage > 1) {
-                html += '<button class="btn btn-secondary btn-sm" onclick="liveGoTo(' + (currentPage - 1) + ')">&laquo; Prev</button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="liveGoTo(' + (currentPage - 1) + ')">&laquo; ' + t('live.pagination_prev', 'Prev') + '</button>';
             }
             const maxButtons = 5;
             let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
@@ -297,7 +297,7 @@
                 html += '<button class="btn btn-secondary btn-sm" onclick="liveGoTo(' + totalPages + ')">' + totalPages + '</button>';
             }
             if (currentPage < totalPages) {
-                html += '<button class="btn btn-secondary btn-sm" onclick="liveGoTo(' + (currentPage + 1) + ')">Next &raquo;</button>';
+                html += '<button class="btn btn-secondary btn-sm" onclick="liveGoTo(' + (currentPage + 1) + ')">' + t('live.pagination_next', 'Next') + ' &raquo;</button>';
             }
             html += '</div>';
             container.innerHTML = html;
@@ -405,11 +405,11 @@
             const mid = 'confirm-delete-modal';
             const old = document.getElementById(mid);
             if (old) old.remove();
-            const body = '<p style="margin-bottom:15px;color:var(--text-muted);">Remove <strong>' + esc(ip) + '</strong> from live hosts?</p>' +
+            const body = '<p style="margin-bottom:15px;color:var(--text-muted);">' + t('live.remove_confirm', 'Remove {ip} from live hosts?').replace('{ip}', '<strong>' + esc(ip) + '</strong>') + '</p>' +
                 '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-                '<button class="btn btn-secondary" id="del-cancel">Cancel</button> ' +
-                '<button class="btn btn-danger" id="del-ok">Remove</button></div>';
-            const modal = showModal(mid, 'Remove Host', body, 'modal-small');
+                '<button class="btn btn-secondary" id="del-cancel">' + t('live.cancel_btn', 'Cancel') + '</button> ' +
+                '<button class="btn btn-danger" id="del-ok">' + t('live.remove_host_btn', 'Remove') + '</button></div>';
+            const modal = showModal(mid, t('live.del_title', 'Remove Host'), body, 'modal-small');
             modal.querySelector('#del-ok').addEventListener('click', async function() {
                 closeModal(mid);
                 try {
@@ -424,50 +424,50 @@
         }
 
         function showLiveExportModal() {
-            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Loading sizes...</p>';
-            var m = showModal('live-export-modal', 'Export Live Hosts', body, 'modal-small');
+            var body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('live.loading_sizes', 'Loading sizes...') + '</p>';
+            var m = showModal('live-export-modal', t('live.export_title', 'Export Live Hosts'), body, 'modal-small');
             fetch('/api/live/export/' + projectId + '/sizes')
                 .then(function(r) { return r.json(); })
                 .then(function(sizes) {
                     var fmt = function(size) {
-                        if (size < 1024) return size + ' B';
-                        if (size < 1024*1024) return (size/1024).toFixed(1) + ' KB';
-                        return (size/1024/1024).toFixed(1) + ' MB';
+                        if (size < 1024) return size + ' ' + t('common.bytes_b');
+                        if (size < 1024*1024) return (size/1024).toFixed(1) + ' ' + t('common.bytes_kb');
+                        return (size/1024/1024).toFixed(1) + ' ' + t('common.bytes_mb');
                     };
-                    body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                    body = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('live.select_export_format', 'Select export format:') + '</p>' +
                         '<div style="display:flex;flex-direction:column;gap:8px;">' +
                             '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'xlsx\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
-                                ' Excel (.xlsx)' +
+                                t('live.export_xlsx', ' Excel (.xlsx)') +
                                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.xlsx || 0) + '</span>' +
                             '</button>' +
                             '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'json\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
-                                ' JSON' +
+                                t('live.export_json', ' JSON') +
                                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.json || 0) + '</span>' +
                             '</button>' +
                             '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'txt\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
-                                ' TXT (.txt)' +
+                                t('live.export_txt', ' TXT (.txt)') +
                                 ' <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">' + fmt(sizes.txt || 0) + '</span>' +
                             '</button>' +
                         '</div>';
                     m.querySelector('.modal-body').innerHTML = body;
                 })
                 .catch(function() {
-                    m.querySelector('.modal-body').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">Select export format:</p>' +
+                    m.querySelector('.modal-body').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:15px;">' + t('live.select_export_format', 'Select export format:') + '</p>' +
                         '<div style="display:flex;flex-direction:column;gap:8px;">' +
                             '<button class="btn btn-success btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'xlsx\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>' +
-                                ' Excel (.xlsx)' +
+                                t('live.export_xlsx', ' Excel (.xlsx)') +
                             '</button>' +
                             '<button class="btn btn-primary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'json\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>' +
-                                ' JSON' +
+                                t('live.export_json', ' JSON') +
                             '</button>' +
                             '<button class="btn btn-secondary btn-sm" style="justify-content:flex-start;padding:10px 16px;" onclick="doLiveExport(\'txt\')">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
-                                ' TXT (.txt)' +
+                                t('live.export_txt', ' TXT (.txt)') +
                             '</button>' +
                         '</div>';
                 });
@@ -483,14 +483,14 @@
             const mid = 'confirm-bulk-delete-modal';
             const old = document.getElementById(mid);
             if (old) old.remove();
-            const label = ips.length + ' host' + (ips.length > 1 ? 's' : '');
-            const body = '<p style="margin-bottom:15px;color:var(--text-muted);">Delete ' + label + ' from live hosts?</p>' +
+            const label = ips.length + ' ' + (ips.length === 1 ? t('live.host', 'host') : t('live.hosts', 'hosts'));
+            const body = '<p style="margin-bottom:15px;color:var(--text-muted);">' + t('live.bulk_del_confirm', 'Delete {label} from live hosts?').replace('{label}', label) + '</p>' +
                 '<div style="max-height:200px;overflow-y:auto;margin-bottom:15px;font-size:0.8rem;color:var(--text-muted);">' +
                 ips.map(ip => '<div>' + esc(ip) + '</div>').join('') + '</div>' +
                 '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-                '<button class="btn btn-secondary" id="bulk-del-cancel">Cancel</button> ' +
-                '<button class="btn btn-danger" id="bulk-del-ok">Delete ' + label + '</button></div>';
-            const modal = showModal(mid, 'Bulk Delete', body, 'modal-small');
+                '<button class="btn btn-secondary" id="bulk-del-cancel">' + t('live.cancel_btn', 'Cancel') + '</button> ' +
+                '<button class="btn btn-danger" id="bulk-del-ok">' + t('live.bulk_del_btn', 'Delete {label}').replace('{label}', label) + '</button></div>';
+            const modal = showModal(mid, t('live.bulk_del_title', 'Bulk Delete'), body, 'modal-small');
             modal.querySelector('#bulk-del-ok').addEventListener('click', async function() {
                 closeModal(mid);
                 try {
@@ -512,7 +512,7 @@
         async function bulkChangeLiveStatus() {
             const ips = [...liveSelectedHosts];
             if (ips.length === 0) return;
-            const status = prompt('Enter new status (up/down/unknown):');
+            const status = prompt(t('live.status_prompt', 'Enter new status (up/down/unknown):'));
             if (!status) return;
             try {
                 await fetch(`/api/projects/${projectId}/live/bulk-status`, {
@@ -542,17 +542,17 @@
             body += '<div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">';
             body += '<div style="font-size:1.2rem;font-weight:700;font-family:var(--font-mono);color:var(--cyan);">' + esc(ip) + '</div>';
             body += stateBadge(host.status);
-            body += '<button class="btn btn-secondary btn-sm" onclick="copyToClipboard(\'' + esc(ip) + '\', \'IP copied\')" title="Copy IP"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
+            body += '<button class="btn btn-secondary btn-sm" onclick="copyToClipboard(\'' + esc(ip) + '\', t(\'live.ip_copied\', \'IP copied\'))" title="' + t('live.copy_ip_title', 'Copy IP') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
             body += '</div>';
 
             body += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:16px;">';
-            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">MAC</span><div class="mono">' + esc(host.mac || '-') + '</div></div>';
-            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">Hostname</span><div>' + esc(host.hostname || '-') + '</div></div>';
-            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">OS</span><div>' + esc(host.os || '-') + '</div></div>';
-            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">Last Seen</span><div>' + formatDate(host.last_seen) + '</div></div>';
-            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">Note</span><div>' + esc(host.note || '-') + '</div></div>';
+            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">' + t('live.th_mac', 'MAC') + '</span><div class="mono">' + esc(host.mac || '-') + '</div></div>';
+            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">' + t('live.th_hostname', 'Hostname') + '</span><div>' + esc(host.hostname || '-') + '</div></div>';
+            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">' + t('live.th_os', 'OS') + '</span><div>' + esc(host.os || '-') + '</div></div>';
+            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">' + t('live.th_last_seen', 'Last Seen') + '</span><div>' + formatDate(host.last_seen) + '</div></div>';
+            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">' + t('live.th_note', 'Note') + '</span><div>' + esc(host.note || '-') + '</div></div>';
             const methods = host.discovery_methods ? host.discovery_methods.split(',').filter(m => m) : [];
-            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">Discovery</span><div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:2px;">';
+            body += '<div><span style="color:var(--text-muted);font-size:0.75rem;">' + t('live.th_discovery', 'Discovery') + '</span><div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:2px;">';
             methods.forEach(m => { body += '<span class="badge badge-method">' + esc(m) + '</span>'; });
             if (methods.length === 0) body += '-';
             body += '</div></div>';
@@ -560,13 +560,14 @@
 
             body += '<div id="host-detail-tabs" style="margin-bottom:12px;display:flex;gap:4px;border-bottom:1px solid var(--border);padding-bottom:8px;">';
             ['ports', 'scripts', 'scans'].forEach((tab, i) => {
-                body += '<button class="btn btn-sm ' + (i === 0 ? 'btn-primary' : 'btn-secondary') + '" id="hdt-btn-' + tab + '" onclick="switchHostDetailTab(\'' + esc(ip) + '\',\'' + tab + '\')">' + tab.charAt(0).toUpperCase() + tab.slice(1) + '</button>';
+                var tabLabel = tab === 'ports' ? t('live.tab_ports', 'Ports') : tab === 'scripts' ? t('live.tab_scripts', 'Scripts') : t('live.tab_scans', 'Scans');
+                body += '<button class="btn btn-sm ' + (i === 0 ? 'btn-primary' : 'btn-secondary') + '" id="hdt-btn-' + tab + '" onclick="switchHostDetailTab(\'' + esc(ip) + '\',\'' + tab + '\')">' + tabLabel + '</button>';
             });
             body += '</div>';
-            body += '<div id="host-detail-content" class="table-container"><div class="empty-state"><div class="spinner"></div><p>Loading...</p></div></div>';
+            body += '<div id="host-detail-content" class="table-container"><div class="empty-state"><div class="spinner"></div><p>' + t('live.loading', 'Loading...') + '</p></div></div>';
             body += '</div>';
 
-            showModal('host-detail-modal', 'Host Details: ' + ip, body, 'modal-large');
+            showModal('host-detail-modal', t('live.host_details_title', 'Host Details: ') + ip, body, 'modal-large');
             switchHostDetailTab(ip, 'ports');
         }
 
@@ -577,7 +578,7 @@
             });
             const content = document.getElementById('host-detail-content');
             if (!content) return;
-            content.innerHTML = '<div class="empty-state"><div class="spinner"></div><p>Loading...</p></div>';
+            content.innerHTML = '<div class="empty-state"><div class="spinner"></div><p>' + t('live.loading', 'Loading...') + '</p></div>';
 
             try {
                 const res = await fetch(`/api/projects/${projectId}/live/detail?ip=${encodeURIComponent(ip)}`);
@@ -586,10 +587,10 @@
                 if (tab === 'ports') {
                     const ports = data.ports || [];
                     if (ports.length === 0) {
-                        content.innerHTML = '<div class="empty-state"><h3>No open ports</h3></div>';
+                        content.innerHTML = '<div class="empty-state"><h3>' + t('live.no_open_ports', 'No open ports') + '</h3></div>';
                         return;
                     }
-                    let html = '<table><thead><tr><th>Port</th><th>Protocol</th><th>State</th><th>Service</th><th>Version</th><th>Product</th><th>Extra</th></tr></thead><tbody>';
+                    let html = '<table><thead><tr><th>' + t('live.th_port', 'Port') + '</th><th>' + t('live.th_protocol', 'Protocol') + '</th><th>' + t('live.th_state', 'State') + '</th><th>' + t('live.th_service', 'Service') + '</th><th>' + t('live.th_version', 'Version') + '</th><th>' + t('live.th_product', 'Product') + '</th><th>' + t('live.th_extra', 'Extra') + '</th></tr></thead><tbody>';
                     ports.forEach(p => {
                         html += '<tr><td class="mono">' + p.port + '</td><td>' + esc(p.protocol) + '</td><td>' + stateBadge(p.state) + '</td>';
                         html += '<td>' + (esc(p.service) || '-') + '</td><td>' + (esc(p.version) || '-') + '</td>';
@@ -600,10 +601,10 @@
                 } else if (tab === 'scripts') {
                     const scripts = data.scripts || [];
                     if (scripts.length === 0) {
-                        content.innerHTML = '<div class="empty-state"><h3>No scripts</h3></div>';
+                        content.innerHTML = '<div class="empty-state"><h3>' + t('live.no_scripts', 'No scripts') + '</h3></div>';
                         return;
                     }
-                    let html = '<table><thead><tr><th>Script ID</th><th>Port</th><th>Type</th><th>Output</th></tr></thead><tbody>';
+                    let html = '<table><thead><tr><th>' + t('live.th_script_id', 'Script ID') + '</th><th>' + t('live.th_port', 'Port') + '</th><th>' + t('live.th_type', 'Type') + '</th><th>' + t('live.th_output', 'Output') + '</th></tr></thead><tbody>';
                     scripts.forEach(s => {
                         const output = s.output || '';
                         const displayOutput = esc(output).substring(0, 500) + (output.length > 500 ? '...' : '');
@@ -617,10 +618,10 @@
                 } else if (tab === 'scans') {
                     const scans = data.scans || [];
                     if (scans.length === 0) {
-                        content.innerHTML = '<div class="empty-state"><h3>No scan history</h3></div>';
+                        content.innerHTML = '<div class="empty-state"><h3>' + t('live.no_scan_history', 'No scan history') + '</h3></div>';
                         return;
                     }
-                    let html = '<table><thead><tr><th>Scan ID</th><th>Profile</th><th>Status</th><th>Started</th><th>Completed</th></tr></thead><tbody>';
+                    let html = '<table><thead><tr><th>' + t('live.th_scan_id', 'Scan ID') + '</th><th>' + t('live.th_profile', 'Profile') + '</th><th>' + t('live.th_status', 'Status') + '</th><th>' + t('live.th_started', 'Started') + '</th><th>' + t('live.th_completed', 'Completed') + '</th></tr></thead><tbody>';
                     scans.forEach(s => {
                         html += '<tr><td class="mono">#' + s.id + '</td><td>' + esc(s.profile) + '</td><td>' + statusBadge(s.status) + '</td>';
                         html += '<td>' + formatDate(s.started_at) + '</td><td>' + (s.completed_at ? formatDate(s.completed_at) : '-') + '</td></tr>';
@@ -629,7 +630,7 @@
                     content.innerHTML = html;
                 }
             } catch (e) {
-                content.innerHTML = '<div class="empty-state"><p>Error loading: ' + esc(e.message) + '</p></div>';
+                content.innerHTML = '<div class="empty-state"><p>' + t('live.error_loading_detail', 'Error loading: ') + esc(e.message) + '</p></div>';
             }
         }
 
@@ -638,19 +639,19 @@
             if (hosts.length < 2) return;
 
             let body = '<div style="padding:16px;">';
-            body += '<div class="table-container"><table><thead><tr><th>Attribute</th>';
+            body += '<div class="table-container"><table><thead><tr><th>' + t('live.th_attribute', 'Attribute') + '</th>';
             hosts.forEach(h => {
                 body += '<th class="mono" style="color:var(--cyan);">' + esc(h.ip) + '</th>';
             });
             body += '</tr></thead><tbody>';
 
             const attrs = [
-                { key: 'mac', label: 'MAC' },
-                { key: 'hostname', label: 'Hostname' },
-                { key: 'os', label: 'OS' },
-                { key: 'status', label: 'Status' },
-                { key: 'discovery_methods', label: 'Discovery' },
-                { key: 'last_seen', label: 'Last Seen' }
+                { key: 'mac', label: t('live.th_mac', 'MAC') },
+                { key: 'hostname', label: t('live.th_hostname', 'Hostname') },
+                { key: 'os', label: t('live.th_os', 'OS') },
+                { key: 'status', label: t('live.th_status', 'Status') },
+                { key: 'discovery_methods', label: t('live.th_discovery', 'Discovery') },
+                { key: 'last_seen', label: t('live.th_last_seen', 'Last Seen') }
             ];
             attrs.forEach(a => {
                 const vals = hosts.map(h => h[a.key] || '-');
@@ -666,11 +667,11 @@
 
             body += '</tbody></table></div>';
 
-            body += '<h3 style="margin:16px 0 8px;font-size:0.95rem;">Open Ports Comparison</h3>';
-            body += '<div id="compare-ports-content" class="table-container"><div class="empty-state"><div class="spinner"></div><p>Loading...</p></div></div>';
+            body += '<h3 style="margin:16px 0 8px;font-size:0.95rem;">' + t('live.compare_ports_header', 'Open Ports Comparison') + '</h3>';
+            body += '<div id="compare-ports-content" class="table-container"><div class="empty-state"><div class="spinner"></div><p>' + t('live.loading', 'Loading...') + '</p></div></div>';
             body += '</div>';
 
-            showModal('host-compare-modal', 'Compare ' + hosts.length + ' Hosts', body, 'modal-large');
+            showModal('host-compare-modal', t('live.compare_title', 'Compare {n} Hosts').replace('{n}', hosts.length), body, 'modal-large');
             loadComparePorts(hosts);
         }
 
@@ -761,11 +762,11 @@
                 });
 
                 if (allPorts.length === 0) {
-                    content.innerHTML = '<div class="empty-state"><h3>No open ports</h3></div>';
+                    content.innerHTML = '<div class="empty-state"><h3>' + t('live.no_open_ports', 'No open ports') + '</h3></div>';
                     return;
                 }
 
-                let html = '<table><thead><tr><th>Port</th>';
+                let html = '<table><thead><tr><th>' + t('live.th_port', 'Port') + '</th>';
                 hosts.forEach(h => { html += '<th class="mono" style="color:var(--cyan);">' + esc(h.ip) + '</th>'; });
                 html += '</tr></thead><tbody>';
                 allPorts.forEach(port => {
@@ -783,7 +784,7 @@
                 html += '</tbody></table>';
                 content.innerHTML = html;
             } catch (e) {
-                content.innerHTML = '<div class="empty-state"><p>Error: ' + esc(e.message) + '</p></div>';
+                content.innerHTML = '<div class="empty-state"><p>' + t('live.error', 'Error: ') + esc(e.message) + '</p></div>';
             }
         }
 

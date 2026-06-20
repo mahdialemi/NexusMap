@@ -26,7 +26,7 @@
             <button class="sidebar-btn" data-i18n-attr="title" title="All Projects" data-i18n="nav.projects" data-action="showAllProjects">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-folder"/></svg>
             </button>
-            <button class="sidebar-btn" title="Tags" data-action="showTagCloud">
+            <button class="sidebar-btn" data-i18n-attr="title" title="Tags" data-i18n="nav.tags" data-action="showTagCloud">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-tag"/></svg>
             </button>
             <button class="sidebar-btn" data-i18n-attr="title" title="Dashboard" data-i18n="nav.dashboard" data-action="goToDashboard">
@@ -117,7 +117,7 @@
                 <div id="tag-chips" class="tag-chips" style="display:none;"></div>
 
                 <div id="bulk-bar" class="bulk-bar">
-                    <input type="checkbox" id="bulk-select-all" class="bulk-select-all" title="Select all">
+                    <input type="checkbox" id="bulk-select-all" class="bulk-select-all" data-i18n-attr="title" title="Select all" data-i18n="projects.select_all">
                     <span class="bulk-count" id="bulk-count" data-i18n="projects.bulk_count">0 selected</span>
                     <button class="btn btn-secondary" id="bulk-archive-btn" data-action="handleBulkArchive" data-i18n="projects.bulk_status" style="display:none;">Archive</button>
                     <button class="btn btn-secondary" id="bulk-activate-btn" data-action="handleBulkActivate" data-i18n="projects.bulk_activate" style="display:none;">Activate</button>
@@ -161,18 +161,18 @@
                     <div class="form-group">
                         <label data-i18n="common.status">Status</label>
                         <select id="create-status" class="form-control">
-                            <option value="active">Active</option>
-                            <option value="archived">Archived</option>
-                            <option value="completed">Completed</option>
+                            <option value="active" data-i18n="common.active">Active</option>
+                            <option value="archived" data-i18n="common.archived">Archived</option>
+                            <option value="completed" data-i18n="common.completed">Completed</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label data-i18n="common.priority">Priority</label>
                         <select id="create-priority" class="form-control">
-                            <option value="low">Low</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="high">High</option>
-                            <option value="critical">Critical</option>
+                            <option value="low" data-i18n="common.low">Low</option>
+                            <option value="medium" selected data-i18n="common.medium">Medium</option>
+                            <option value="high" data-i18n="common.high">High</option>
+                            <option value="critical" data-i18n="common.critical">Critical</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -195,7 +195,7 @@
                 <div id="create-error" class="modal-error"></div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" data-action="hideCreateModal" data-i18n="common.cancel">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" data-i18n="projects.create_project">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-svg"><use href="#icon-folder-plus"/></svg>
                         Create Project
                     </button>
@@ -213,8 +213,8 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon-svg"><use href="#icon-edit"/></svg>
                     </div>
                     <div>
-                        <h3 class="modal-h3">Edit Project</h3>
-                        <p class="modal-subtitle">Update project details</p>
+                        <h3 class="modal-h3" data-i18n="projects.edit_title">Edit Project</h3>
+                        <p class="modal-subtitle" data-i18n="projects.edit_subtitle">Update project details</p>
                     </div>
                 </div>
                 <button class="modal-close" data-action="hideEditProjectModal">&times;</button>
@@ -222,52 +222,52 @@
             <form id="edit-form" class="modal-form-pad">
                 <input type="hidden" id="edit-project-id">
                 <div class="form-group">
-                    <label>Project Name</label>
+                    <label data-i18n="projects.name_label">Project Name</label>
                     <input type="text" id="edit-project-name" class="form-control" required autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label>Description <span class="opt-label">(optional)</span></label>
+                    <label data-i18n="projects.description_label">Description <span class="opt-label" data-i18n="common.optional">(optional)</span></label>
                     <textarea id="edit-project-desc" class="form-control modal-textarea" rows="2"></textarea>
                 </div>
                 <div class="modal-grid">
                     <div class="form-group">
-                        <label>Status</label>
+                        <label data-i18n="common.status">Status</label>
                         <select id="edit-status" class="form-control">
-                            <option value="active">Active</option>
-                            <option value="archived">Archived</option>
-                            <option value="completed">Completed</option>
+                            <option value="active" data-i18n="common.active">Active</option>
+                            <option value="archived" data-i18n="common.archived">Archived</option>
+                            <option value="completed" data-i18n="common.completed">Completed</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Priority</label>
+                        <label data-i18n="common.priority">Priority</label>
                         <select id="edit-priority" class="form-control">
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                            <option value="critical">Critical</option>
+                            <option value="low" data-i18n="common.low">Low</option>
+                            <option value="medium" data-i18n="common.medium">Medium</option>
+                            <option value="high" data-i18n="common.high">High</option>
+                            <option value="critical" data-i18n="common.critical">Critical</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Client <span class="opt-label">(optional)</span></label>
-                        <input type="text" id="edit-client" class="form-control" placeholder="e.g. Acme Corp">
+                        <label data-i18n="projects.client_label">Client <span class="opt-label" data-i18n="common.optional">(optional)</span></label>
+                        <input type="text" id="edit-client" class="form-control" data-i18n-placeholder="projects.client_placeholder" placeholder="e.g. Acme Corp">
                     </div>
                     <div class="form-group">
-                        <label>Owner</label>
+                        <label data-i18n="common.owner">Owner</label>
                         <select id="edit-owner" class="form-control"></select>
                     </div>
                     <div class="form-group">
-                        <label>Tags <span class="opt-label">(comma-separated)</span></label>
-                        <input type="text" id="edit-tags" class="form-control" placeholder="e.g. external,urgent">
+                        <label data-i18n="projects.tags_label">Tags <span class="opt-label" data-i18n="common.comma_separated">(comma-separated)</span></label>
+                        <input type="text" id="edit-tags" class="form-control" data-i18n-placeholder="projects.tags_placeholder" placeholder="e.g. external,urgent">
                     </div>
                     <div class="form-group">
-                        <label>Due Date <span class="opt-label">(optional)</span></label>
+                        <label data-i18n="projects.due_label">Due Date <span class="opt-label" data-i18n="common.optional">(optional)</span></label>
                         <input type="date" id="edit-due" class="form-control">
                     </div>
                 </div>
                 <div id="edit-error" class="modal-error"></div>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" data-action="hideEditProjectModal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-action="hideEditProjectModal" data-i18n="common.cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="common.save_changes">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -277,14 +277,14 @@
     <div id="delete-modal" class="modal-overlay" style="display:none;">
         <div class="modal modal-max-420">
             <div class="modal-header">
-                <h3>Delete Project</h3>
+                <h3 data-i18n="projects.delete_title">Delete Project</h3>
                 <button class="modal-close" data-action="hideDeleteModal">&times;</button>
             </div>
             <div class="del-body">
-                <p class="del-text">Are you sure you want to delete <strong id="delete-project-name"></strong>? This action cannot be undone and will remove all associated scans, hosts, and data.</p>
+                <p class="del-text" data-i18n="projects.delete_confirm_text">Are you sure you want to delete <strong id="delete-project-name"></strong>? This action cannot be undone and will remove all associated scans, hosts, and data.</p>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" data-action="hideDeleteModal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="delete-confirm-btn" data-action="confirmDeleteProject">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-action="hideDeleteModal" data-i18n="common.cancel">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="delete-confirm-btn" data-action="confirmDeleteProject" data-i18n="common.delete">Delete</button>
                 </div>
             </div>
         </div>
@@ -299,8 +299,8 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon-svg"><use href="#icon-tag"/></svg>
                     </div>
                     <div>
-                        <h3 class="modal-h3">Tags</h3>
-                        <p class="modal-subtitle">Click a tag to filter projects</p>
+                        <h3 class="modal-h3" data-i18n="projects.tags_title">Tags</h3>
+                        <p class="modal-subtitle" data-i18n="projects.tags_subtitle">Click a tag to filter projects</p>
                     </div>
                 </div>
                 <button class="modal-close" data-action="hideTagCloud">&times;</button>
@@ -327,28 +327,28 @@
                     <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="about-hero-icon">
                         <use href="#icon-shield"/>
                     </svg>
-                    <h2 class="about-hero-title">NexusMap</h2>
+                    <h2 class="about-hero-title" data-i18n="app.name">NexusMap</h2>
                     <p class="about-hero-version" data-i18n="about.network_scanner"><span class="app-version" data-i18n="app.version">v0.9.4</span> &middot; Network Scanner &amp; Asset Management</p>
                 </div>
                 <div class="about-desc">
                     <p data-i18n="about.description">NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
-                    <p class="about-desc-sub">Built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach. Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
+                    <p class="about-desc-sub" data-i18n="about.subtitle">Built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach. Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
                 </div>
                 <div class="about-pills">
-                    <span class="about-pill">Go</span>
-                    <span class="about-pill">SQLite</span>
-                    <span class="about-pill">Vanilla JS</span>
+                    <span class="about-pill" data-i18n="about.pill_go">Go</span>
+                    <span class="about-pill" data-i18n="about.pill_sqlite">SQLite</span>
+                    <span class="about-pill" data-i18n="about.pill_vanilla_js">Vanilla JS</span>
                 </div>
                 <div class="about-ftr">
                     <span data-i18n="about.developed_by">Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></span>
-                    <button class="btn btn-secondary btn-sm" data-action="checkForUpdates">Check for Updates</button>
+                    <button class="btn btn-secondary btn-sm" data-action="checkForUpdates" data-i18n="about.check_updates">Check for Updates</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        NexusMap <span class="app-version" data-i18n="app.version">v0.9.4</span> &middot; <span data-i18n="footer.made_with">Made with</span> <span class="footer-accent" data-i18n="footer.vibe">vibe coding</span> <span data-i18n="footer.by">by</span> <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
+        <span data-i18n="app.name">NexusMap</span> <span class="app-version" data-i18n="app.version">v0.9.4</span> &middot; <span data-i18n="footer.made_with">Made with</span> <span class="footer-accent" data-i18n="footer.vibe">vibe coding</span> <span data-i18n="footer.by">by</span> <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="footer-link">Mahdi Alemi</a>
     </div>
 </body>
 </html>

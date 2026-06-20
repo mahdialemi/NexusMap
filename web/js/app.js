@@ -339,7 +339,7 @@ function showToast(message, type = 'success') {
     toast.setAttribute('role', 'alert');
     const closeBtn = document.createElement('button');
     closeBtn.className = 'toast-close';
-    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.setAttribute('aria-label', t('common.close', 'Close'));
     closeBtn.innerHTML = '&times;';
     closeBtn.addEventListener('click', () => toast.remove());
     toast.appendChild(closeBtn);

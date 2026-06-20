@@ -92,7 +92,7 @@
             });
             if (importedFiles.length < 5) {
                 html += `<div onclick="document.getElementById('import-file-input').click()" style="display:flex;align-items:center;gap:4px;padding:6px 10px;border:1px dashed var(--border);border-radius:6px;font-size:0.8rem;color:var(--accent);cursor:pointer;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add file
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ${t('import.add_file', 'Add file')}
                 </div>`;
             }
             html += '</div>';
@@ -233,7 +233,7 @@
                     document.getElementById('import-format').textContent = data.format;
 
                     if (data.items && data.items.length) {
-                        let tableHtml = '<table class="data-table" style="margin-top:10px;font-size:0.8rem;"><thead><tr><th style="width:28px;"><input type="checkbox" id="preview-select-all" checked onchange="togglePreviewAll()"></th><th>IP</th><th>Port</th><th>Proto</th><th>State</th><th>Service</th></tr></thead><tbody>';
+                        let tableHtml = '<table class="data-table" style="margin-top:10px;font-size:0.8rem;"><thead><tr><th style="width:28px;"><input type="checkbox" id="preview-select-all" checked onchange="togglePreviewAll()"></th><th>' + t('common.ip', 'IP') + '</th><th>' + t('common.port', 'Port') + '</th><th>' + t('common.proto', 'Proto') + '</th><th>' + t('common.state', 'State') + '</th><th>' + t('common.service', 'Service') + '</th></tr></thead><tbody>';
                         data.items.forEach((item, idx) => {
                             const stateBadge = item.state === 'open' ? 'badge-open' : item.state === 'filtered' ? 'badge-filtered' : 'badge-closed';
                             tableHtml += `<tr>
@@ -322,7 +322,7 @@
                     const d = new Date(item.created_at);
                     const dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const statusIcon = item.status === 'completed'
-                        ? '<span style="color:#22c55e;" title="Completed">&#10003;</span>'
+                        ? '<span style="color:#22c55e;" title="' + t('import.completed_status', 'Completed') + '">&#10003;</span>'
                         : '<span style="color:#eab308;" title="' + esc(item.status) + '">&#9679;</span>';
                     html += `<tr>
                         <td style="white-space:nowrap;font-size:0.8rem;">${dateStr}</td>

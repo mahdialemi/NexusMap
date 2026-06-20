@@ -322,12 +322,12 @@
                 </div>
                 <div class="about-desc">
                     <p data-i18n="about.description">NexusMap is a network scanner management platform. It allows you to create projects, run Nmap scans, manage scan profiles, and consolidate results in one centralized dashboard. Built for security professionals who need to organize and track their network assessments efficiently.</p>
-                    <p class="about-desc-sub">Built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach. Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
+                    <p class="about-desc-sub" data-i18n="about.subtitle">Built using <strong>Vibe Coding</strong> &mdash; an AI-assisted development approach. Powered by <strong>OpenCode</strong> CLI with the <strong>Big Pickle</strong> model.</p>
                 </div>
                 <div class="about-pills">
-                    <span class="about-pill">Go</span>
-                    <span class="about-pill">SQLite</span>
-                    <span class="about-pill">Vanilla JS</span>
+                    <span class="about-pill" data-i18n="about.pill_go">Go</span>
+                    <span class="about-pill" data-i18n="about.pill_sqlite">SQLite</span>
+                    <span class="about-pill" data-i18n="about.pill_vanilla_js">Vanilla JS</span>
                 </div>
                 <div class="about-ftr">
                     <span data-i18n="about.developed_by">Developed by <a href="https://github.com/mahdialemi" target="_blank" rel="noopener noreferrer" class="about-link">Mahdi Alemi</a></span>
@@ -353,7 +353,7 @@
                     <div class="form-group">
                         <label data-i18n="table.password">Password</label>
                         <div class="modal-pw-wrap">
-                            <input type="password" id="new-password" class="form-control modal-pw-input" required minlength="6" placeholder="Min 6 characters">
+                            <input type="password" id="new-password" class="form-control modal-pw-input" required minlength="6" data-i18n-placeholder="admin.password_placeholder" placeholder="Min 6 characters">
                         <button type="button" data-action="togglePassword" data-input="new-password" class="toggle-pw-inline">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
                         </button>
@@ -414,7 +414,7 @@
                 <div class="form-group">
                     <label data-i18n="admin.new_password">New Password</label>
                     <div class="modal-pw-wrap">
-                        <input type="password" id="reset-password" class="form-control modal-pw-input" required minlength="6" placeholder="Min 6 characters">
+                        <input type="password" id="reset-password" class="form-control modal-pw-input" required minlength="6" data-i18n-placeholder="admin.password_placeholder" placeholder="Min 6 characters">
                         <button type="button" data-action="togglePassword" data-input="reset-password" class="toggle-pw-inline">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
                         </button>

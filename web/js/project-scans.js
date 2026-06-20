@@ -441,7 +441,7 @@
                 return;
             }
 
-            if (countEl) countEl.textContent = scans.length + ' of ' + allScans.length;
+            if (countEl) countEl.textContent = scans.length + ' ' + t('scans.of', 'of') + ' ' + allScans.length;
 
             const sort = document.getElementById('scan-sort').value;
             scans.sort((a, b) => {
