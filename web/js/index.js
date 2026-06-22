@@ -35,7 +35,7 @@ async function indexInit() {
     }
     await populateOwners();
     await loadProjects();
-    setInterval(async function() {
+    $projectCountInterval = setInterval(async function() {
         if (document.visibilityState === 'visible') {
             try {
                 var res = await fetch('/api/projects');
@@ -590,7 +590,7 @@ function renderTagCloud(tags) {
             ' data-tag="'+safeTag+'" data-raw="'+(t.name||'').replace(/"/g,'&quot;')+'" title="' + t('common.click_to_toggle') + '">' +
             (sel?'<span style="font-size:0.65rem;">&#10003;</span> ':'') +
             '<span>#'+safeTag+'</span>' +
-            '<span style="font-size:0.65rem;margin-left:2px;">'+t.count+'</span>' +
+            '<span style="font-size:0.65rem;margin-left:2px;">'+esc(t.count)+'</span>' +
         '</div>';
     });
     html += '</div>';
@@ -756,5 +756,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    window.addEventListener('beforeunload', function() {
+        if (typeof projectCountInterval !== 'undefined') clearInterval(projectCountInterval);
+    });
     indexInit();
 });

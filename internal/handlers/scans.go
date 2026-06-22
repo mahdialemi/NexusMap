@@ -43,6 +43,10 @@ func (s *Server) HandleCreateScan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !s.requireProjectAccess(w, r, int(projectID)) {
+		return
+	}
+
 	if req.Profile == "" {
 		req.Profile = "default"
 	}
@@ -115,6 +119,10 @@ func (s *Server) HandleRunScan(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
 
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
+
 	scan, err := s.DB.GetScan(scanID)
 	if err != nil {
 		jsonResponse(w, 404, map[string]string{"error": "scan not found"})
@@ -186,16 +194,7 @@ func (s *Server) runCommand(scanID int, cmdStr, target, username string) {
 	// Add nmap output flags if the binary is nmap
 	if strings.ToLower(bin) == "nmap" {
 		outBase := filepath.Join(outDir, "scan")
-		hasOutput := false
-		for _, a := range args {
-			if strings.HasPrefix(a, "-oX") || strings.HasPrefix(a, "-oN") || strings.HasPrefix(a, "-oG") {
-				hasOutput = true
-				break
-			}
-		}
-		if !hasOutput {
-			args = append([]string{"-oX", outBase + ".xml", "-oN", outBase + ".nmap", "-oG", outBase + ".gnmap"}, args...)
-		}
+		args = append([]string{"-oX", outBase + ".xml", "-oN", outBase + ".nmap", "-oG", outBase + ".gnmap"}, args...)
 		args = append(args, "-vvv")
 	}
 
@@ -225,16 +224,35 @@ func (s *Server) runCommand(scanID int, cmdStr, target, username string) {
 	// Track for stop
 	s.NmapRunner.TrackCmd(scanID, cmd, buf)
 
-	done := make(chan struct{})
+	type scanResult struct {
+		err error
+	}
+	resultCh := make(chan scanResult, 1)
+
 	go func() {
+		defer func() {
+			s.NmapRunner.UntrackCmd(scanID)
+			logF.Sync()
+		}()
 		ticker := time.NewTicker(500 * time.Millisecond)
 		defer ticker.Stop()
+
+		cmdErr := make(chan error, 1)
+		go func() {
+			cmdErr <- cmd.Wait()
+		}()
+
 		for {
 			select {
 			case <-ticker.C:
 				if s.NmapRunner.WasStopped(scanID) {
+					if cmd.Process != nil {
+						cmd.Process.Kill()
+					}
+					<-cmdErr
 					s.DB.UpdateScanStatus(scanID, "stopped", 0, "")
 					s.NmapRunner.ClearPhase(scanID)
+					resultCh <- scanResult{fmt.Errorf("stopped")}
 					return
 				}
 				progress, phase := parseNmapProgress(s.NmapRunner.GetOutput(scanID))
@@ -242,18 +260,16 @@ func (s *Server) runCommand(scanID int, cmdStr, target, username string) {
 				if phase != "" {
 					s.NmapRunner.SetPhase(scanID, phase)
 				}
-			case <-done:
+			case err := <-cmdErr:
 				s.NmapRunner.ClearPhase(scanID)
+				resultCh <- scanResult{err}
 				return
 			}
 		}
 	}()
 
-	err = cmd.Wait()
-	close(done)
-	s.NmapRunner.UntrackCmd(scanID)
-
-	logF.Sync()
+	result := <-resultCh
+	err = result.err
 
 	if err != nil || s.NmapRunner.WasStopped(scanID) {
 		if s.NmapRunner.WasStopped(scanID) {
@@ -263,7 +279,6 @@ func (s *Server) runCommand(scanID int, cmdStr, target, username string) {
 			s.DB.UpdateScanStatus(scanID, "error", 0, "")
 			s.LogAndNotify("scan_error", fmt.Sprintf("Scan on %s failed: %s", target, err.Error()), username)
 		}
-		s.NmapRunner.ClearPhase(scanID)
 		return
 	}
 
@@ -316,6 +331,10 @@ func (s *Server) HandleStopScan(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
+
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
 
 	if s.NmapRunner.Stop(scanID) {
 		s.DB.UpdateScanStatus(scanID, "stopped", 0, "")
@@ -520,9 +539,10 @@ func (s *Server) HandleScanResults(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fallback: parse from scans/{scanID}/scan.xml (returns all results as one page)
-
-	// Fallback: parse from scans/{scanID}/scan.xml
-	outDir := filepath.Join(s.NmapRunner.ScansDir(), fmt.Sprintf("%d", scanID))
+	outDir, _ := s.DB.GetScanOutputDir(scanID)
+	if outDir == "" {
+		outDir = filepath.Join(s.NmapRunner.ScansDir(), fmt.Sprintf("%d", scanID))
+	}
 	xmlPath := filepath.Join(outDir, "scan.xml")
 	if xmlData, err := os.ReadFile(xmlPath); err == nil {
 		hosts, ports, _, _, parseErr := nmap.ParseXML(string(xmlData))
@@ -612,6 +632,10 @@ func (s *Server) HandleConfirmScan(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
 
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
+
 	scan, err := s.DB.GetScan(scanID)
 	if err != nil {
 		jsonResponse(w, 404, map[string]string{"error": "scan not found"})
@@ -646,6 +670,10 @@ func (s *Server) HandleConfirmAllScans(w http.ResponseWriter, r *http.Request) {
 	pid := r.PathValue("id")
 	projectID := parseIntID(pid)
 
+	if !s.requireProjectAccess(w, r, projectID) {
+		return
+	}
+
 	count, err := s.DB.ConfirmAllPending(projectID)
 	if err != nil {
 		serverError(w, err)
@@ -663,6 +691,10 @@ func (s *Server) HandleRejectScan(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
 	scanID := parseIntID(id)
+
+	if !s.requireScanAccess(w, r, scanID) {
+		return
+	}
 
 	if err := s.DB.RejectScan(scanID); err != nil {
 		serverError(w, err)
@@ -829,11 +861,40 @@ func parseNmapProgress(data string) (int, string) {
 	if data == "" {
 		return 0, ""
 	}
+	pct := parseNmapPercent(data)
+	if pct > 0 {
+		return pct, ""
+	}
 	phase := parseNmapVerboseState(data)
 	if phase != "" {
 		return 0, phase
 	}
 	return 0, "Starting..."
+}
+
+func parseNmapPercent(data string) int {
+	lines := strings.Split(data, "\n")
+	for i := len(lines) - 1; i >= 0; i-- {
+		line := strings.TrimSpace(lines[i])
+		if !strings.HasPrefix(line, "Stats:") {
+			continue
+		}
+		// e.g. "Stats: 0:00:05 elapsed; ... Service scan Timing: About 50.00% done"
+		idx := strings.Index(line, "About ")
+		if idx < 0 {
+			continue
+		}
+		end := strings.Index(line[idx:], "%")
+		if end < 0 {
+			continue
+		}
+		pctStr := line[idx+6 : idx+end]
+		var pct float64
+		if _, err := fmt.Sscanf(pctStr, "%f", &pct); err == nil {
+			return int(pct)
+		}
+	}
+	return 0
 }
 
 func parseNmapVerboseState(data string) string {

@@ -48,7 +48,7 @@
                     }
                     // Convert to ISO format (append seconds if not present)
                     if (scheduledAt.length === 16) scheduledAt += ':00';
-                    scheduledAt = scheduledAt.replace('T', ' ') + ':00';
+                    scheduledAt = scheduledAt.replace('T', ' ');
                 } else {
                     const sel = document.getElementById('sched-dep-scan');
                     dependsOnScanID = parseInt(sel.value);

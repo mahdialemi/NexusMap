@@ -252,16 +252,13 @@
             }
         });
 
-        document.getElementById('compare-modal').addEventListener('click', function(e) {
-            if (e.target === this) hideCompareModal();
-        });
-
-        document.getElementById('profile-manager-modal').addEventListener('click', function(e) {
-            if (e.target === this) closeProfileManager();
-        });
-
-        document.getElementById('advanced-filter-modal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal('advanced-filter-modal');
-        });
+        (function() {
+            var m = document.getElementById('compare-modal');
+            if (m) m.addEventListener('click', function(e) { if (e.target === this) hideCompareModal(); });
+            m = document.getElementById('profile-manager-modal');
+            if (m) m.addEventListener('click', function(e) { if (e.target === this) closeProfileManager(); });
+            m = document.getElementById('advanced-filter-modal');
+            if (m) m.addEventListener('click', function(e) { if (e.target === this) closeModal('advanced-filter-modal'); });
+        })();
 
         init();

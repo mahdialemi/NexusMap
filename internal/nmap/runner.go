@@ -18,7 +18,7 @@ type cmdInfo struct {
 type Runner struct {
 	scansDir string
 	nmapPath string
-	mu       sync.Mutex
+	mu       sync.RWMutex
 	cmds     map[int]*cmdInfo
 	stopped  map[int]bool
 	phases   map[int]string
@@ -52,6 +52,7 @@ func (r *Runner) UntrackCmd(scanID int) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	delete(r.cmds, scanID)
+	delete(r.stopped, scanID)
 }
 
 func (r *Runner) Stop(scanID int) bool {
@@ -77,15 +78,15 @@ func (r *Runner) StopAll() {
 }
 
 func (r *Runner) IsRunning(scanID int) bool {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	_, ok := r.cmds[scanID]
 	return ok
 }
 
 func (r *Runner) WasStopped(scanID int) bool {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	return r.stopped[scanID]
 }
 
@@ -102,14 +103,14 @@ func (r *Runner) ClearPhase(scanID int) {
 }
 
 func (r *Runner) GetPhase(scanID int) string {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	return r.phases[scanID]
 }
 
 func (r *Runner) GetOutput(scanID int) string {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	if ci, ok := r.cmds[scanID]; ok && ci.buf != nil {
 		return ci.buf.String()
 	}

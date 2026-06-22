@@ -101,8 +101,8 @@ func (a *Auth) ValidateSession(sessionID string) (*db.User, string, error) {
 
 	var user db.User
 	err = a.DB.QueryRow(
-		"SELECT id, username, role, created_at, must_change_password, COALESCE(theme,'dark'), COALESCE(lang,'en') FROM users WHERE id = ?", userID,
-	).Scan(&user.ID, &user.Username, &user.Role, &user.CreatedAt, &user.MustChangePassword, &user.Theme, &user.Lang)
+		"SELECT id, username, role, created_at, must_change_password, COALESCE(is_superadmin,0), COALESCE(theme,'dark'), COALESCE(lang,'en') FROM users WHERE id = ?", userID,
+	).Scan(&user.ID, &user.Username, &user.Role, &user.CreatedAt, &user.MustChangePassword, &user.IsSuperadmin, &user.Theme, &user.Lang)
 	if err != nil {
 		return nil, "", err
 	}
@@ -233,7 +233,7 @@ func (a *Auth) GetUsers() ([]db.User, error) {
 }
 
 func (a *Auth) DeleteUser(id int) error {
-	res, err := a.DB.Exec("DELETE FROM users WHERE id = ? AND username != 'admin'", id)
+	res, err := a.DB.Exec("DELETE FROM users WHERE id = ? AND COALESCE(is_superadmin,0) = 0", id)
 	if err != nil {
 		return err
 	}
@@ -245,17 +245,17 @@ func (a *Auth) DeleteUser(id int) error {
 }
 
 func (a *Auth) UpdateUser(id int, role string) error {
-	_, err := a.DB.Exec("UPDATE users SET role = ? WHERE id = ? AND username != 'admin'", role, id)
+	_, err := a.DB.Exec("UPDATE users SET role = ? WHERE id = ? AND COALESCE(is_superadmin,0) = 0", role, id)
 	return err
 }
 
 func (a *Auth) ResetUserPassword(id int, newPassword string) error {
-	var username string
-	err := a.DB.QueryRow("SELECT username FROM users WHERE id = ?", id).Scan(&username)
+	var isSuper int
+	err := a.DB.QueryRow("SELECT COALESCE(is_superadmin,0) FROM users WHERE id = ?", id).Scan(&isSuper)
 	if err != nil {
 		return err
 	}
-	if username == "admin" {
+	if isSuper == 1 {
 		return fmt.Errorf("cannot reset admin password via this endpoint")
 	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), 12)
@@ -414,6 +414,10 @@ func CSRFMiddleware(a *Auth) func(http.HandlerFunc) http.HandlerFunc {
 				json.NewEncoder(w).Encode(map[string]string{"error": "invalid csrf token"})
 				return
 			}
+
+			// Rotate CSRF token after successful validation
+			newToken := generateSessionID()
+			a.DB.Exec("UPDATE sessions SET csrf_token = ? WHERE id = ?", newToken, cookie.Value)
 
 			next(w, r)
 		}

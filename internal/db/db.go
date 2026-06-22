@@ -288,6 +288,7 @@ func (d *DB) Init() error {
 		`ALTER TABLE projects ADD COLUMN is_pinned INTEGER DEFAULT 0`,
 		`ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'dark'`,
 		`ALTER TABLE users ADD COLUMN lang TEXT DEFAULT 'en'`,
+		`ALTER TABLE users ADD COLUMN is_superadmin INTEGER DEFAULT 0`,
 	}
 
 	for i, sql := range migrations {
@@ -555,7 +556,7 @@ func (d *DB) SeedAdmin(adminPassword string) (string, error) {
 		return "", err
 	}
 	_, err = d.Exec(
-		"INSERT INTO users (username, password_hash, role, must_change_password) VALUES (?, ?, 'admin', 1)",
+		"INSERT INTO users (username, password_hash, role, must_change_password, is_superadmin) VALUES (?, ?, 'admin', 1, 1)",
 		"admin", hash,
 	)
 	return rawPassword, err
